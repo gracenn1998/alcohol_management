@@ -18,7 +18,7 @@ class _AddDriver extends State<AddDriver> {
         title: ListTile(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
-            color: Colors.white,
+            color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
             },
@@ -26,7 +26,7 @@ class _AddDriver extends State<AddDriver> {
           title: Text('Thêm tài xế', style: appBarTxTStyle(), textAlign: TextAlign.center),
           trailing: IconButton(
             icon: Icon(Icons.check),
-            color: Colors.white,
+            color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
             },

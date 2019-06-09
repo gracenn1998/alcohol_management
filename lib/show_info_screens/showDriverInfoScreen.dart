@@ -3,6 +3,7 @@ import '../styles/styles.dart';
 
 
 class ShowDriverInfo extends StatelessWidget {
+  const ShowDriverInfo({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,7 +11,7 @@ class ShowDriverInfo extends StatelessWidget {
         title: ListTile(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
-            color: Colors.white,
+            color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
             },
@@ -18,7 +19,7 @@ class ShowDriverInfo extends StatelessWidget {
           title: Text('Thông tin tài xế', style: appBarTxTStyle(), textAlign: TextAlign.center,),
           trailing: IconButton(
             icon: Icon(Icons.edit),
-            color: Colors.white,
+            color: Color(0xff06E2B3),
             onPressed: () {
               //editttt
             },
