@@ -1,32 +1,82 @@
 import 'package:flutter/material.dart';
 import '../styles/styles.dart';
+import '../edit_screens/editDriverScreen.dart';
 
-
-class ShowDriverInfo extends StatelessWidget {
+class ShowDriverInfo extends StatefulWidget {
   const ShowDriverInfo({Key key}) : super(key: key);
+  @override
+  _ShowDriverInfoState createState() => _ShowDriverInfoState();
+}
+
+
+class _ShowDriverInfoState extends State<ShowDriverInfo> {
+
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
+  List<Widget> _scaffoldBodyOptions = <Widget>[
+    Text(
+      'List tai xe',
+      style: optionStyle,
+    ),
+
+    showAllInfo(),
+    
+    editAllInfo(),
+    
+  ];
+
+  List<Widget> _appBarRightIconOptions = <Widget>[
+    Container(),
+//    Icon(Icons.arrow_back_ios),
+    Icon(Icons.edit),
+
+    Icon(Icons.check),
+
+  ];
+
+  static const List<Widget> _appBarTitleOptions = <Widget>[
+    Text('Tất cả tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
+
+    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
+
+    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
+
+  ];
+
+  int _selectedIndex = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: ListTile(
-          leading: IconButton(
+          leading: _selectedIndex >= 1 ? IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
+              setState(() {
+                  _selectedIndex--;
+              });
             },
-          ),
-          title: Text('Thông tin tài xế', style: appBarTxTStyle(), textAlign: TextAlign.center,),
+          ):Container(width: 10.0),
+          title: _appBarTitleOptions[_selectedIndex],
           trailing: IconButton(
-            icon: Icon(Icons.edit),
+            icon: _appBarRightIconOptions.elementAt(_selectedIndex),
             color: Color(0xff06E2B3),
             onPressed: () {
+              print("Before: ");
+              print(_selectedIndex);
               //editttt
+              setState(() {
+                _selectedIndex = 2;
+                print(_selectedIndex);
+              });
             },
           )
         ),
       ),
-      body: showAllInfo(),
+//      body: showAllInfo(),
+      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
 //      floatingActionButton: FloatingActionButton(
 //        onPressed: () {
 //
@@ -216,6 +266,3 @@ BoxDecoration myBoxDecorationEvenLine() {
 
   );
 }
-
-
-
