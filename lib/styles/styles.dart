@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-TextStyle appBarTxTStyle() {
-
-  return TextStyle(
+const appBarTxTStyle =
+  TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w500,
-    color: Colors.white,
-  );
-}
+    color: Colors.white);
+
 
 TextStyle driverStatusDataStyle(status) {
 //  if(status == 0) { //normal

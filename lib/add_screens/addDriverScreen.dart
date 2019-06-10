@@ -23,7 +23,7 @@ class _AddDriver extends State<AddDriver> {
               //backkkk
             },
           ),
-          title: Text('Thêm tài xế', style: appBarTxTStyle(), textAlign: TextAlign.center),
+          title: Text('Thêm tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
           trailing: IconButton(
             icon: Icon(Icons.check),
             color: Color(0xff06E2B3),

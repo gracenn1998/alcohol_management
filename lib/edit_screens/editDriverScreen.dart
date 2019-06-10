@@ -3,6 +3,8 @@ import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
 
 class EditDriverInfo extends StatefulWidget {
+  const EditDriverInfo({Key key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _EditDriverInfoState();
@@ -24,7 +26,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               //backkkk
             },
           ),
-          title: Text('Thông tin tài xế', style: appBarTxTStyle(), textAlign: TextAlign.center),
+          title: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
           trailing: IconButton(
             icon: Icon(Icons.check),
             color: Color(0xff06E2B3),
@@ -34,14 +36,14 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           ),
         ),
       ),
-      body: showAllInfo(),
+      body: editAllInfo(),
       resizeToAvoidBottomPadding: false,
   );
   }
 }
 
 
-Widget showAllInfo() {
+Widget editAllInfo() {
   return Column(
     children: <Widget>[
       Expanded(
@@ -49,19 +51,18 @@ Widget showAllInfo() {
         child: editBasicInfo('Trần Văn A'),
       ),
       Expanded(
-        flex: 19,
-        child: editDetails()
+        flex: 22,
+        child: Container(
+          child: editDetails(),
+//          margin: EdgeInsets.only(bottom: 15.0),
+
+        )
       ),
 
 //      Expanded(
-//        flex: 19,
-//        child: editDetails()
+//        flex: 3,
+//        child: BlankPanel(),
 //      ),
-
-      Expanded(
-        flex: 3,
-        child: BlankPanel(),
-      ),
 
 
     ],
@@ -75,9 +76,9 @@ Widget editBasicInfo(name) {
       child: Row(
         children: <Widget>[
           Container(
-              padding: EdgeInsets.only(left: 15.0),
+              padding: EdgeInsets.only(left: 10.0),
               child: CircleAvatar(
-                radius: 55.0,
+                radius: 50.0,
                 backgroundImage: AssetImage('images/avatar.png'),
               )
           ),
