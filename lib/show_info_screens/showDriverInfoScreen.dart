@@ -14,10 +14,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   List<Widget> _scaffoldBodyOptions = <Widget>[
-    Text(
-      'List tai xe',
-      style: optionStyle,
-    ),
 
     showAllInfo(),
     
@@ -34,7 +30,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   ];
 
   static const List<Widget> _appBarTitleOptions = <Widget>[
-    Text('Tất cả tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
 
     Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
 
@@ -42,13 +37,22 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
   ];
 
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
+    if(_selectedIndex == -1) {
+      return Center(
+          child: Text(
+            'List Tai Xe',
+            style: optionStyle,
+          ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: ListTile(
-          leading: _selectedIndex >= 1 ? IconButton(
+          leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
             onPressed: () {
@@ -57,27 +61,26 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                   _selectedIndex--;
               });
             },
-          ):Container(width: 10.0),
+          ),
           title: _appBarTitleOptions[_selectedIndex],
-          trailing:  _selectedIndex >= 1 ? IconButton(
-            icon: _appBarRightIconOptions.elementAt(_selectedIndex - 1),
+          trailing: IconButton(
+            icon: _appBarRightIconOptions.elementAt(_selectedIndex),
             color: Color(0xff06E2B3),
             onPressed: () {
-              print("Before: ");
-              print(_selectedIndex);
               //editttt
               setState(() {
-                if(_selectedIndex == 1) {
-                  _selectedIndex = 2;
+                if(_selectedIndex == 0) {
+                  _selectedIndex = 1;
                 }
                 else {
                   //save to DTB....
-                  _selectedIndex = 1;
+                  //back to show info page
+                  _selectedIndex = 0;
                 }
 
               });
             },
-          ) :Container(width: 10.0)
+          ),
         ),
       ),
 //      body: showAllInfo(),
