@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "135742924943",
+    "firebase_url": "https://alcohol-management-7fe33.firebaseio.com",
+    "project_id": "alcohol-management-7fe33",
+    "storage_bucket": "alcohol-management-7fe33.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135742924943:android:d9d7998340e7d472",
+        "android_client_info": {
+          "package_name": "nckh.alcohol_management"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "135742924943-ih7ogjkii5p37jts53ap2up60ah9699u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5QNbqkIAPZ6SrzALTel2b87RY2wbEwZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135742924943-ih7ogjkii5p37jts53ap2up60ah9699u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
