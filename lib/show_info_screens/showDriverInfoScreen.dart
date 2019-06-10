@@ -25,8 +25,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     
   ];
 
-  List<Widget> _appBarRightIconOptions = <Widget>[
-    Container(),
+  static const List<Widget> _appBarRightIconOptions = <Widget>[
 //    Icon(Icons.arrow_back_ios),
     Icon(Icons.edit),
 
@@ -60,19 +59,25 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
             },
           ):Container(width: 10.0),
           title: _appBarTitleOptions[_selectedIndex],
-          trailing: IconButton(
-            icon: _appBarRightIconOptions.elementAt(_selectedIndex),
+          trailing:  _selectedIndex >= 1 ? IconButton(
+            icon: _appBarRightIconOptions.elementAt(_selectedIndex - 1),
             color: Color(0xff06E2B3),
             onPressed: () {
               print("Before: ");
               print(_selectedIndex);
               //editttt
               setState(() {
-                _selectedIndex = 2;
-                print(_selectedIndex);
+                if(_selectedIndex == 1) {
+                  _selectedIndex = 2;
+                }
+                else {
+                  //save to DTB....
+                  _selectedIndex = 1;
+                }
+
               });
             },
-          )
+          ) :Container(width: 10.0)
         ),
       ),
 //      body: showAllInfo(),
