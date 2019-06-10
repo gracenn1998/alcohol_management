@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import '../styles/styles.dart';
 import "package:alcohol_management/ava.dart";
 import "package:alcohol_management/show_info_screens/showDriverInfoScreen.dart";
 
@@ -27,7 +28,7 @@ class ShowAllDrivers extends StatelessWidget {
 }
 
 List<String> getListDrivers() {
-  var drivers = List<String>.generate(5, (counter) => "Tài xế $counter");
+  var drivers = List<String>.generate(10, (counter) => "Tài xế $counter");
   return drivers;
 }
 
@@ -37,48 +38,64 @@ Widget getListDriversView() {
     itemCount: listDrivers.length,
     itemBuilder: (context, index) {
       return
-        ListTile(
-          leading: Container(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
-            width: 50.0,
-            height: 70.0,
-            child: CircleAvatar(
-              radius: 50.0,
-              backgroundImage: AssetImage('images/ava.png'),
-            ),
-          ),
-          title: Padding(
-            padding: EdgeInsets.only(top: 5.0),
-            child: Text(listDrivers[index], style: driverNameStyle(),),
-          ),
-          subtitle: Column(
+      Container(
+        height: 120.0,
+          color: Colors.white,
+          child: Row(
             children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 5.0),
-                child: Row(
-                  children: <Widget>[
-                    Text('Trạng thái: ', style: driverStatusTitleStyle(),),
-                    Text('Đang làm việc', style: driverStatusTitleStyle(),),
-                  ],
-                ),
+              Container(
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: CircleAvatar(
+                    radius: 45.0,
+                    backgroundImage: AssetImage('images/avatar.png'),
+                  )
               ),
 
-              Row(
-                children: <Widget>[
-                  Text('Nồng dộ cồn: ', style: driverStatusTitleStyle(),),
-                  Text('0.05%', style: driverStatusTitleStyle(),),
-                ],
+              Expanded(
+                flex: 4,
+                child: Container(
+
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(bottom: 10.0),
+                          child: Text(listDrivers[index], style: driverNameStyle()),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(bottom: 5.0),
+                          child: Row(
+                            children: <Widget>[
+                              Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
+                              Text("Bình thường", style: driverStatusDataStyle(0)),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
+                            Text("0.5%", style: driverStatusDataStyle(0)),
+                          ],
+                        ),
+                      ],
+                    )
+                ),
               ),
+              Expanded(
+                flex: 1,
+                child: Icon(Icons.delete, size: 40.0, color: Color(0xff0A2463),),
+              )
+
+
+
+
+
             ],
-          ),
-          trailing: Icon(Icons.delete, size: 40.0, color: Color(0xff0A2463),),
-          onTap: () {
-            debugPrint("Show information of ${listDrivers[index]}");
-            ShowDriverInfo(
-              key: PageStorageKey('Page1'),
-            );
-          },
-        );
+          )
+
+      );
     },
     separatorBuilder: (context, index) {
       return Divider(height: 1.0,);
@@ -87,18 +104,3 @@ Widget getListDriversView() {
   return listView;
 }
 
-TextStyle driverStatusTitleStyle() {
-  return TextStyle(
-    fontSize: 15.0,
-    fontWeight: FontWeight.w400,
-    color: Color(0xff8391b3),
-  );
-}
-
-TextStyle driverNameStyle() {
-  return TextStyle(
-    fontSize: 24.0,
-    fontWeight: FontWeight.w700,
-    color: Colors.black,
-  );
-}
