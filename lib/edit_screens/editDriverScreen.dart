@@ -133,7 +133,7 @@ Widget editDetails(id, idCard, address, email, gender, dob) {
             editDetailInfo('CMND', idCard, 0 ),
             editDetailInfo('Địa chỉ', address, 1 ),
             editDetailInfo('Email', email, 0 ),
-            editDetailInfo('Giới tính', gender, 1 ),
+            editDetailInfo('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
             editDetailInfo('Ngày sinh', dob, 0 ),
 
             showDetailInfo('', '', 0 ),

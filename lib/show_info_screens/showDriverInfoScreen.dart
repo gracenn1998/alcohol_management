@@ -73,7 +73,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Text('loading...');
           if(_selectedIndex == 0) {
-            print(snapshot.data.documents[0]['name']);
             return showAllInfo(snapshot.data.documents[0]);
           }
           return editAllInfo(snapshot.data.documents[0]);
