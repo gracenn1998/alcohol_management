@@ -18,6 +18,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   static const List<Widget> _widgetOptions = <Widget>[
     ShowDriverInfo(
       key: PageStorageKey('Page1'),
+      dID: 'TX0001',
     ),
     Text(
       'Hanh Trinh',

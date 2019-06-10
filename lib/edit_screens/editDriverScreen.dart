@@ -2,58 +2,60 @@ import 'package:flutter/material.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
 
-class EditDriverInfo extends StatefulWidget {
-  const EditDriverInfo({Key key}) : super(key: key);
+//class EditDriverInfo extends StatefulWidget {
+//  const EditDriverInfo({Key key}) : super(key: key);
+//
+//  @override
+//  State<StatefulWidget> createState() {
+//    return _EditDriverInfoState();
+//  }
+//}
 
-  @override
-  State<StatefulWidget> createState() {
-    return _EditDriverInfoState();
-  }
-}
-
-class _EditDriverInfoState extends State<EditDriverInfo> {
-  String name = "Trần Văn A";
-
-  Widget build(BuildContext context) {
-
-  return Scaffold(
-      appBar: AppBar(
-        title: ListTile(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //backkkk
-            },
-          ),
-          title: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
-          trailing: IconButton(
-            icon: Icon(Icons.check),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //backkkk
-            },
-          ),
-        ),
-      ),
-      body: editAllInfo(),
-      resizeToAvoidBottomPadding: false,
-  );
-  }
-}
+//class _EditDriverInfoState extends State<EditDriverInfo> {
+//  String name = "Trần Văn A";
+//
+//  Widget build(BuildContext context) {
+//
+//  return Scaffold(
+//      appBar: AppBar(
+//        title: ListTile(
+//          leading: IconButton(
+//            icon: Icon(Icons.arrow_back_ios),
+//            color: Color(0xff06E2B3),
+//            onPressed: () {
+//              //backkkk
+//            },
+//          ),
+//          title: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
+//          trailing: IconButton(
+//            icon: Icon(Icons.check),
+//            color: Color(0xff06E2B3),
+//            onPressed: () {
+//              //backkkk
+//            },
+//          ),
+//        ),
+//      ),
+//      body: editAllInfo(driver),
+//      resizeToAvoidBottomPadding: false,
+//  );
+//  }
+//}
 
 
-Widget editAllInfo() {
+Widget editAllInfo(driver) {
   return Column(
     children: <Widget>[
       Expanded(
         flex: 6,
-        child: editBasicInfo('Trần Văn A'),
+        child: editBasicInfo(driver['name']),
       ),
       Expanded(
         flex: 22,
         child: Container(
-          child: editDetails(),
+          child: editDetails(driver['dID'], driver['idCard'],
+              driver['address'], driver['email'],
+              driver['gender'], driver['dob']),
 //          margin: EdgeInsets.only(bottom: 15.0),
 
         )
@@ -119,20 +121,20 @@ Widget editBasicInfo(name) {
   );
 }
 
-Widget editDetails() {
+Widget editDetails(id, idCard, address, email, gender, dob) {
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       height: 395.0,
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            showDetailInfo('ID', 'TX0001', 1),
-            editDetailInfo('Tuổi', '40', 0 ),
-            editDetailInfo('CMND', '362412312', 1 ),
-            editDetailInfo('Địa chỉ', '123 Lý Tự Trọng, Ninh Kiều, Cần Thơ', 0 ),
-            editDetailInfo('Email', 'tva0001@potatoes.driver.com', 1 ),
-            editDetailInfo('Giới tính', 'Nam', 0 ),
-            editDetailInfo('Ngày sinh', '01/01/1980', 1 ),
+            showDetailInfo('ID', id, 1),
+//            editDetailInfo('Tuổi', '40', 0 ),
+            editDetailInfo('CMND', idCard, 0 ),
+            editDetailInfo('Địa chỉ', address, 1 ),
+            editDetailInfo('Email', email, 0 ),
+            editDetailInfo('Giới tính', gender, 1 ),
+            editDetailInfo('Ngày sinh', dob, 0 ),
 
             showDetailInfo('', '', 0 ),
             showDetailInfo('', '', 0 ),
@@ -176,7 +178,7 @@ Widget editDetailInfo(title, data, line) {
 
           decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
           child: TextFormField(
-              initialValue: data,
+              initialValue: data.toString(),
               style: driverInfoStyle(),
           ),
 

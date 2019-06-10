@@ -1,42 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
 
 class ShowDriverInfo extends StatefulWidget {
-  const ShowDriverInfo({Key key}) : super(key: key);
+  final String dID;
+  const ShowDriverInfo({Key key, @required this.dID}) : super(key: key);
   @override
-  _ShowDriverInfoState createState() => _ShowDriverInfoState();
+  _ShowDriverInfoState createState() => _ShowDriverInfoState(dID);
 }
 
 
 class _ShowDriverInfoState extends State<ShowDriverInfo> {
+  String dID;
+  _ShowDriverInfoState(this.dID);
 
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  List<Widget> _scaffoldBodyOptions = <Widget>[
-
-    showAllInfo(),
-    
-    editAllInfo(),
-    
-  ];
-
   static const List<Widget> _appBarRightIconOptions = <Widget>[
-//    Icon(Icons.arrow_back_ios),
     Icon(Icons.edit),
-
     Icon(Icons.check),
-
   ];
-
-  static const List<Widget> _appBarTitleOptions = <Widget>[
-
-    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
-
-    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
-
-  ];
-
+  
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -62,7 +46,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
               });
             },
           ),
-          title: _appBarTitleOptions[_selectedIndex],
+          title:  Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
           trailing: IconButton(
             icon: _appBarRightIconOptions.elementAt(_selectedIndex),
             color: Color(0xff06E2B3),
@@ -77,14 +61,24 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                   //back to show info page
                   _selectedIndex = 0;
                 }
-
               });
             },
           ),
         ),
       ),
 //      body: showAllInfo(),
-      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
+//      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
+      body: StreamBuilder(
+        stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) return Text('loading...');
+          if(_selectedIndex == 0) {
+            print(snapshot.data.documents[0]['name']);
+            return showAllInfo(snapshot.data.documents[0]);
+          }
+          return editAllInfo(snapshot.data.documents[0]);
+        },
+      )
 //      floatingActionButton: FloatingActionButton(
 //        onPressed: () {
 //
@@ -97,16 +91,24 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   }
 }
 
-Widget showAllInfo() {
+Widget showAllInfo(driver) {
+//  Firestore.instance
+//      .collection('drivers')
+//      .where("dID", isEqualTo: "TX0001")
+//      .snapshots()
+//      .listen((data) =>
+//      data.documents.forEach((doc) => print(doc["name"])));
   return Column(
     children: <Widget>[
       Expanded(
         flex: 6,
-        child: showBasicInfo('Trần Văn A', 'Đang làm việc', '0.5%'),
+        child: showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
       ),
       Expanded(
         flex: 19,
-        child: showDetails()
+        child: showDetails( driver['dID'], driver['idCard'],
+                            driver['address'], driver['email'],
+                            driver['gender'], driver['dob'])
       ),
       Expanded(
         flex: 3,
@@ -164,19 +166,19 @@ Widget showBasicInfo(name, status, alcohol) {
   );
 }
 
-Widget showDetails() {
+Widget showDetails(id, idCard, address, email, gender, dob) {
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            showDetailInfo('ID', 'TX0001', 1),
-            showDetailInfo('Tuổi', '40', 0 ),
-            showDetailInfo('CMND', '362412312', 1),
-            showDetailInfo('Địa chỉ', '123 Lý Tự Trọng, Ninh Kiều, Cần Thơ, Việt Nam', 0),
-            showDetailInfo('Email', 'tva0001@potatoes.driver.com', 1),
-            showDetailInfo('Giới tính', 'Nam', 0 ),
-            showDetailInfo('Ngày sinh', '01/01/1980', 1),
+            showDetailInfo('ID', id, 1),
+//            showDetailInfo('Tuổi', '40', 0 ),
+            showDetailInfo('CMND', idCard, 0),
+            showDetailInfo('Địa chỉ', address, 1),
+            showDetailInfo('Email', email, 0),
+            showDetailInfo('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
+            showDetailInfo('Ngày sinh', dob, 0),
           ],
         )
       )
