@@ -241,13 +241,17 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
   void editDataDTB(DocumentSnapshot driver) {
     DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
-
-    driver.reference.updateData({
-      'name' : _nameController.text,
-      'idCard' : _idCardController.text,
-      'address' : _addressController.text,
-      'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
-      'dob' : formattedDOB,
+    
+    Firestore.instance.runTransaction((transaction) async{
+      DocumentSnapshot freshSnap =
+        await transaction.get(driver.reference);
+      await transaction.update(freshSnap.reference, {
+        'name' : _nameController.text,
+        'idCard' : _idCardController.text,
+        'address' : _addressController.text,
+        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+        'dob' : formattedDOB,
+      });
     });
   }
 }
