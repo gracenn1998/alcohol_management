@@ -169,11 +169,3 @@ Widget fillDetailInfo(title, line) {
 }
 
 
-Widget BlankPanel() {
-  return Container(
-    color: Colors.white,
-    margin: EdgeInsets.only(bottom: 15.0),
-//    padding: const EdgeInsets.all(5.0),
-
-  );
-}

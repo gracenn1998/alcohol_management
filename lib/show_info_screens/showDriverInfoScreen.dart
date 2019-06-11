@@ -17,12 +17,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   String dID;
   _ShowDriverInfoState(this.dID);
 
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _appBarRightIconOptions = <Widget>[
-    Icon(Icons.edit),
-    Icon(Icons.check),
-  ];
-  
+  static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -30,8 +26,13 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       return Center(
           child: Text(
             'List Tai Xe',
-            style: optionStyle,
+            style: tempStyle,
           ),
+      );
+    }
+    if(_selectedIndex == 1) {
+      return EditDriverInfo(
+        dID: dID,
       );
     }
 
@@ -50,7 +51,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
           ),
           title:  Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
           trailing: IconButton(
-            icon: _appBarRightIconOptions.elementAt(_selectedIndex),
+            icon: Icon(Icons.edit),
             color: Color(0xff06E2B3),
             onPressed: () {
               //editttt
@@ -73,11 +74,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       body: StreamBuilder(
         stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
         builder: (context, snapshot) {
-          if(!snapshot.hasData) return Text('loading...');
-          if(_selectedIndex == 0) {
-            return showAllInfo(snapshot.data.documents[0]);
-          }
-          return editAllInfo(snapshot.data.documents[0]);
+          if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
+          return showAllInfo(snapshot.data.documents[0]);
         },
       ),
       resizeToAvoidBottomPadding: false,
@@ -94,12 +92,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 }
 
 Widget showAllInfo(driver) {
-//  Firestore.instance
-//      .collection('drivers')
-//      .where("dID", isEqualTo: "TX0001")
-//      .snapshots()
-//      .listen((data) =>
-//      data.documents.forEach((doc) => print(doc["name"])));
   return Column(
     children: <Widget>[
       showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
@@ -164,7 +156,7 @@ Widget showBasicInfo(name, status, alcohol) {
 
 Widget showDetails(id, idCard, address, email, gender, dob) {
   final df = new DateFormat('dd/MM/yyyy');
-  var formatted_dob = df.format(dob.toDate());
+  var formattedDOB = df.format(dob.toDate());
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(
@@ -176,7 +168,7 @@ Widget showDetails(id, idCard, address, email, gender, dob) {
             showDetailItem('Địa chỉ', address, 1),
             showDetailItem('Email', email, 0),
             showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
-            showDetailItem('Ngày sinh', formatted_dob, 0),
+            showDetailItem('Ngày sinh', formattedDOB, 0),
           ],
         )
       )
