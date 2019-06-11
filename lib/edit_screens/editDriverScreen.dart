@@ -71,6 +71,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               if(confirmed == 1) {
                 print(_nameController.text);
                 setState(() {
+                  dispose();
                   _selectedIndex--;
                 });
               }
@@ -104,15 +105,11 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
     return Column(
       children: <Widget>[
-        editBasicInfo(driver['name']),
+        editBasicInfo(),
 
         Expanded(
             child: Container(
-              child: editDetails(driver['dID'], driver['idCard'],
-                  driver['address'], driver['email'],
-                  driver['gender'], driver['dob']),
-//          margin: EdgeInsets.only(bottom: 15.0),
-
+              child: editDetails(driver['dID'], driver['email']),
             )
         ),
 
@@ -126,7 +123,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     );
   }
 
-  Widget editBasicInfo(name) {
+  Widget editBasicInfo() {
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -177,9 +174,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     );
   }
 
-  Widget editDetails(id, idCard, address, email, gender, dob) {
-    final df = new DateFormat('dd/MM/yyyy');
-    var formattedDOB = df.format(dob.toDate());
+  Widget editDetails(id, email) {
 
     return Container (
         margin: EdgeInsets.only( bottom: 15.0),
@@ -189,11 +184,11 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               children: <Widget>[
                 showDetailItem('ID', id, 1),
 //            editDetailInfo('Tuổi', '40', 0 ),
-                editDetailItem('CMND', idCard, 0, _idCardController),
-                editDetailItem('Địa chỉ', address, 1, _addressController),
+                editDetailItem('CMND', 0, _idCardController),
+                editDetailItem('Địa chỉ', 1, _addressController),
                 showDetailItem('Email', email, 0),
-                editDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1, _genderController),
-                editDetailItem('Ngày sinh', formattedDOB, 0, _dobController),
+                editDetailItem('Giới tính', 1, _genderController),
+                editDetailItem('Ngày sinh',  0, _dobController),
               ],
             )
         )
@@ -201,7 +196,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
   }
 
-  Widget editDetailItem(title, data, line, controller) {
+  Widget editDetailItem(title, line, controller) {
     return Row(
       children: <Widget>[
         Expanded(

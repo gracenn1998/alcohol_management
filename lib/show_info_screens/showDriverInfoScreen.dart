@@ -89,69 +89,92 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
     );
   }
-}
 
-Widget showAllInfo(driver) {
-  return Column(
-    children: <Widget>[
-      showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
-      Expanded(
-        child: showDetails( driver['dID'], driver['idCard'],
-                            driver['address'], driver['email'],
-                            driver['gender'], driver['dob'])
-      ),
-      generatePasswordButton(),
+  Widget showAllInfo(driver) {
+    return Column(
+      children: <Widget>[
+        showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
+        Expanded(
+            child: showDetails( driver['dID'], driver['idCard'],
+                driver['address'], driver['email'],
+                driver['gender'], driver['dob'])
+        ),
+        generatePasswordButton(),
 
-    ],
-  );
-}
+      ],
+    );
+  }
 
-Widget showBasicInfo(name, status, alcohol) {
-  return Container(
-    height: 120.0,
-      color: Colors.white,
-      child: Row(
-        children: <Widget>[
-          Container(
-              padding: EdgeInsets.only(left: 15.0),
-              child: CircleAvatar(
-                radius: 50.0,
-                backgroundImage: AssetImage('images/avatar.png'),
-              )
-          ),
-          Container(
-              padding: EdgeInsets.only(left: 15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.only(bottom: 10.0),
-                    child: Text("$name", style: driverNameStyle()),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(bottom: 5.0),
-                    child: Row(
+  Widget showBasicInfo(name, status, alcohol) {
+    return Container(
+        height: 120.0,
+        color: Colors.white,
+        child: Row(
+          children: <Widget>[
+            Container(
+                padding: EdgeInsets.only(left: 15.0),
+                child: CircleAvatar(
+                  radius: 50.0,
+                  backgroundImage: AssetImage('images/avatar.png'),
+                )
+            ),
+            Container(
+                padding: EdgeInsets.only(left: 15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child: Text("$name", style: driverNameStyle()),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 5.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
+                          Text("$status", style: driverStatusDataStyle(0)),
+                        ],
+                      ),
+                    ),
+                    Row(
                       children: <Widget>[
-                        Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
-                        Text("$status", style: driverStatusDataStyle(0)),
+                        Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
+                        Text("$alcohol", style: driverStatusDataStyle(0)),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
-                      Text("$alcohol", style: driverStatusDataStyle(0)),
-                    ],
-                  ),
-                ],
-              )
-          )
+                  ],
+                )
+            )
 
-        ],
-      )
+          ],
+        )
 
-  );
+    );
+  }
+
+  Widget generatePasswordButton() {
+    return Container(
+      height: 45.0,
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: 15.0),
+//    padding: const EdgeInsets.all(5.0),
+      child: RaisedButton(
+        child: Text(
+            "Tạo mật khẩu mới",
+            style: TextStyle(
+              fontSize: 17.0,
+              fontWeight: FontWeight.w500,
+            )
+        ),
+        elevation: 6.0,
+        onPressed: () {
+          //action
+          debugPrint("New pw generated");
+        },
+      ),
+    );
+  }
 }
 
 Widget showDetails(id, idCard, address, email, gender, dob) {
@@ -160,17 +183,17 @@ Widget showDetails(id, idCard, address, email, gender, dob) {
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            showDetailItem('ID', id, 1),
+          child: Column(
+            children: <Widget>[
+              showDetailItem('ID', id, 1),
 //            showDetailInfo('Tuổi', '40', 0 ),
-            showDetailItem('CMND', idCard, 0),
-            showDetailItem('Địa chỉ', address, 1),
-            showDetailItem('Email', email, 0),
-            showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
-            showDetailItem('Ngày sinh', formattedDOB, 0),
-          ],
-        )
+              showDetailItem('CMND', idCard, 0),
+              showDetailItem('Địa chỉ', address, 1),
+              showDetailItem('Email', email, 0),
+              showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
+              showDetailItem('Ngày sinh', formattedDOB, 0),
+            ],
+          )
       )
   );
 
@@ -182,17 +205,17 @@ Widget showDetailItem(title, data, line) {
       Expanded(
         flex: 2,
         child: Container(
-          height: 55.0,
+            height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-          padding: EdgeInsets.only(left: 25.0),
-          decoration: line == 1 ? oddLineDetails() : evenLineDetails(), //             <--- BoxDecoration here
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "$title",
-              style: driverInfoStyle(),
-            ),
-          )
+            padding: EdgeInsets.only(left: 25.0),
+            decoration: line == 1 ? oddLineDetails() : evenLineDetails(), //             <--- BoxDecoration here
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "$title",
+                style: driverInfoStyle(),
+              ),
+            )
         ),
       ),
       Expanded(
@@ -205,9 +228,9 @@ Widget showDetailItem(title, data, line) {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-                "$data",
-                style: driverInfoStyle(),
-              ),
+              "$data",
+              style: driverInfoStyle(),
+            ),
 
           ),
         ),
@@ -218,30 +241,3 @@ Widget showDetailItem(title, data, line) {
 }
 
 
-Widget generatePasswordButton() {
-  return Container(
-    height: 45.0,
-    color: Colors.white,
-    margin: EdgeInsets.only(bottom: 15.0),
-//    padding: const EdgeInsets.all(5.0),
-    child: RaisedButton(
-      child: Text(
-          "Tạo mật khẩu mới",
-          style: TextStyle(
-            fontSize: 17.0,
-            fontWeight: FontWeight.w500,
-          )
-      ),
-      elevation: 6.0,
-      onPressed: () {
-        //action
-        debugPrint("New pw generated");
-      },
-    ),
-  );
-}
-
-
-DateTime parseTime(dynamic date) {
-  return Platform.isIOS ? (date as Timestamp).toDate() : (date as DateTime);
-}
