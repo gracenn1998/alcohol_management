@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
 
@@ -77,7 +79,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
           }
           return editAllInfo(snapshot.data.documents[0]);
         },
-      )
+      ),
+      resizeToAvoidBottomPadding: false,
 //      floatingActionButton: FloatingActionButton(
 //        onPressed: () {
 //
@@ -99,20 +102,13 @@ Widget showAllInfo(driver) {
 //      data.documents.forEach((doc) => print(doc["name"])));
   return Column(
     children: <Widget>[
+      showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
       Expanded(
-        flex: 6,
-        child: showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
-      ),
-      Expanded(
-        flex: 19,
         child: showDetails( driver['dID'], driver['idCard'],
                             driver['address'], driver['email'],
                             driver['gender'], driver['dob'])
       ),
-      Expanded(
-        flex: 3,
-        child: generatePasswordButton(),
-      ),
+      generatePasswordButton(),
 
     ],
   );
@@ -120,6 +116,7 @@ Widget showAllInfo(driver) {
 
 Widget showBasicInfo(name, status, alcohol) {
   return Container(
+    height: 120.0,
       color: Colors.white,
       child: Row(
         children: <Widget>[
@@ -166,18 +163,20 @@ Widget showBasicInfo(name, status, alcohol) {
 }
 
 Widget showDetails(id, idCard, address, email, gender, dob) {
+  final df = new DateFormat('dd/MM/yyyy');
+  var formatted_dob = df.format(dob.toDate());
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            showDetailInfo('ID', id, 1),
+            showDetailItem('ID', id, 1),
 //            showDetailInfo('Tuổi', '40', 0 ),
-            showDetailInfo('CMND', idCard, 0),
-            showDetailInfo('Địa chỉ', address, 1),
-            showDetailInfo('Email', email, 0),
-            showDetailInfo('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
-            showDetailInfo('Ngày sinh', dob, 0),
+            showDetailItem('CMND', idCard, 0),
+            showDetailItem('Địa chỉ', address, 1),
+            showDetailItem('Email', email, 0),
+            showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
+            showDetailItem('Ngày sinh', formatted_dob, 0),
           ],
         )
       )
@@ -185,7 +184,7 @@ Widget showDetails(id, idCard, address, email, gender, dob) {
 
 }
 
-Widget showDetailInfo(title, data, line) {
+Widget showDetailItem(title, data, line) {
   return Row(
     children: <Widget>[
       Expanded(
@@ -209,7 +208,7 @@ Widget showDetailInfo(title, data, line) {
         child: Container(
           height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-          padding: EdgeInsets.only(left: 15.0),
+          padding: EdgeInsets.only(left: 15.0, right: 15.0),
           decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
           child: Align(
             alignment: Alignment.centerLeft,
@@ -229,6 +228,7 @@ Widget showDetailInfo(title, data, line) {
 
 Widget generatePasswordButton() {
   return Container(
+    height: 45.0,
     color: Colors.white,
     margin: EdgeInsets.only(bottom: 15.0),
 //    padding: const EdgeInsets.all(5.0),
@@ -249,29 +249,7 @@ Widget generatePasswordButton() {
   );
 }
 
-BoxDecoration myBoxDecorationOddLine() {
-  return BoxDecoration(
-    border: Border(
-        left: BorderSide(
-          color: Color(0xffDCDEE0),
-          width: 1.0,
-        )
 
-    ),
-    color: Color(0xffF3F4F6),
-  );
-}
-
-BoxDecoration myBoxDecorationEvenLine() {
-  return BoxDecoration(
-    border: Border(
-      left: BorderSide(
-        color: Color(0xffDCDEE0),
-        width: 1.0,
-      )
-
-    ),
-    color: Colors.white
-
-  );
+DateTime parseTime(dynamic date) {
+  return Platform.isIOS ? (date as Timestamp).toDate() : (date as DateTime);
 }

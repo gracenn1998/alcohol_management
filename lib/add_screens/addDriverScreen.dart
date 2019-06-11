@@ -33,8 +33,9 @@ class _AddDriver extends State<AddDriver> {
           ),
         ),
       ),
+      resizeToAvoidBottomInset: false,
       body: showAllInfo(),
-      resizeToAvoidBottomPadding: false,
+
     );
   }
 }
@@ -43,19 +44,11 @@ class _AddDriver extends State<AddDriver> {
 Widget showAllInfo() {
   return Column(
     children: <Widget>[
+      fillBasicInfo(),
       Expanded(
-        flex: 6,
-        child: fillBasicInfo(),
-      ),
-      Expanded(
-          flex: 19,
           child: fillDetails()
       ),
 
-      Expanded(
-        flex: 3,
-        child: BlankPanel(),
-      ),
 
 
     ],
@@ -64,6 +57,7 @@ Widget showAllInfo() {
 
 Widget fillBasicInfo() {
   return Container(
+      height: 120.0,
       color: Colors.white,
       child: Row(
         children: <Widget>[
@@ -125,11 +119,6 @@ Widget fillDetails() {
               fillDetailInfo('Email', 1),
               fillDetailInfo('Giới tính', 0),
               fillDetailInfo('Ngày sinh', 1),
-
-              showDetailInfo('', '', 0 ),
-              showDetailInfo('', '', 0 ),
-              showDetailInfo('', '', 0 ),
-              showDetailInfo('', '', 0 ),
 
 
 

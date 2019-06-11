@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
 
@@ -46,12 +47,9 @@ import '../show_info_screens/showDriverInfoScreen.dart';
 Widget editAllInfo(driver) {
   return Column(
     children: <Widget>[
+      editBasicInfo(driver['name']),
+
       Expanded(
-        flex: 6,
-        child: editBasicInfo(driver['name']),
-      ),
-      Expanded(
-        flex: 22,
         child: Container(
           child: editDetails(driver['dID'], driver['idCard'],
               driver['address'], driver['email'],
@@ -73,7 +71,7 @@ Widget editAllInfo(driver) {
 
 Widget editBasicInfo(name) {
   return Container(
-      height: 130.0,
+      height: 120.0,
       color: Colors.white,
       child: Row(
         children: <Widget>[
@@ -122,27 +120,22 @@ Widget editBasicInfo(name) {
 }
 
 Widget editDetails(id, idCard, address, email, gender, dob) {
+  final df = new DateFormat('dd/MM/yyyy');
+  var formatted_dob = df.format(dob.toDate());
+
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       height: 395.0,
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            showDetailInfo('ID', id, 1),
+            showDetailItem('ID', id, 1),
 //            editDetailInfo('Tuổi', '40', 0 ),
-            editDetailInfo('CMND', idCard, 0 ),
-            editDetailInfo('Địa chỉ', address, 1 ),
-            editDetailInfo('Email', email, 0 ),
-            editDetailInfo('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
-            editDetailInfo('Ngày sinh', dob, 0 ),
-
-            showDetailInfo('', '', 0 ),
-            showDetailInfo('', '', 0 ),
-            showDetailInfo('', '', 0 ),
-            showDetailInfo('', '', 0 ),
-
-
-
+            editDetailItem('CMND', idCard, 0 ),
+            editDetailItem('Địa chỉ', address, 1 ),
+            showDetailItem('Email', email, 0 ),
+            editDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
+            editDetailItem('Ngày sinh', formatted_dob, 0 ),
           ],
         )
       )
@@ -150,7 +143,7 @@ Widget editDetails(id, idCard, address, email, gender, dob) {
 
 }
 
-Widget editDetailInfo(title, data, line) {
+Widget editDetailItem(title, data, line) {
   return Row(
     children: <Widget>[
       Expanded(
@@ -174,7 +167,7 @@ Widget editDetailInfo(title, data, line) {
         child: Container(
           height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-          padding: const EdgeInsets.all(5.0),
+          padding: EdgeInsets.only(left: 15.0, right: 15.0),
 
           decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
           child: TextFormField(
