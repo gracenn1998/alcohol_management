@@ -88,7 +88,10 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           _addressController.text = driver['address'];
           _idCardController.text = driver['idCard'];
           _genderController.text = driver['gender']=='M'?'Nam':'Nữ';
-          _dobController.text = driver['dob'].toString();
+
+          final df = new DateFormat('dd/MM/yyyy');
+          var formattedDOB = df.format(driver['dob'].toDate());
+          _dobController.text = formattedDOB.toString();
 
           return editAllInfo(snapshot.data.documents[0]);
         },
