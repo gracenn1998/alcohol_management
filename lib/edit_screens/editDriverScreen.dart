@@ -29,6 +29,8 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   final _genderController = TextEditingController();
   final _dobController = TextEditingController();
 
+  DocumentSnapshot driver;
+
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
@@ -69,11 +71,11 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               //confirm edit
               var confirmed = 1;
               if(confirmed == 1) {
-                print(_nameController.text);
+                editDataDTB(driver);
                 setState(() {
-                  dispose();
                   _selectedIndex--;
                 });
+//                dispose();
               }
 
             },
@@ -84,7 +86,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
         stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
-          var driver = snapshot.data.documents[0];
+          driver = snapshot.data.documents[0];
           _nameController.text = driver['name'];
           _addressController.text = driver['address'];
           _idCardController.text = driver['idCard'];
@@ -235,6 +237,18 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
       ],
 
     );
+  }
+
+  void editDataDTB(DocumentSnapshot driver) {
+    DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
+
+    driver.reference.updateData({
+      'name' : _nameController.text,
+      'idCard' : _idCardController.text,
+      'address' : _addressController.text,
+      'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+      'dob' : formattedDOB,
+    });
   }
 }
 
