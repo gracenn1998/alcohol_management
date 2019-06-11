@@ -107,6 +107,7 @@ Widget getListDriversView() {
                     onPressed: () {
                       //Xoa driver
                       debugPrint("Delete driver tapped");
+                      confirmDelete(context);
                     },
                   ),
                 ) //Nut xoa
@@ -115,6 +116,11 @@ Widget getListDriversView() {
         onTap: () {
           //go to detail info
           debugPrint("driver tapped");
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ShowDriverInfo(
+              key: PageStorageKey('Page1'),
+            );
+          }));
         },
       );
     },
@@ -125,4 +131,30 @@ Widget getListDriversView() {
     },
   );
   return listView;
+}
+
+void confirmDelete(BuildContext context) {
+  var confirmDialog = AlertDialog(
+    title: Text('Bạn muốn xóa tài xế này?'),
+    content: null,
+    actions: <Widget>[
+      FlatButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text('Không'),
+      ),
+      FlatButton(
+        onPressed: () {
+          //xoa thiet ._.
+          Navigator.pop(context);
+        },
+        child: Text('Xóa', style: TextStyle(color: Colors.red),),
+      )
+    ],
+  );
+
+  showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => confirmDialog
+  );
 }
