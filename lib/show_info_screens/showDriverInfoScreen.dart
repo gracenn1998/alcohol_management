@@ -37,38 +37,46 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: ListTile(
+        appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
               setState(() {
-                  _selectedIndex--;
+                _selectedIndex--;
               });
             },
           ),
-          title:  Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
-          trailing: IconButton(
-            icon: Icon(Icons.edit),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //editttt
-              setState(() {
-                if(_selectedIndex == 0) {
-                  _selectedIndex = 1;
-                }
-                else {
-                  //save to DTB....
-                  //back to show info page
-                  _selectedIndex = 0;
-                }
-              });
-            },
-          ),
+          title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
+          actions: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(right: 5.0),
+              child: IconButton(
+                icon: Icon(Icons.edit),
+                color: Color(0xff06E2B3),
+                onPressed: () {
+                  //editttt
+//                setState(() {
+//                  if(_selectedIndex == 0) {
+//                    _selectedIndex = 1;
+//                  }
+//                  else {
+//                    //save to DTB....
+//                    //back to show info page
+//                    _selectedIndex = 0;
+//                  }
+//                });
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return EditDriverInfo(
+                      dID: dID,
+                    );
+                  }));
+                },
+              ),
+            ),
+          ],
         ),
-      ),
 //      body: showAllInfo(),
 //      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
       body: StreamBuilder(

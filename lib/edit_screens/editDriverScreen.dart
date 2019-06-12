@@ -43,44 +43,47 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   }
 
   Widget build(BuildContext context) {
-    if(_selectedIndex == -1) {
-
-      return ShowDriverInfo(
-        dID: 'TX0001',
-      );
-    }
+//    if(_selectedIndex == -1) {
+//
+//      return ShowDriverInfo(
+//        dID: 'TX0001',
+//      );
+//    }
 
     return Scaffold(
       appBar: AppBar(
-        title: ListTile(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //backkkk
-              setState(() {
-                _selectedIndex--;
-              });
-            },
-          ),
-          title: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
-          trailing: IconButton(
-            icon: Icon(Icons.check),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //confirm edit
-              var confirmed = 1;
-              if(confirmed == 1) {
-                editDataDTB(driver);
-                setState(() {
-                  _selectedIndex--;
-                });
-//                dispose();
-              }
-
-            },
-          ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          color: Color(0xff06E2B3),
+          onPressed: () {
+            //backkkk
+            setState(() {
+              _selectedIndex--;
+            });
+          },
         ),
+        title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              icon: Icon(Icons.check, size: 30.0,),
+              color: Color(0xff06E2B3),
+              onPressed: () {
+                //confirm edit
+                var confirmed = 1;
+                if(confirmed == 1) {
+                  editDataDTB(driver);
+                  setState(() {
+                    _selectedIndex--;
+                  });
+//                dispose();
+                }
+
+              },
+            ),
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
