@@ -1,90 +1,81 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
+import './showAllDrivers.dart';
 
 class ShowDriverInfo extends StatefulWidget {
-  const ShowDriverInfo({Key key}) : super(key: key);
+  final String dID;
+  const ShowDriverInfo({Key key, @required this.dID}) : super(key: key);
   @override
-  _ShowDriverInfoState createState() => _ShowDriverInfoState();
+  _ShowDriverInfoState createState() => _ShowDriverInfoState(dID);
 }
 
 
 class _ShowDriverInfoState extends State<ShowDriverInfo> {
+  String dID;
+  _ShowDriverInfoState(this.dID);
 
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  List<Widget> _scaffoldBodyOptions = <Widget>[
-
-    showAllInfo(),
-    
-    editAllInfo(),
-    
-  ];
-
-  static const List<Widget> _appBarRightIconOptions = <Widget>[
-//    Icon(Icons.arrow_back_ios),
-    Icon(Icons.edit),
-
-    Icon(Icons.check),
-
-  ];
-
-  static const List<Widget> _appBarTitleOptions = <Widget>[
-
-    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
-
-    Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,),
-
-  ];
+  static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     if(_selectedIndex == -1) {
-      return Center(
-          child: Text(
-            'List Tai Xe',
-            style: optionStyle,
-          ),
+      return ShowAllDrivers();
+    }
+    if(_selectedIndex == 1) {
+      return EditDriverInfo(
+        dID: dID,
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: ListTile(
+        appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
               setState(() {
-                  _selectedIndex--;
+                _selectedIndex--;
               });
             },
           ),
-          title: _appBarTitleOptions[_selectedIndex],
-          trailing: IconButton(
-            icon: _appBarRightIconOptions.elementAt(_selectedIndex),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //editttt
-              setState(() {
-                if(_selectedIndex == 0) {
+          title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
+          actions: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(right: 5.0),
+              child: IconButton(
+                icon: Icon(Icons.edit),
+                color: Color(0xff06E2B3),
+                onPressed: () {
+                  //editttt
+                setState(() {
                   _selectedIndex = 1;
-                }
-                else {
-                  //save to DTB....
-                  //back to show info page
-                  _selectedIndex = 0;
-                }
-
-              });
-            },
-          ),
+                });
+//                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+//                    return EditDriverInfo(
+//                      dID: dID,
+//                    );
+//                  }));
+                },
+              ),
+            ),
+          ],
         ),
-      ),
 //      body: showAllInfo(),
-      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
+//      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
+      body: StreamBuilder(
+        stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
+        builder: (context, snapshot) {
+          if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
+          return showAllInfo(snapshot.data.documents[0]);
+        },
+      ),
+      resizeToAvoidBottomPadding: false,
 //      floatingActionButton: FloatingActionButton(
 //        onPressed: () {
 //
@@ -95,112 +86,133 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
     );
   }
-}
 
-Widget showAllInfo() {
-  return Column(
-    children: <Widget>[
-      Expanded(
-        flex: 6,
-        child: showBasicInfo('Trần Văn A', 'Đang làm việc', '0.5%'),
-      ),
-      Expanded(
-        flex: 19,
-        child: showDetails()
-      ),
-      Expanded(
-        flex: 3,
-        child: generatePasswordButton(),
-      ),
+  Widget showAllInfo(driver) {
+    return Column(
+      children: <Widget>[
+        showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
+        Expanded(
+            child: showDetails( driver['dID'], driver['idCard'],
+                driver['address'], driver['email'],
+                driver['gender'], driver['dob'])
+        ),
+        generatePasswordButton(),
 
-    ],
-  );
-}
+      ],
+    );
+  }
 
-Widget showBasicInfo(name, status, alcohol) {
-  return Container(
-      color: Colors.white,
-      child: Row(
-        children: <Widget>[
-          Container(
-              padding: EdgeInsets.only(left: 15.0),
-              child: CircleAvatar(
-                radius: 50.0,
-                backgroundImage: AssetImage('images/avatar.png'),
-              )
-          ),
-          Container(
-              padding: EdgeInsets.only(left: 15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.only(bottom: 10.0),
-                    child: Text("$name", style: driverNameStyle()),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(bottom: 5.0),
-                    child: Row(
+  Widget showBasicInfo(name, status, alcohol) {
+    return Container(
+        height: 120.0,
+        color: Colors.white,
+        child: Row(
+          children: <Widget>[
+            Container(
+                padding: EdgeInsets.only(left: 15.0),
+                child: CircleAvatar(
+                  radius: 50.0,
+                  backgroundImage: AssetImage('images/avatar.png'),
+                )
+            ),
+            Container(
+                padding: EdgeInsets.only(left: 15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child: Text("$name", style: driverNameStyle()),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 5.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
+                          Text("$status", style: driverStatusDataStyle(0)),
+                        ],
+                      ),
+                    ),
+                    Row(
                       children: <Widget>[
-                        Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
-                        Text("$status", style: driverStatusDataStyle(0)),
+                        Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
+                        Text("$alcohol", style: driverStatusDataStyle(0)),
                       ],
                     ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
-                      Text("$alcohol", style: driverStatusDataStyle(0)),
-                    ],
-                  ),
-                ],
-              )
-          )
+                  ],
+                )
+            )
 
-        ],
-      )
+          ],
+        )
 
-  );
+    );
+  }
+
+  Widget generatePasswordButton() {
+    return Container(
+      height: 45.0,
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: 15.0),
+//    padding: const EdgeInsets.all(5.0),
+      child: RaisedButton(
+        child: Text(
+            "Tạo mật khẩu mới",
+            style: TextStyle(
+              fontSize: 17.0,
+              fontWeight: FontWeight.w500,
+            )
+        ),
+        elevation: 6.0,
+        onPressed: () {
+          //action
+          debugPrint("New pw generated");
+        },
+      ),
+    );
+  }
 }
 
-Widget showDetails() {
+Widget showDetails(id, idCard, address, email, gender, dob) {
+  final df = new DateFormat('dd/MM/yyyy');
+  var formattedDOB = df.format(dob.toDate());
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            showDetailInfo('ID', 'TX0001', 1),
-            showDetailInfo('Tuổi', '40', 0 ),
-            showDetailInfo('CMND', '362412312', 1),
-            showDetailInfo('Địa chỉ', '123 Lý Tự Trọng, Ninh Kiều, Cần Thơ, Việt Nam', 0),
-            showDetailInfo('Email', 'tva0001@potatoes.driver.com', 1),
-            showDetailInfo('Giới tính', 'Nam', 0 ),
-            showDetailInfo('Ngày sinh', '01/01/1980', 1),
-          ],
-        )
+          child: Column(
+            children: <Widget>[
+              showDetailItem('ID', id, 1),
+//            showDetailInfo('Tuổi', '40', 0 ),
+              showDetailItem('CMND', idCard, 0),
+              showDetailItem('Địa chỉ', address, 1),
+              showDetailItem('Email', email, 0),
+              showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
+              showDetailItem('Ngày sinh', formattedDOB, 0),
+            ],
+          )
       )
   );
 
 }
 
-Widget showDetailInfo(title, data, line) {
+Widget showDetailItem(title, data, line) {
   return Row(
     children: <Widget>[
       Expanded(
         flex: 2,
         child: Container(
-          height: 55.0,
+            height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-          padding: EdgeInsets.only(left: 25.0),
-          decoration: line == 1 ? oddLineDetails() : evenLineDetails(), //             <--- BoxDecoration here
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "$title",
-              style: driverInfoStyle(),
-            ),
-          )
+            padding: EdgeInsets.only(left: 25.0),
+            decoration: line == 1 ? oddLineDetails() : evenLineDetails(), //             <--- BoxDecoration here
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "$title",
+                style: driverInfoStyle(),
+              ),
+            )
         ),
       ),
       Expanded(
@@ -208,14 +220,14 @@ Widget showDetailInfo(title, data, line) {
         child: Container(
           height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-          padding: EdgeInsets.only(left: 15.0),
+          padding: EdgeInsets.only(left: 15.0, right: 15.0),
           decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-                "$data",
-                style: driverInfoStyle(),
-              ),
+              "$data",
+              style: driverInfoStyle(),
+            ),
 
           ),
         ),
@@ -226,51 +238,3 @@ Widget showDetailInfo(title, data, line) {
 }
 
 
-Widget generatePasswordButton() {
-  return Container(
-    color: Colors.white,
-    margin: EdgeInsets.only(bottom: 15.0),
-//    padding: const EdgeInsets.all(5.0),
-    child: RaisedButton(
-      child: Text(
-          "Tạo mật khẩu mới",
-          style: TextStyle(
-            fontSize: 17.0,
-            fontWeight: FontWeight.w500,
-          )
-      ),
-      elevation: 6.0,
-      onPressed: () {
-        //action
-        debugPrint("New pw generated");
-      },
-    ),
-  );
-}
-
-BoxDecoration myBoxDecorationOddLine() {
-  return BoxDecoration(
-    border: Border(
-        left: BorderSide(
-          color: Color(0xffDCDEE0),
-          width: 1.0,
-        )
-
-    ),
-    color: Color(0xffF3F4F6),
-  );
-}
-
-BoxDecoration myBoxDecorationEvenLine() {
-  return BoxDecoration(
-    border: Border(
-      left: BorderSide(
-        color: Color(0xffDCDEE0),
-        width: 1.0,
-      )
-
-    ),
-    color: Colors.white
-
-  );
-}
