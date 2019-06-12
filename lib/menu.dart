@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './edit_screens/editDriverScreen.dart';
-import './show_info_screens/showDriverInfoScreen.dart';
+import './show_info_screens/showAllDrivers.dart';
 import './add_screens/addDriverScreen.dart';
 import './styles/styles.dart';
 
@@ -16,9 +16,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    ShowDriverInfo(
-      key: PageStorageKey('Page1'),
-      dID: 'TX0001',
+    ShowAllDrivers(
     ),
     Text(
       'Hanh Trinh',

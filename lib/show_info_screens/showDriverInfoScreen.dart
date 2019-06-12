@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
+import './showAllDrivers.dart';
 
 class ShowDriverInfo extends StatefulWidget {
   final String dID;
@@ -23,12 +24,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   @override
   Widget build(BuildContext context) {
     if(_selectedIndex == -1) {
-      return Center(
-          child: Text(
-            'List Tai Xe',
-            style: tempStyle,
-          ),
-      );
+      return ShowAllDrivers();
     }
     if(_selectedIndex == 1) {
       return EditDriverInfo(
