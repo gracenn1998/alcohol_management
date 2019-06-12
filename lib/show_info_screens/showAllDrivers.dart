@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 import '../styles/styles.dart';
-import "package:alcohol_management/show_info_screens/showDriverInfoScreen.dart";
-import './showAllDrivers.dart';
+import "./showDriverInfoScreen.dart";
 
 class ShowAllDrivers extends StatefulWidget {
   const ShowAllDrivers() : super();

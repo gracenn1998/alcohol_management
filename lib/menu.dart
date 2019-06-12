@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import './edit_screens/editDriverScreen.dart';
 import './show_info_screens/showAllDrivers.dart';
-import './add_screens/addDriverScreen.dart';
-import './styles/styles.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);

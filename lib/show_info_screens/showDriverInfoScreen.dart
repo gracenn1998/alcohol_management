@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
@@ -66,8 +65,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
             ),
           ],
         ),
-//      body: showAllInfo(),
-//      body: _scaffoldBodyOptions.elementAt(_selectedIndex),
       body: StreamBuilder(
         stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
         builder: (context, snapshot) {
