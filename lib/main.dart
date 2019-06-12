@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './edit_screens/editDriverScreen.dart';
 import './show_info_screens/showDriverInfoScreen.dart';
 import './add_screens/addDriverScreen.dart';
+import './login_screen/loginScreen.dart';
 import 'menu.dart';
 
 void main() => runApp(MyApp());
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
       title: 'Welcome to Flutter',
 //      home: ShowDriverInfo(),
 //      home: EditDriverInfo(),
-      home: MyBottomMenu(),
+      //home: MyBottomMenu(),
+        home: LoginPage(),
       theme: ThemeData(
         primaryColor: Color(0xff0a2463),
         fontFamily: 'Roboto',
