@@ -57,21 +57,14 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 color: Color(0xff06E2B3),
                 onPressed: () {
                   //editttt
-//                setState(() {
-//                  if(_selectedIndex == 0) {
-//                    _selectedIndex = 1;
-//                  }
-//                  else {
-//                    //save to DTB....
-//                    //back to show info page
-//                    _selectedIndex = 0;
-//                  }
-//                });
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return EditDriverInfo(
-                      dID: dID,
-                    );
-                  }));
+                setState(() {
+                  _selectedIndex = 1;
+                });
+//                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+//                    return EditDriverInfo(
+//                      dID: dID,
+//                    );
+//                  }));
                 },
               ),
             ),

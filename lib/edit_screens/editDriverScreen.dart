@@ -43,12 +43,12 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   }
 
   Widget build(BuildContext context) {
-//    if(_selectedIndex == -1) {
-//
-//      return ShowDriverInfo(
-//        dID: 'TX0001',
-//      );
-//    }
+    if(_selectedIndex == -1) {
+
+      return ShowDriverInfo(
+        dID: 'TX0001',
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
