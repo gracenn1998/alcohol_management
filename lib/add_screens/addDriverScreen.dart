@@ -38,7 +38,9 @@ class _AddDriver extends State<AddDriver> {
   Widget build(BuildContext context) {
     if(_selectedFunction == -1) {
 
-      return ShowAllDrivers();
+      return ShowAllDrivers(
+        key: PageStorageKey("showAll")
+      );
     }
 
     return Scaffold(
@@ -65,9 +67,9 @@ class _AddDriver extends State<AddDriver> {
                 var confirmed = 1;
                 if(confirmed == 1) {
                   addDataDTB();
-//                  setState(() {
-//                    _selectedFunction--;
-//                  });
+                  setState(() {
+                    _selectedFunction--;
+                  });
 //                dispose();
                 }
 
@@ -108,7 +110,7 @@ class _AddDriver extends State<AddDriver> {
             Container(
                 padding: EdgeInsets.only(left: 15.0),
                 child: CircleAvatar(
-                  radius: 55.0,
+                  radius: 45.0,
                   backgroundImage: AssetImage('images/avatar.png'),
                 )
             ),

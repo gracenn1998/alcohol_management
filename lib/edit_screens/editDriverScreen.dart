@@ -46,6 +46,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     if(_selectedFunction == -1) {
 
       return ShowDriverInfo(
+        key: PageStorageKey("showInfo"),
         dID: 'TX0001',
       );
     }

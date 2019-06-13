@@ -5,7 +5,7 @@ import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
 
 class ShowAllDrivers extends StatefulWidget {
-  const ShowAllDrivers() : super();
+  const ShowAllDrivers({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -18,6 +18,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
   int _selectedFuntion = 0;
 
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -25,6 +26,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
       String id = _selectedDriverID;
       _selectedDriverID = null;
       return ShowDriverInfo(
+        key: PageStorageKey("showInfo"),
         dID: id,
       );
     }
@@ -77,10 +79,33 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //  }
 
   Widget getListDriversView(document) {
+
 //    var listDrivers = count;
     var listView = ListView.separated(
       itemCount: document.length,
       itemBuilder: (context, index) {
+
+        int alcoholTrack = document[index]['alcohol-track'];
+        String onWorking, alcoholVal;
+        int status;
+        if(alcoholTrack == null) {
+          onWorking = 'Đang nghỉ';
+          alcoholVal = 'Không hoạt động';
+          status = -1;
+        }
+        else {
+          if(alcoholTrack <= 350) {
+            onWorking = 'Đang làm việc';
+            alcoholVal = alcoholTrack.toString();
+            status = 0;
+          }
+          else {
+            onWorking = 'Say xỉn';
+            alcoholVal = alcoholTrack.toString();
+            status = 1;
+          }
+        }
+
         return InkWell(
           child: Container(
               height: 120.0,
@@ -110,18 +135,15 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                               padding: EdgeInsets.only(bottom: 5.0),
                               child: Row(
                                 children: <Widget>[
-                                  Text("Trạng thái: ",
-                                      style: driverStatusTitleStyle(0)),
-                                  Text("Bình thường",
-                                      style: driverStatusDataStyle(0)),
+                                  Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                  Text("$onWorking", style: driverStatusDataStyle(status)),
                                 ],
                               ),
                             ),
                             Row(
                               children: <Widget>[
-                                Text("Nồng độ cồn: ",
-                                    style: driverStatusTitleStyle(0)),
-                                Text("0.5%", style: driverStatusDataStyle(0)),
+                                Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                Text("$alcoholVal", style: driverStatusDataStyle(status)),
                               ],
                             ),
                           ],
