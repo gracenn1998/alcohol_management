@@ -1,3 +1,4 @@
+import 'package:alcohol_management/add_screens/addDriverScreen.dart';
 import "package:flutter/material.dart";
 import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
@@ -124,15 +125,18 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                   ), //Ten + Trang thai
                   Expanded(
                     flex: 1,
-                    child: IconButton(
-                      icon: Icon(Icons.delete),
-                      iconSize: 40.0,
-                      color: Color(0xff0A2463),
-                      onPressed: () {
-                        //Xoa driver
-                        debugPrint("Delete driver ${document[index].documentID} tapped");
-                        confirmDelete(context, document[index].documentID);
-                      },
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 50.0),
+                      child: IconButton(
+                        icon: Icon(Icons.delete),
+                        iconSize: 30.0,
+                        color: Color(0xff0A2463),
+                        onPressed: () {
+                          //Xoa driver
+                          debugPrint("Delete driver ${document[index].documentID} tapped");
+                          confirmDelete(context, document[index].documentID);
+                        },
+                      ),
                     ),
                   ) //Nut xoa
                 ],
