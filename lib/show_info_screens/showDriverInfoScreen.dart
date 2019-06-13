@@ -32,7 +32,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     }
 
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
@@ -233,5 +233,3 @@ Widget showDetailItem(title, data, line) {
 
   );
 }
-
-
