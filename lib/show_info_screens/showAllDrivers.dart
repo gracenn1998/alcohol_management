@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ShowAllDrivers extends StatefulWidget {
   const ShowAllDrivers() : super();
@@ -15,14 +16,10 @@ class ShowAllDrivers extends StatefulWidget {
 class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
 
-
-
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    if(_selectedDriverID!=null) {
-      
+    if (_selectedDriverID != null) {
       String id = _selectedDriverID;
       _selectedDriverID = null;
       return ShowDriverInfo(
@@ -30,20 +27,34 @@ class _showAllDriversState extends State<ShowAllDrivers> {
       );
     }
 
-
     return Scaffold(
         appBar: AppBar(
-//          leading: Icon(
-//            Icons.dehaze,
-//            color: Color(0xff06E2B3),
-//          ),
+//        leading: Icon(
+//          Icons.dehaze,
+//          color: Color(0xff06E2B3),
+//        ),
           title: Text(
             "Tất Cả Tài Xế",
             style: appBarTxTStyle,
           ),
           backgroundColor: Color(0xff0A2463),
         ),
-        body: getListDriversView(),
+        body: //getListDriversView(),
+            StreamBuilder(
+          stream: Firestore.instance.collection('drivers').snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting)
+              return Center(
+                child: Text(
+                  'Loading...',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              );
+            else
+              return getListDriversView(snapshots.data.documents);
+          },
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             debugPrint("Add Driver Request");
@@ -55,15 +66,15 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ));
   }
 
-  List<String> getListDrivers() {
-    var drivers = List<String>.generate(10, (counter) => "Tài xế $counter");
-    return drivers;
-  }
+//  List<String> getListDrivers() {
+//    var drivers = List<String>.generate(10, (counter) => "Tài xế $counter");
+//    return drivers;
+//  }
 
-  Widget getListDriversView() {
-    var listDrivers = getListDrivers();
+  Widget getListDriversView(document) {
+//    var listDrivers = count;
     var listView = ListView.separated(
-      itemCount: listDrivers.length,
+      itemCount: document.length,
       itemBuilder: (context, index) {
         return InkWell(
           child: Container(
@@ -87,7 +98,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           children: <Widget>[
                             Container(
                               padding: EdgeInsets.only(bottom: 10.0),
-                              child: Text(listDrivers[index],
+                              child: Text(document[index].data['name'],
                                   style: driverNameStyle()),
                             ),
                             Container(
@@ -119,8 +130,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                       color: Color(0xff0A2463),
                       onPressed: () {
                         //Xoa driver
-                        debugPrint("Delete driver tapped");
-                        confirmDelete(context);
+                        debugPrint("Delete driver ${document[index].documentID} tapped");
+                        confirmDelete(context, document[index].documentID);
                       },
                     ),
                   ) //Nut xoa
@@ -130,7 +141,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             //go to detail info
             debugPrint("driver tapped");
             setState(() {
-              _selectedDriverID = 'TX0001';
+              _selectedDriverID = document[index].documentID;
             });
           },
         );
@@ -144,7 +155,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     return listView;
   }
 
-  void confirmDelete(BuildContext context) {
+  void confirmDelete(BuildContext context, id) {
     var confirmDialog = AlertDialog(
       title: Text('Bạn muốn xóa tài xế này?'),
       content: null,
@@ -155,10 +166,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ),
         FlatButton(
           onPressed: () {
-            //xoa thiet ._.
             Navigator.pop(context);
+            Firestore.instance.collection('drivers').document(id).delete();
           },
-          child: Text('Xóa', style: TextStyle(color: Colors.red),),
+          child: Text(
+            'Xóa',
+            style: TextStyle(color: Colors.red),
+          ),
         )
       ],
     );
@@ -170,4 +184,3 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     );
   }
 }
-
