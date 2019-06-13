@@ -1,7 +1,8 @@
 import "package:flutter/material.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
-import 'package:cloud_firestore/cloud_firestore.dart';
+import "../add_screens/addDriverScreen.dart";
 
 class ShowAllDrivers extends StatefulWidget {
   const ShowAllDrivers() : super();
@@ -15,6 +16,7 @@ class ShowAllDrivers extends StatefulWidget {
 
 class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
+  int _selectedFuntion = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +29,18 @@ class _showAllDriversState extends State<ShowAllDrivers> {
       );
     }
 
+    if (_selectedFuntion == 1) {
+      return AddDriver();
+    }
+
     return Scaffold(
         appBar: AppBar(
 //        leading: Icon(
 //          Icons.dehaze,
 //          color: Color(0xff06E2B3),
 //        ),
-          title: Text(
-            "Tất Cả Tài Xế",
-            style: appBarTxTStyle,
-          ),
-          backgroundColor: Color(0xff0A2463),
-        ),
+          title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
+        )),
         body: //getListDriversView(),
             StreamBuilder(
           stream: Firestore.instance.collection('drivers').snapshots(),
@@ -58,6 +60,9 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             debugPrint("Add Driver Request");
+            setState(() {
+              _selectedFuntion = 1;
+            });
           },
           child: Icon(Icons.add),
           tooltip: "Thêm tài xế",
@@ -124,16 +129,21 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                   ), //Ten + Trang thai
                   Expanded(
                     flex: 1,
-                    child: IconButton(
-                      icon: Icon(Icons.delete),
-                      iconSize: 40.0,
-                      color: Color(0xff0A2463),
-                      onPressed: () {
-                        //Xoa driver
-                        debugPrint("Delete driver ${document[index].documentID} tapped");
-                        confirmDelete(context, document[index].documentID);
-                      },
-                    ),
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                      child: IconButton(
+                        padding: EdgeInsets.only(top: 22.0),
+                        icon: Icon(Icons.delete),
+                        iconSize: 30.0,
+                        color: Color(0xff0A2463),
+                        onPressed: () {
+                          //Xoa driver
+                          debugPrint("Delete driver ${document[index].documentID} tapped");
+                          confirmDelete(context, document[index].documentID);
+                        },
+                      ),
+                    )
+
                   ) //Nut xoa
                 ],
               )),
