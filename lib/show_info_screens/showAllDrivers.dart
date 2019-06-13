@@ -29,10 +29,10 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
     return Scaffold(
         appBar: AppBar(
-//          leading: Icon(
-//            Icons.dehaze,
-//            color: Color(0xff06E2B3),
-//          ),
+//        leading: Icon(
+//          Icons.dehaze,
+//          color: Color(0xff06E2B3),
+//        ),
           title: Text(
             "Tất Cả Tài Xế",
             style: appBarTxTStyle,
@@ -40,7 +40,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
           backgroundColor: Color(0xff0A2463),
         ),
         body: //getListDriversView(),
-            StreamBuilder(
+        StreamBuilder(
           stream: Firestore.instance.collection('drivers').snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -98,7 +98,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           children: <Widget>[
                             Container(
                               padding: EdgeInsets.only(bottom: 10.0),
-                              child: Text(document[index].data['name'], style: driverNameStyle()),
+                              child: Text(document[index].data['name'],
+                                  style: driverNameStyle()),
                             ),
                             Container(
                               padding: EdgeInsets.only(bottom: 5.0),
@@ -129,8 +130,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                       color: Color(0xff0A2463),
                       onPressed: () {
                         //Xoa driver
-                        debugPrint("Delete driver tapped");
-                        confirmDelete(context);
+                        debugPrint("Delete driver ${document[index].documentID} tapped");
+                        confirmDelete(context, document[index].documentID);
                       },
                     ),
                   ) //Nut xoa
@@ -140,7 +141,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             //go to detail info
             debugPrint("driver tapped");
             setState(() {
-              _selectedDriverID = 'TX0001';
+              _selectedDriverID = document[index].documentID;
             });
           },
         );
@@ -154,7 +155,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     return listView;
   }
 
-  void confirmDelete(BuildContext context) {
+  void confirmDelete(BuildContext context, id) {
     var confirmDialog = AlertDialog(
       title: Text('Bạn muốn xóa tài xế này?'),
       content: null,
@@ -166,9 +167,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
-            setState(() {
-              //xoa thiet ._.
-            });
+            Firestore.instance.collection('drivers').document(id).delete();
           },
           child: Text(
             'Xóa',
@@ -181,6 +180,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     showDialog(
         context: context,
         barrierDismissible: true,
-        builder: (BuildContext context) => confirmDialog);
+        builder: (BuildContext context) => confirmDialog
+    );
   }
 }
