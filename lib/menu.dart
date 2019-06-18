@@ -4,6 +4,7 @@ import './show_info_screens/showDriverInfoScreen.dart';
 import './add_screens/addDriverScreen.dart';
 import './styles/styles.dart';
 import './show_info_screens/showAllDrivers.dart';
+import './show_info_screens/showAllJourneys.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
@@ -17,6 +18,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
+<<<<<<< Updated upstream
 //    ShowDriverInfo(
 //      key: PageStorageKey('Page1'),
 //      dID: 'TX0001',
@@ -26,6 +28,11 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       'Hanh Trinh',
       style: optionStyle,
     ),
+=======
+    ShowAllDrivers(),
+    ShowAllJourneys(),
+
+>>>>>>> Stashed changes
     Text(
       'Nhan Vien',
       style: optionStyle,

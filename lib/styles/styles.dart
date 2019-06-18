@@ -58,6 +58,17 @@ TextStyle driverInfoStyle() {
   );
 }
 
+TextStyle journeyStatusStyle(status) {
+  return TextStyle(
+    color: status == 0 ? Color(0xff00bc94) :
+           status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+    fontWeight: FontWeight.w400,
+    fontFamily: "Roboto",
+    fontStyle:  FontStyle.normal,
+    fontSize: 15.0
+  );
+}
+
 BoxDecoration oddLineDetails() {
   return BoxDecoration(
     border: Border(
