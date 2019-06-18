@@ -30,19 +30,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
     return Scaffold(
         appBar: AppBar(
-//        leading: Icon(
-//          Icons.dehaze,
-//          color: Color(0xff06E2B3),
-//        ),
-<<<<<<< Updated upstream
           title: Text(
             "Tất Cả Tài Xế",
             style: appBarTxTStyle,
           ),
           backgroundColor: Color(0xff0A2463),
-=======
-          title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),)
->>>>>>> Stashed changes
         ),
         body: //getListDriversView(),
         StreamBuilder(

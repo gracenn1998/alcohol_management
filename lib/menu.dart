@@ -18,21 +18,11 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-<<<<<<< Updated upstream
-//    ShowDriverInfo(
-//      key: PageStorageKey('Page1'),
-//      dID: 'TX0001',
-//    ),
+
     ShowAllDrivers(),
-    Text(
-      'Hanh Trinh',
-      style: optionStyle,
-    ),
-=======
-    ShowAllDrivers(),
+
     ShowAllJourneys(),
 
->>>>>>> Stashed changes
     Text(
       'Nhan Vien',
       style: optionStyle,
