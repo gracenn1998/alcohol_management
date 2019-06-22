@@ -1,6 +1,7 @@
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ShowAllJourneys extends StatefulWidget {
   const ShowAllJourneys() : super();
@@ -45,59 +46,63 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
             icon: Icon(Icons.search),
             color: Color(0xff06e2b3),
             onPressed: () {
-              //Tim kiem hanh trinh
               debugPrint('Tim kiem hanh trinh');
+//              showSearch(
+//                context: context,
+//                delegate: JourneySearch(),
+//              );
             },
           )
         ],
       ),
-      body: StreamBuilder(
-        stream: Firestore.instance.collection('journeys').snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-          if (snapshots.connectionState == ConnectionState.waiting) {
-            return Center(
-                child: Text('Loading...',
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-          } else
-            return getListJourneyView(snapshots.data.documents);
-        },
-      ),
-      floatingActionButton: Container(
-        padding: EdgeInsets.only(bottom: 1.0),
-        child:
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              FloatingActionButton(
-                child: Icon(Icons.filter_list),
-                tooltip: 'Lọc',
-                backgroundColor: Colors.white,
-                foregroundColor: Color(0xff8391b3),
-                onPressed: () {
-                  setState(() {
-                    debugPrint('Lọc');
-                  });
-                },
-              ),
-              Container(padding: EdgeInsets.only(left: 2.5, right: 2.5),),
-              FloatingActionButton(
-                child: Icon(Icons.add),
-                tooltip: 'Thêm hành trình',
-                backgroundColor: Color(0xffef3964),
-                foregroundColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    debugPrint('Add');
-                    _selectedFuction = 1;
-                  });
-                },
-              ),
-            ],
-          ),
-        )
+      body:
+        StreamBuilder(
+          stream: Firestore.instance.collection('journeys').snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+            } else
+              return getListJourneyView(snapshots.data.documents);
+          },
+        ),
+      floatingActionButton:
+        Container(
+          padding: EdgeInsets.only(bottom: 1.0),
+          child:
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                FloatingActionButton(
+                  child: Icon(Icons.filter_list),
+                  tooltip: 'Lọc',
+                  backgroundColor: Colors.white,
+                  foregroundColor: Color(0xff8391b3),
+                  onPressed: () {
+                    setState(() {
+                      debugPrint('Lọc');
+                    });
+                  },
+                ),
+                Container(padding: EdgeInsets.only(left: 2.5, right: 2.5),),
+                FloatingActionButton(
+                  child: Icon(Icons.add),
+                  tooltip: 'Thêm hành trình',
+                  backgroundColor: Color(0xffef3964),
+                  foregroundColor: Colors.white,
+                  onPressed: () {
+                    setState(() {
+                      debugPrint('Add');
+                      _selectedFuction = 1;
+                    });
+                  },
+                ),
+              ],
+            ),
+          )
     );
   }
 
@@ -185,7 +190,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                             Container(
                               padding: EdgeInsets.only(left: 5.0),
                               child: Text(
-                                '12/7/2019', //document[index].data['schStart']
+                                formattedDate(document[index].data['schStart']),
                                 style: TextStyle(
                                   color: Color(0xff0a2463),
                                   fontWeight: FontWeight.w400,
@@ -212,7 +217,8 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                             Container(
                               padding: EdgeInsets.only(left: 5.0),
                               child: Text(
-                                'Ten tai xe',
+                                getDriverName(document[index].data['dID']),
+//                              document[index].data['dID'],
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w700,
@@ -274,7 +280,6 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                         padding: EdgeInsets.only(left: 15.0, top: 1.0),
                         child:
                           Text(
-//                            '154 Lý Tự Trọng, P. An Cư, Q. Ninh Kiều, TPCT',
                             document[index].data['from'],
                             style: TextStyle(
                               color:  Color(0xff000000),
@@ -293,7 +298,6 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                         padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                         child:
                           Text(
-//                            '12A Nguyễn Văn Cừ Nối Dài, P. An Lạc, Q. Ninh Kiều, TPCT',
                             document[index].data['to'],
                             style: TextStyle(
                               color:  Color(0xff000000),
@@ -315,7 +319,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
           },
         );
       },
-      separatorBuilder: (context, idex) {
+      separatorBuilder: (context, index) {
         return Divider();
       },
     );
@@ -336,17 +340,67 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
             Navigator.pop(context);
             Firestore.instance.collection('journeys').document(id).delete();
           },
-          child: Text(
-            'Xóa',
-            style: TextStyle(color: Colors.red),
+          child: Text('Xóa', style: TextStyle(color: Colors.red),
           ),
         )
       ],
     );
 
     showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) => confirmDialog);
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => confirmDialog
+    );
+  }
+
+  String formattedDate(data) {
+    final df = new DateFormat('dd/MM/yyyy');
+    var formatted = df.format(data.toDate());
+    return formatted;
+  }
+
+  String getDriverName(id) {
+//    debugPrint(id);
+    String driverName = 'Ten tai xe $id';
+    return driverName;
   }
 }
+/*
+class JourneySearch extends SearchDelegate<String> {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+        IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+//          query = '';
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+//        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return null;
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    return null;
+  }
+
+}
+*/
