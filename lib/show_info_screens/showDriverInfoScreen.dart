@@ -23,16 +23,19 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   @override
   Widget build(BuildContext context) {
     if(_selectedIndex == -1) {
-      return ShowAllDrivers();
+      return ShowAllDrivers(
+        key: PageStorageKey("showAll"),
+      );
     }
     if(_selectedIndex == 1) {
       return EditDriverInfo(
+        key: PageStorageKey("editInfo"),
         dID: dID,
       );
     }
 
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             color: Color(0xff06E2B3),
@@ -87,7 +90,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   Widget showAllInfo(driver) {
     return Column(
       children: <Widget>[
-        showBasicInfo(driver['name'], 'Đang làm việc', '0.5%'),
+        showBasicInfo(driver['name'], driver['alcohol-track']),
         Expanded(
             child: showDetails( driver['dID'], driver['idCard'],
                 driver['address'], driver['email'],
@@ -99,7 +102,26 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     );
   }
 
-  Widget showBasicInfo(name, status, alcohol) {
+  Widget showBasicInfo(name, alcoholTrack) {
+    String onWorking, alcoholVal;
+    int status;
+    if(alcoholTrack == null) {
+      onWorking = 'Đang nghỉ';
+      alcoholVal = 'Không hoạt động';
+      status = -1;
+    }
+    else {
+      if(alcoholTrack <= 350) {
+        onWorking = 'Đang làm việc';
+        alcoholVal = alcoholTrack.toString();
+        status = 0;
+      }
+      else {
+        onWorking = 'Say xỉn';
+        alcoholVal = alcoholTrack.toString();
+        status = 1;
+      }
+    }
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -108,38 +130,61 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
             Container(
                 padding: EdgeInsets.only(left: 15.0),
                 child: CircleAvatar(
-                  radius: 50.0,
+                  radius: 45.0,
                   backgroundImage: AssetImage('images/avatar.png'),
                 )
             ),
-            Container(
-                padding: EdgeInsets.only(left: 15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text("$name", style: driverNameStyle()),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 5.0),
-                      child: Row(
+            Expanded(
+              child: Container(
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text("$name", style: driverNameStyle()),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 5.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                            Text("$onWorking", style: driverStatusDataStyle(status)),
+                          ],
+                        ),
+                      ),
+                      Row(
                         children: <Widget>[
-                          Text("Trạng thái: ", style: driverStatusTitleStyle(0)),
-                          Text("$status", style: driverStatusDataStyle(0)),
+                          Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                          Text("$alcoholVal", style: driverStatusDataStyle(status)),
                         ],
                       ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Text("Nồng độ cồn: ", style: driverStatusTitleStyle(0)),
-                        Text("$alcohol", style: driverStatusDataStyle(0)),
-                      ],
-                    ),
-                  ],
-                )
-            )
+                    ],
+                  )
+              ),
+            ),
+            status != -1 ?
+            Container(
+              margin: EdgeInsets.only(right: 10.0),
+              child: IconButton(
+                padding: EdgeInsets.only(right: 1.0, bottom: 1.0),
+                icon: Icon(
+                  Icons.local_library,
+                  color: Color(0xff06E2B3),
+                  size: 25.0,
+                ),
+                tooltip: 'Xem hành trình tài xế đang làm việc',
+                onPressed: () {
+                  //return journey detail
+                },
+              ),
+              decoration: BoxDecoration(
+                  color: Color(0xff0a2463),
+                  borderRadius: new BorderRadius.all(const  Radius.circular(25.0)),
+              ),
+            ):Container(),
+
 
           ],
         )
@@ -233,5 +278,3 @@ Widget showDetailItem(title, data, line) {
 
   );
 }
-
-

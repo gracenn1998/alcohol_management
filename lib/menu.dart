@@ -14,6 +14,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     ShowAllDrivers(
+        key: PageStorageKey('showAll')
     ),
     Text(
       'Hanh Trinh',
