@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import './edit_screens/editDriverScreen.dart';
-import './show_info_screens/showDriverInfoScreen.dart';
-import './add_screens/addDriverScreen.dart';
-
 import 'package:alcohol_management/menu/menu.dart';
 import 'package:alcohol_management/menu/menu_driver.dart';
 import 'package:alcohol_management/menu/menu_manager.dart';
@@ -18,7 +14,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Welcome to Flutter',
       home: DriverMenu(),
-//        home: LoginPage(),
+//      home: MyBottomMenu(),
+//      home: ManagerMenu(),
       theme: ThemeData(
         primaryColor: Color(0xff0a2463),
         backgroundColor: Colors.white,
