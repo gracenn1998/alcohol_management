@@ -16,7 +16,7 @@ class EditDriverInfo extends StatefulWidget {
 }
 
 class _EditDriverInfoState extends State<EditDriverInfo> {
-  int _selectedIndex = 0;
+  int _selectedFunction = 0;
   String dID;
   _EditDriverInfoState(this.dID);
 
@@ -28,6 +28,8 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   final _addressController = TextEditingController();
   final _genderController = TextEditingController();
   final _dobController = TextEditingController();
+
+  DocumentSnapshot driver;
 
   @override
   void dispose() {
@@ -41,50 +43,54 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   }
 
   Widget build(BuildContext context) {
-    if(_selectedIndex == -1) {
+    if(_selectedFunction == -1) {
 
       return ShowDriverInfo(
+        key: PageStorageKey("showInfo"),
         dID: 'TX0001',
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: ListTile(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //backkkk
-              setState(() {
-                _selectedIndex--;
-              });
-            },
-          ),
-          title: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center),
-          trailing: IconButton(
-            icon: Icon(Icons.check),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //confirm edit
-              var confirmed = 1;
-              if(confirmed == 1) {
-                print(_nameController.text);
-                setState(() {
-                  dispose();
-                  _selectedIndex--;
-                });
-              }
-
-            },
-          ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          color: Color(0xff06E2B3),
+          onPressed: () {
+            //backkkk
+            setState(() {
+              _selectedFunction--;
+            });
+          },
         ),
+        title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              icon: Icon(Icons.check, size: 30.0,),
+              color: Color(0xff06E2B3),
+              onPressed: () {
+                //confirm edit
+                var confirmed = 1;
+                if(confirmed == 1) {
+                  editDataDTB(driver);
+                  setState(() {
+                    _selectedFunction--;
+                  });
+//                dispose();
+                }
+
+              },
+            ),
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
-          var driver = snapshot.data.documents[0];
+          driver = snapshot.data.documents[0];
           _nameController.text = driver['name'];
           _addressController.text = driver['address'];
           _idCardController.text = driver['idCard'];
@@ -112,13 +118,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               child: editDetails(driver['dID'], driver['email']),
             )
         ),
-
-//      Expanded(
-//        flex: 3,
-//        child: BlankPanel(),
-//      ),
-
-
       ],
     );
   }
@@ -235,6 +234,22 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
       ],
 
     );
+  }
+
+  void editDataDTB(DocumentSnapshot driver) {
+    DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
+    
+    Firestore.instance.runTransaction((transaction) async{
+      DocumentSnapshot freshSnap =
+        await transaction.get(driver.reference);
+      await transaction.update(freshSnap.reference, {
+        'name' : _nameController.text,
+        'idCard' : _idCardController.text,
+        'address' : _addressController.text,
+        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+        'dob' : formattedDOB,
+      });
+    });
   }
 }
 
