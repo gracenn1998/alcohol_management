@@ -8,27 +8,12 @@ const appBarTxTStyle =
 
 
 TextStyle driverStatusDataStyle(status) {
-//  if(status == 0) { //normal
-//    return TextStyle(
-//      fontSize: 13,
-//      fontWeight: FontWeight.w500,
-//      color: Color(0xff00bc94),
-//    );
-//  }
-//  else if( status == 1) { //alarming
-//    return TextStyle(
-//      fontSize: 13,
-//      fontWeight: FontWeight.w500,
-//      color: Color(0xffef3964),
-//    );
-//  }
 
-  //normal
   return TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w500,
-    color:  status == 0 ? Color(0xff00bc94) :
-            status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+    color:  status == 0 ? Color(0xff00bc94) : //normal
+            status == 1 ? Color(0xffef3964) : Color(0xff8391b3), //alarming - not working
   );
 
 }
