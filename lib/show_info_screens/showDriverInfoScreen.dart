@@ -90,7 +90,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   Widget showAllInfo(driver) {
     return Column(
       children: <Widget>[
-        showBasicInfo(driver['name'], driver['alcohol-track']),
+        showBasicInfo(driver['name'], driver['alcoholVal'], driver['on-working']),
         Expanded(
             child: showDetails( driver['dID'], driver['idCard'],
                 driver['address'], driver['email'],
@@ -102,23 +102,23 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     );
   }
 
-  Widget showBasicInfo(name, alcoholTrack) {
-    String onWorking, alcoholVal;
+  Widget showBasicInfo(name, alcoholVal, onWorkingJourney) {
+    String onWorking, alcoholTrack;
     int status;
-    if(alcoholTrack == null) {
+    if(onWorkingJourney == null) {
       onWorking = 'Đang nghỉ';
       alcoholVal = 'Không hoạt động';
       status = -1;
     }
     else {
-      if(alcoholTrack <= 350) {
+      if(alcoholVal <= 350) {
         onWorking = 'Đang làm việc';
-        alcoholVal = alcoholTrack.toString();
+        alcoholTrack = alcoholVal.toString();
         status = 0;
       }
       else {
         onWorking = 'Say xỉn';
-        alcoholVal = alcoholTrack.toString();
+        alcoholTrack = alcoholVal.toString();
         status = 1;
       }
     }
@@ -157,7 +157,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                       Row(
                         children: <Widget>[
                           Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                          Text("$alcoholVal", style: driverStatusDataStyle(status)),
+                          Text("$alcoholTrack", style: driverStatusDataStyle(status)),
                         ],
                       ),
                     ],
@@ -176,7 +176,9 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 ),
                 tooltip: 'Xem hành trình tài xế đang làm việc',
                 onPressed: () {
+
                   //return journey detail
+                  print(onWorkingJourney);
                 },
               ),
               decoration: BoxDecoration(

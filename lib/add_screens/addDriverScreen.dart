@@ -224,7 +224,7 @@ class _AddDriver extends State<AddDriver> {
         'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
         'dob' : formattedDOB,
         'dID' : newID,
-        'email' : newID + '@driver.potatoes.com',
+        'email' : newID.toLowerCase() + '@driver.potatoes.com',
       });
     }).then((data){
       streamSub.cancel();
