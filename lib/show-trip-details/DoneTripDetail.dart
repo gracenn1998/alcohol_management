@@ -88,7 +88,5 @@ class DoneTripDetailState extends State<DoneTripDetail>{
         },
       ),
     );
-
-
   }
 }

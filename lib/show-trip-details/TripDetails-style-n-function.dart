@@ -39,16 +39,33 @@ String toStatusInVN(String x) {
 
 String formatDateTime(time) => DateFormat("dd/MM/yyyy").add_jm().format(time);
 
+
+//BUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG: Do hasData work 1 cach ky cuc :)
+// nen phai imple kieu ngu si nhu nayyyy tam.
 Widget getDriverNameByID(dID) {
+
+  if (dID == null)
+    return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
+
   return StreamBuilder<QuerySnapshot> (
-      stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
-       builder: (context, snapshot) {
-        // print('acb');
-         if(!snapshot.hasData)
-        return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
-      var t = snapshot.data.documents[0];
-      return showDetailItem("Tài xế", t['name'], 0, 'normal');
-  });
+      stream: Firestore.instance.collection('drivers').where('dID', isGreaterThanOrEqualTo: dID).snapshots(),
+       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+         if(snapshot.hasError){
+           print('Lỗi cmnr');
+         }
+         else {
+           if (snapshot.hasData)
+             {
+               var t = snapshot.data.documents[0];
+               print('Hẻm có data');
+               if (t['dID'] == dID)
+                return showDetailItem("Tài xế", t['name'], 0, 'normal');
+               else return showDetailItem("Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
+             }
+           return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
+         }
+  }
+  );
 }
 
 Widget showDetails(trip, Tstatus) {
