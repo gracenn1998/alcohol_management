@@ -6,6 +6,7 @@ import 'login_screen/auth.dart';
 import 'root_page.dart';
 import 'menu.dart';
 import 'login_screen/auth_provider.dart';
+import 'show-trip-details/showTripDetails.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
             //  home: MyBottomMenu(),
-            home: RootPage(),
+            home: ShowTripDetails(jID: 'HT0002'),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
               fontFamily: 'Roboto',
