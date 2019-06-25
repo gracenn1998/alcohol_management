@@ -143,10 +143,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                           Expanded(
                             child: Container(
                               padding: EdgeInsets.only(left: 10.0, top: 5.0),
-                              child: Text(
-                                'Đã hoàn thành',
-                                style: journeyStatusStyle(0),
-                              ),
+                              child: getStatusTrip(document[index].data['status']),
                             ),
                             flex: 2,
                           ),
@@ -172,8 +169,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                       ),
                     )
                   ],
-                ),
-                //1
+                ), //1
 
                 Row(
                   children: <Widget>[
@@ -215,28 +211,32 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                               color: Color(0xff8391b3),
                               size: 23.0,
                             ),
-                            StreamBuilder (
-                              stream: Firestore.instance.collection('drivers').document(document[index].data['dID']).snapshots(),
-                              builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshots) {
-                                if (!snapshots.hasData)
+                            StreamBuilder<QuerySnapshot> (
+                              stream:
+                              Firestore.instance.collection('drivers').where('dID', isEqualTo: document[index].data['dID']).snapshots(),
+                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+                                if (snapshots.data.documents.isEmpty) {
                                   return Container(
+                                    constraints: BoxConstraints(maxWidth: 170),
                                     padding: EdgeInsets.only(left: 5.0),
                                     child: Text(
-                                      'Not found',
+                                      'Không tìm được tài xế',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w700,
                                         fontFamily: "Roboto",
                                         fontStyle: FontStyle.normal,
-                                        fontSize: 20.0)
+                                        fontSize: 20.0),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   );
+                                }
                                 else
                                   return Container(
                                     constraints: BoxConstraints(maxWidth: 170),
                                     padding: EdgeInsets.only(left: 5.0),
                                     child: Text(
-                                      snapshots.data['name'].toString(),
+                                      snapshots.data.documents[0].data['name'].toString(),
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w700,
@@ -380,17 +380,23 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
     var formatted = df.format(data);
     return formatted;
   }
+
+  Text getStatusTrip(String data) {
+    if (data == 'notStarted') return Text('Chưa bắt đầu', style: tripStatusStyle(1),);
+    else if (data == 'working') return Text('Đang làm việc', style: tripStatusStyle(2),);
+    else return Text('Đã hoàn thành', style: tripStatusStyle(0),);
+  }
 }
 
 /*
-class JourneySearch extends SearchDelegate<String> {
+class JourneySearch extends SearchDelegate {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
         IconButton(
         icon: Icon(Icons.clear),
         onPressed: () {
-//          query = '';
+          query = '';
         },
       )
     ];
@@ -398,19 +404,25 @@ class JourneySearch extends SearchDelegate<String> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    // TODO: implement buildLeading
     return IconButton(
       icon: Icon(Icons.arrow_back),
       onPressed: () {
-//        close(context, null);
+        close(context, null);
       },
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    return null;
+    if (query.length < 3)
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Center(
+            child: Text('Nhập hơn 2 chữ'),
+          )
+        ],
+      );
   }
 
   @override
@@ -418,6 +430,5 @@ class JourneySearch extends SearchDelegate<String> {
     // TODO: implement buildSuggestions
     return null;
   }
-
 }
 */

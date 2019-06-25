@@ -43,7 +43,7 @@ TextStyle driverInfoStyle() {
   );
 }
 
-TextStyle journeyStatusStyle(status) {
+TextStyle tripStatusStyle(status) {
   return TextStyle(
     color: status == 0 ? Color(0xff00bc94) :
            status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
