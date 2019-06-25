@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import './show_info_screens/showAllDrivers.dart';
+import './show_info_screens/showAllJourneys.dart';
+
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
@@ -16,10 +18,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     ShowAllDrivers(
         key: PageStorageKey('showAll')
     ),
-    Text(
-      'Hanh Trinh',
-      style: optionStyle,
-    ),
+    ShowAllJourneys(),
     Text(
       'Nhan Vien',
       style: optionStyle,

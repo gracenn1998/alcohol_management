@@ -2,6 +2,7 @@ import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 class ShowAllJourneys extends StatefulWidget {
   const ShowAllJourneys() : super();
@@ -214,18 +215,39 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                               color: Color(0xff8391b3),
                               size: 23.0,
                             ),
-                            Container(
-                              padding: EdgeInsets.only(left: 5.0),
-                              child: Text(
-                                getDriverName(document[index].data['dID']),
-//                              document[index].data['dID'],
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: "Roboto",
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 20.0)
-                              ),
+                            StreamBuilder (
+                              stream: Firestore.instance.collection('drivers').document(document[index].data['dID']).snapshots(),
+                              builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshots) {
+                                if (!snapshots.hasData)
+                                  return Container(
+                                    padding: EdgeInsets.only(left: 5.0),
+                                    child: Text(
+                                      'Not found',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: "Roboto",
+                                        fontStyle: FontStyle.normal,
+                                        fontSize: 20.0)
+                                    ),
+                                  );
+                                else
+                                  return Container(
+                                    constraints: BoxConstraints(maxWidth: 170),
+                                    padding: EdgeInsets.only(left: 5.0),
+                                    child: Text(
+                                      snapshots.data['name'].toString(),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: "Roboto",
+                                        fontStyle: FontStyle.normal,
+                                        fontSize: 20.0
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                              },
                             )
                           ],
                         ),
@@ -355,16 +377,11 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
 
   String formattedDate(data) {
     final df = new DateFormat('dd/MM/yyyy');
-    var formatted = df.format(data.toDate());
+    var formatted = df.format(data);
     return formatted;
   }
-
-  String getDriverName(id) {
-//    debugPrint(id);
-    String driverName = 'Ten tai xe $id';
-    return driverName;
-  }
 }
+
 /*
 class JourneySearch extends SearchDelegate<String> {
   @override
