@@ -79,3 +79,5 @@ BoxDecoration evenLineDetails() {
 
   );
 }
+
+const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);

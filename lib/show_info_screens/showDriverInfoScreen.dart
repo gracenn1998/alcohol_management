@@ -220,7 +220,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
 Widget showDetails(id, idCard, address, email, gender, dob) {
   final df = new DateFormat('dd/MM/yyyy');
-  var formattedDOB = df.format(dob.toDate());
+  var formattedDOB = df.format(dob);
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(

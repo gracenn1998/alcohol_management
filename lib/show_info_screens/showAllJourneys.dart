@@ -215,21 +215,24 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                               stream:
                               Firestore.instance.collection('drivers').where('dID', isEqualTo: document[index].data['dID']).snapshots(),
                               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-                                if (snapshots.data.documents.isEmpty) {
-                                  return Container(
-                                    constraints: BoxConstraints(maxWidth: 170),
-                                    padding: EdgeInsets.only(left: 5.0),
-                                    child: Text(
-                                      'Không tìm được tài xế',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: "Roboto",
-                                        fontStyle: FontStyle.normal,
-                                        fontSize: 20.0),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  );
+                                if(!snapshots.hasData) {
+                                  return Center(child: Text('Loading...', style: tempStyle,),);
+                                }
+                                else if (snapshots.data.documents.isEmpty) {
+//                                  return Container(
+//                                    constraints: BoxConstraints(maxWidth: 170),
+//                                    padding: EdgeInsets.only(left: 5.0),
+//                                    child: Text(
+//                                      'Không tìm được tài xế',
+//                                      style: TextStyle(
+//                                        color: Colors.black,
+//                                        fontWeight: FontWeight.w700,
+//                                        fontFamily: "Roboto",
+//                                        fontStyle: FontStyle.normal,
+//                                        fontSize: 20.0),
+//                                      overflow: TextOverflow.ellipsis,
+//                                    ),
+//                                  );
                                 }
                                 else
                                   return Container(
