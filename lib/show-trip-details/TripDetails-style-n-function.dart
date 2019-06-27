@@ -3,6 +3,9 @@ import 'package:alcohol_management/styles/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+
+
+
 TextStyle TripID(){
   return TextStyle(
     fontSize: 28.0,
@@ -10,6 +13,23 @@ TextStyle TripID(){
     color: const Color(0xff000000),
     fontWeight: FontWeight.w900,
     fontStyle: FontStyle.normal,
+  );
+}
+
+TextStyle timeStyleinJD(){
+  return TextStyle(
+      fontSize: 15,
+      color: Color(0xff0a2463),
+      fontFamily: "Roboto",
+      fontStyle: FontStyle.normal
+  );
+}
+
+TextStyle driverNameStyleinJD() {
+  return TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: Colors.black,
   );
 }
 
@@ -39,11 +59,28 @@ String toStatusInVN(String x) {
 
 String formatDateTime(time) => DateFormat("dd/MM/yyyy").add_jm().format(time);
 
+String fromStartTime(DateTime start){
+  final Diff = DateTime.now().difference(start).inMinutes;
+  int m = Diff % 60;
+  int h = Diff ~/ 60;
+  int d = h ~/24;
+  h = h - 24*d;
+
+  String tg = "";
+  if (d > 0)
+    tg = "$d ngày ";
+  if (h > 0)
+    tg = tg + "$h giờ ";
+  if (m > 0)
+    tg = tg + "$m phút ";
+
+  print("$Diff $h $m");
+  return tg;
+}
 
 //BUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG: Do hasData work 1 cach ky cuc :)
-// nen phai imple kieu ngu si nhu nayyyy tam.
+// nen phai implement kieu ngu si nhu nayyyy tam.
 Widget getDriverNameByID(dID) {
-
   if (dID == null)
     return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
 
@@ -56,8 +93,8 @@ Widget getDriverNameByID(dID) {
          else {
            if (snapshot.hasData)
              {
+               print(snapshot.data.toString());
                var t = snapshot.data.documents[0];
-               print('Hẻm có data');
                if (t['dID'] == dID)
                 return showDetailItem("Tài xế", t['name'], 0, 'normal');
                else return showDetailItem("Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
