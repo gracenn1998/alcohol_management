@@ -399,3 +399,69 @@ class WorkingJourneyDetailState extends State<WorkingJourneyDetail> with SingleT
 
 
 } //end class*/
+
+
+//    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+//        .then(_updateStatus);
+
+
+//Permission_handler (AndroidX =.=")
+/*PermissionStatus _status;
+
+  @override
+
+
+  void _updateStatus(PermissionStatus status){
+    print("$status");
+    if (status != _status)
+      {
+        setState(() {
+          _status = status;
+        });
+      }
+  }
+
+  void _askPermission(){
+    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
+        .then(_onStatusRequested);
+  }
+
+  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
+    final status = statuses[PermissionGroup.locationWhenInUse];
+    if(status != PermissionStatus.granted)
+      PermissionHandler().openAppSettings();
+    _updateStatus(status);
+  }*/
+//GoogleMap test
+/*
+  Completer<GoogleMapController> _controller = Completer();
+
+  static final CameraPosition _default = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
+
+  static final CameraPosition _kLake = CameraPosition(
+      bearing: 192.8334901395799,
+      target: LatLng(37.43296265331129, -122.08832357078792),
+      tilt: 59.440717697143555,
+      zoom: 19.151926040649414);
+
+  Future<void> _goToTheLake() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  }
+
+  Widget buildMap(){
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: CameraPosition(
+        target: LatLng(37.42796133580664, -122.085749655962),
+        zoom: 14.4746,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+      myLocationEnabled : true,
+    );
+  }*/

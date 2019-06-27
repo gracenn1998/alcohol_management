@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
 
 class WorkingTripDetail extends StatefulWidget{
   final trip;
@@ -16,61 +17,20 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   final trip;
   WorkingTripDetailState(this.trip);
 
-  //varrrrrrrrrrrrrrrrr
   GlobalKey _keyRed = GlobalKey();
   PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
-
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   static double JourneyInfoHeight = 190.0;
-  void heightOfJourneyInfo(){
-    final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
-    final sizeRed = renderBoxRed.size;
-    print("SIZE of Red: ${sizeRed.height} ");
-    JourneyInfoHeight = sizeRed.height;
-  }
+
+
   //------------------------------------
-
-  @override
-  void initState(){
-    super.initState();
-    _animationController = new AnimationController(
-        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
-
-    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-    .then(_updateStatus);
-
-
-  }
-
-  void _updateStatus(PermissionStatus status){
-    print("$status");
-    if (status != _status)
-      {
-        setState(() {
-          _status = status;
-        });
-      }
-  }
-
-  void _askPermission(){
-    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
-        .then(_onStatusRequested);
-  }
-
-  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
-    final status = statuses[PermissionGroup.locationWhenInUse];
-    if(status != PermissionStatus.granted)
-      PermissionHandler().openAppSettings();
-    _updateStatus(status);
-  }
-
-/*
   Completer<GoogleMapController> _controller = Completer();
 
   static final CameraPosition _default = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+    target: LatLng(10.03711, 105.78825),
+
     zoom: 14.4746,
   );
 
@@ -88,55 +48,17 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   Widget buildMap(){
     return GoogleMap(
       mapType: MapType.normal,
-      initialCameraPosition: CameraPosition(
-        target: LatLng(37.42796133580664, -122.085749655962),
-        zoom: 14.4746,
-      ),
+      initialCameraPosition: _default,
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
       myLocationEnabled : true,
-    );
-  }*/
+    ); }
 
-  Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-    final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
-
-    return new Column(
-      children: <Widget>[
-        DriverInfo(),
-        new Stack(
-          children: <Widget>[
-            new Container(
-              color: Colors.white,
-              constraints: BoxConstraints.expand(
-                  height: constraints.biggest.height - 120
-              ),
-            ),
-            JourneyInfo(),
-            new PositionedTransition(
-              rect: animation,
-              child: new Material(
-                borderRadius: const BorderRadius.only(
-                    topLeft: const Radius.circular(16.0),
-                    topRight: const Radius.circular(16.0)),
-                elevation: 12.0,
-                child: new Column(children: <Widget>[
-                  new Expanded(
-                    child: Text("FrontLayer"),
-                   // buildMap(),
-                  ),
-                ]),
-              ),
-            )
-          ],
-        ),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    _askPermission();
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
@@ -167,18 +89,13 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         ],
       ),
       body:
-        new Column(
-          children: <Widget>[
-            Text("$_status"),
-          ],
-        )
-      /*buildMap(),
+      buildMap(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToTheLake,
         label: Text('To the lake!'),
         icon: Icon(Icons.directions_boat),
       ),
-*/
+
 //--------------ct chinh
 //      new LayoutBuilder(
 //        builder: _buildStack,
@@ -186,7 +103,43 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
-  Widget DriverInfo(){
+    Widget _buildStack(BuildContext context, BoxConstraints constraints) {
+      final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
+
+      return new Column(
+        children: <Widget>[
+          DriverInfo(),
+          new Stack(
+            children: <Widget>[
+              new Container(
+                color: Colors.white,
+                constraints: BoxConstraints.expand(
+                    height: constraints.biggest.height - 120
+                ),
+              ),
+              JourneyInfo(),
+              new PositionedTransition(
+                rect: animation,
+                child: new Material(
+                  borderRadius: const BorderRadius.only(
+                      topLeft: const Radius.circular(16.0),
+                      topRight: const Radius.circular(16.0)),
+                  elevation: 12.0,
+                  child: new Column(children: <Widget>[
+                    new Expanded(
+                      child: Text("FrontLayer"),
+                      // buildMap(),
+                    ),
+                  ]),
+                ),
+              )
+            ],
+          ),
+        ],
+      );
+    }
+
+    Widget DriverInfo(){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -504,5 +457,44 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
     ).animate(new CurvedAnimation(parent: _animationController, curve: Curves.linear));
   }
+
+  void heightOfJourneyInfo(){
+    final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
+    final sizeRed = renderBoxRed.size;
+    print("SIZE of Red: ${sizeRed.height} ");
+    JourneyInfoHeight = sizeRed.height;
+  }
+
+
+  void initState(){
+    super.initState();
+    _animationController = new AnimationController(
+        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+
+    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+        .then(_updateStatus);
+  }
+
+  void _updateStatus(PermissionStatus status){
+    print("$status");
+    if (status != _status)
+    {
+      setState(() {
+        _status = status;
+      });
+    }
+  }
+  void _askPermission(){
+    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
+        .then(_onStatusRequested);
+  }
+
+  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
+    final status = statuses[PermissionGroup.locationWhenInUse];
+    if(status != PermissionStatus.granted)
+      PermissionHandler().openAppSettings();
+    _updateStatus(status);
+  }
+
 
 }
