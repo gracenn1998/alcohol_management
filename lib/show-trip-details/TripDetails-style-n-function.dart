@@ -66,7 +66,7 @@ String fromStartTime(DateTime start){
   int d = h ~/24;
   h = h - 24*d;
 
-  String tg = "";
+  String tg ="";
   if (d > 0)
     tg = "$d ngày ";
   if (h > 0)
