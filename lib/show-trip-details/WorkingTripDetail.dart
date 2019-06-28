@@ -4,7 +4,7 @@ import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 
 class WorkingTripDetail extends StatefulWidget{
   final trip;
@@ -21,57 +21,30 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
-  // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   static double JourneyInfoHeight = 190.0;
+  // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
 
-
-  //------------------------------------
   Completer<GoogleMapController> _controller = Completer();
-
-  static final CameraPosition _default = CameraPosition(
-    target: LatLng(10.03711, 105.78825),
-
-    zoom: 14.4746,
-  );
-
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
-
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
-  }
-
-  Widget buildMap(){
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _default,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-      },
-      myLocationEnabled : true,
-    ); }
-
+  Map<String, double> curLocation;
+  var location = new Location();
 
   @override
   Widget build(BuildContext context) {
+
     _askPermission();
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
         title: new Center(child: Text("Thông tin hành trình") ,),
         leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios),
-                  color: Color(0xff06E2B3),
-                  onPressed: () {
-                    setState(() {
-                      _selectedIndex--;
-                    });
-                  }, //BACKKKKK
-                ),
+          icon: Icon(Icons.arrow_back_ios),
+          color: Color(0xff06E2B3),
+          onPressed: () {
+            setState(() {
+              _selectedIndex--;
+            });
+          }, //BACKKKKK
+        ),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 5.0),
@@ -89,57 +62,67 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         ],
       ),
       body:
-      buildMap(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+      new LayoutBuilder(
+        builder: _buildStack,
       ),
-
-//--------------ct chinh
-//      new LayoutBuilder(
-//        builder: _buildStack,
-//      ),
     );
   }
 
-    Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-      final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
+  Widget buildMap(){
 
-      return new Column(
-        children: <Widget>[
-          DriverInfo(),
-          new Stack(
-            children: <Widget>[
-              new Container(
-                color: Colors.white,
-                constraints: BoxConstraints.expand(
-                    height: constraints.biggest.height - 120
-                ),
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition:
+        CameraPosition(
+          target: curLocation == null ?
+          LatLng(10.03711, 105.78825): //Can Tho City
+          LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+          zoom: 15,
+        ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+      myLocationEnabled : true,
+    );
+  }
+
+  Widget _buildStack(BuildContext context, BoxConstraints constraints) {
+    final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
+
+    return new Column(
+      children: <Widget>[
+        DriverInfo(),
+        new Stack(
+          children: <Widget>[
+            new Container(
+              color: Colors.white,
+              constraints: BoxConstraints.expand(
+                  height: constraints.biggest.height - 120
               ),
-              JourneyInfo(),
-              new PositionedTransition(
-                rect: animation,
-                child: new Material(
-                  borderRadius: const BorderRadius.only(
-                      topLeft: const Radius.circular(16.0),
-                      topRight: const Radius.circular(16.0)),
-                  elevation: 12.0,
-                  child: new Column(children: <Widget>[
-                    new Expanded(
-                      child: Text("FrontLayer"),
-                      // buildMap(),
-                    ),
-                  ]),
-                ),
-              )
-            ],
-          ),
-        ],
-      );
-    }
+            ),
+            JourneyInfo(),
+            new PositionedTransition(
+              rect: animation,
+              child: new Material(
+                borderRadius: const BorderRadius.only(
+                    topLeft: const Radius.circular(16.0),
+                    topRight: const Radius.circular(16.0)),
+                elevation: 12.0,
+                child: new Column(children: <Widget>[
+                  new Expanded(
+                    child:
+                    buildMap(),
+                  ),
+                ]),
+              ),
+            )
+          ],
+        ),
+      ],
+    );
+  }
 
-    Widget DriverInfo(){
+  Widget DriverInfo(){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -433,6 +416,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
+
+  //ANIMATIONNNNNNNNNNNNNNNNN
   bool get _isPanelVisible {
     final AnimationStatus status = _animationController.status;
     return status == AnimationStatus.completed ||
@@ -467,16 +452,21 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
 
   void initState(){
+    _getLocation();
+
     super.initState();
     _animationController = new AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
     PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
         .then(_updateStatus);
+
   }
 
+  //LOCATION ACCESS PERMISSIONNNNNNNNNN
+
   void _updateStatus(PermissionStatus status){
-    print("$status");
+    //print("$status");
     if (status != _status)
     {
       setState(() {
@@ -487,14 +477,30 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   void _askPermission(){
     PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
         .then(_onStatusRequested);
+
   }
 
   void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
     final status = statuses[PermissionGroup.locationWhenInUse];
+
     if(status != PermissionStatus.granted)
       PermissionHandler().openAppSettings();
+
     _updateStatus(status);
   }
 
+//////////GET USER LOCATION
+  Future<Map<String, double>> _getLocation() async{
+    curLocation  = <String, double>{};
+    try {
+      curLocation = await location.getLocation();
+      setState(() {
+
+      });
+    } catch(e) {
+      curLocation = null;
+    }
+    return curLocation;
+  }
 
 }

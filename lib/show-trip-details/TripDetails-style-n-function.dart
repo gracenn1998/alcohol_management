@@ -74,7 +74,7 @@ String fromStartTime(DateTime start){
   if (m > 0)
     tg = tg + "$m phút ";
 
-  print("$Diff $h $m");
+  //print("$Diff $h $m");
   return tg;
 }
 
