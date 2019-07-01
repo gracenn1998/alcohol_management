@@ -1,6 +1,8 @@
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
 
 class DriverShowHistory extends StatefulWidget {
   const DriverShowHistory() : super();
@@ -125,10 +127,7 @@ class _DriverShowHistoryState extends State<DriverShowHistory> {
                           Expanded(
                             child: Container(
                               padding: EdgeInsets.only(left: 10.0, top: 5.0),
-                              child: Text(
-                                'Đã hoàn thành',
-                                style: journeyStatusStyle(0),
-                              ),
+                              child: getStatusTrip(document[index].data['status']),
                             ),
                             flex: 2,
                           ),
@@ -173,7 +172,7 @@ class _DriverShowHistoryState extends State<DriverShowHistory> {
                             Container(
                               padding: EdgeInsets.only(left: 5.0),
                               child: Text(
-                                  '12/7/2019', //document[index].data['schStart']
+                                  formattedDate(document[index].data['schStart']), //document[index].data['schStart']
                                   style: TextStyle(
                                       color: Color(0xff0a2463),
                                       fontWeight: FontWeight.w400,
@@ -336,5 +335,15 @@ class _DriverShowHistoryState extends State<DriverShowHistory> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) => confirmDialog);
+  }
+  Text getStatusTrip(String data) {
+    if (data == 'notStarted') return Text('Chưa bắt đầu', style: tripStatusStyle(1),);
+    else if (data == 'working') return Text('Đang làm việc', style: tripStatusStyle(2),);
+    else return Text('Đã hoàn thành', style: tripStatusStyle(0),);
+  }
+  String formattedDate(data) {
+    final df = new DateFormat('dd/MM/yyyy');
+    var formatted = df.format(data);
+    return formatted;
   }
 }
