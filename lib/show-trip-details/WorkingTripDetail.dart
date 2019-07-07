@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
 
+
 class WorkingTripDetail extends StatefulWidget{
   final trip;
   const WorkingTripDetail({Key key, @required this.trip}) : super(key: key);

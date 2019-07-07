@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
             //  home: MyBottomMenu(),
-            home: ShowTripDetails(jID: 'HT0004'),
+            home: ShowTripDetails(jID: 'HT0002'),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
               fontFamily: 'Roboto',

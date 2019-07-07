@@ -1,4 +1,3 @@
-/*
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
@@ -6,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
+
 
 class WorkingTripDetail extends StatefulWidget{
   final trip;
@@ -22,57 +22,16 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
-  // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   static double JourneyInfoHeight = 190.0;
-
-
-  //------------------------------------
-
-  var location = new Location();
-  Map<String, double> userLocation;
-
-  Future<Map<String, double>> _getLocation() async{
-    var curLocation  = <String, double>{};
-    try {
-      curLocation = await location.getLocation();
-    } catch(e) {
-      curLocation = null;
-    }
-
-    return curLocation;
-  }
+  // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
 
   Completer<GoogleMapController> _controller = Completer();
-
-  static final CameraPosition _default = CameraPosition(
-    target: LatLng(10.03711, 105.78825),
-    zoom: 14.4746,
-  );
-
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
-
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
-  }
-
-  Widget buildMap(){
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _default,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-      },
-      myLocationEnabled : true,
-    ); }
-
+  Map<String, double> curLocation;
+  var location = new Location();
 
   @override
   Widget build(BuildContext context) {
+
     _askPermission();
     return new Scaffold(
       appBar: new AppBar(
@@ -104,30 +63,28 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         ],
       ),
       body:
-      buildMap(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+      new LayoutBuilder(
+        builder: _buildStack,
       ),
-
-//--------------ct chinh
-//      new LayoutBuilder(
-//        builder: _buildStack,
-//      ),
     );
   }
 
+  Widget buildMap(){
 
-  void initState(){
-    super.initState();
-    _animationController = new AnimationController(
-        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
-
-    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-        .then(_updateStatus);
-
-
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition:
+      CameraPosition(
+        target: curLocation == null ?
+        LatLng(10.03711, 105.78825): //Can Tho City
+        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+        zoom: 15,
+      ),
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+      myLocationEnabled : true,
+    );
   }
 
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
@@ -154,8 +111,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                 elevation: 12.0,
                 child: new Column(children: <Widget>[
                   new Expanded(
-                    child: Text("FrontLayer"),
-                    // buildMap(),
+                    child:
+                    buildMap(),
                   ),
                 ]),
               ),
@@ -460,7 +417,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
-  ///////////////////////ANIMATION
+
+  //ANIMATIONNNNNNNNNNNNNNNNN
   bool get _isPanelVisible {
     final AnimationStatus status = _animationController.status;
     return status == AnimationStatus.completed ||
@@ -494,9 +452,22 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
 
-  /////////////////LOCATION ACCESS PERMISSION
+  void initState(){
+    _getLocation();
+
+    super.initState();
+    _animationController = new AnimationController(
+        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+
+    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+        .then(_updateStatus);
+
+  }
+
+  //LOCATION ACCESS PERMISSIONNNNNNNNNN
+
   void _updateStatus(PermissionStatus status){
-    print("$status");
+    //print("$status");
     if (status != _status)
     {
       setState(() {
@@ -504,55 +475,33 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       });
     }
   }
-
   void _askPermission(){
     PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
         .then(_onStatusRequested);
+
   }
 
   void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
     final status = statuses[PermissionGroup.locationWhenInUse];
+
     if(status != PermissionStatus.granted)
       PermissionHandler().openAppSettings();
+
     _updateStatus(status);
   }
 
+//////////GET USER LOCATION
+  Future<Map<String, double>> _getLocation() async{
+    curLocation  = <String, double>{};
+    try {
+      curLocation = await location.getLocation();
+      setState(() {
+
+      });
+    } catch(e) {
+      curLocation = null;
+    }
+    return curLocation;
+  }
+
 }
-
-
-*/
-/*static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
-  }*//*
-
-
-*/
-/*
-
-new Column(
-crossAxisAlignment: CrossAxisAlignment.center,
-children: <Widget>[
-userLocation == null
-? CircularProgressIndicator()
-    : Text(userLocation["latitude"].toString() +
-" "+ userLocation["longitude"].toString()),
-Container(
-child: RaisedButton(onPressed: (){
-_getLocation().then((value){
-setState(() {
-userLocation = value;
-});
-});
-},
-child: Text("GET LOCATION"),
-),
-)
-],
-)*/
-
