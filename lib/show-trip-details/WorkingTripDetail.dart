@@ -5,18 +5,19 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WorkingTripDetail extends StatefulWidget{
-  final trip;
-  const WorkingTripDetail({Key key, @required this.trip}) : super(key: key);
-  State<WorkingTripDetail> createState() => WorkingTripDetailState(trip);
+  final jID;
+  const WorkingTripDetail({Key key, @required this.jID}) : super(key: key);
+  State<WorkingTripDetail> createState() => WorkingTripDetailState(jID);
 
 }
 
 class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
-  final trip;
-  WorkingTripDetailState(this.trip);
+  final jID;
+  var _trip;
+  WorkingTripDetailState(this.jID);
 
   GlobalKey _keyRed = GlobalKey();
   PermissionStatus _status;
@@ -30,8 +31,19 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   var location = new Location();
 
   @override
-  Widget build(BuildContext context) {
 
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      builder: (context, snapshot) {
+        if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        _trip = snapshot.data.documents[0];
+        return buildWorkingTripScreen();
+      },
+    );
+  }
+
+  Widget buildWorkingTripScreen(){
     _askPermission();
     return new Scaffold(
       appBar: new AppBar(
@@ -74,12 +86,12 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
-        CameraPosition(
-          target: curLocation == null ?
-          LatLng(10.03711, 105.78825): //Can Tho City
-          LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
-          zoom: 15,
-        ),
+      CameraPosition(
+        target: curLocation == null ?
+        LatLng(10.03711, 105.78825): //Can Tho City
+        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+        zoom: 15,
+      ),
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
@@ -146,7 +158,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(trip['name'],
+                      child: Text(_trip['name'],
                           style: driverNameStyleinJD()),
                     ),
                     Container(
@@ -217,7 +229,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                 flex: 1,
                 child: Container(
                   padding: EdgeInsets.only(left: 15.0, top: 5.0),
-                  child: Text( trip['jID'],
+                  child: Text( _trip['jID'],
                     //document[index].documentID,
                     style: const TextStyle(
                         color: const Color(0xff000000),
@@ -249,7 +261,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                       Container(
                         padding: EdgeInsets.only(left: 5.0),
                         child: Text( //"20",
-                            formatDateTime(trip['schStart']), //document[index].data['schStart']
+                            formatDateTime(_trip['schStart']), //document[index].data['schStart']
                             style: timeStyleinJD()
 //                              TextStyle(
 //                                  color: Color(0xff0a2463),
@@ -312,7 +324,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 15.0, top: 1.0),
                   child:
                   Text(
-                    trip['from'],
+                    _trip['from'],
                     // document[index].data['from'],
                     style: TextStyle(
                         color:  Color(0xff000000),
@@ -331,7 +343,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                   child:
                   Text(
-                    trip['to'],
+                    _trip['to'],
 
                     style: TextStyle(
                         color:  Color(0xff000000),
@@ -392,7 +404,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 15.0, top: 1.0),
                   child:
                   Text(
-                      formatDateTime(trip['start']),
+                      formatDateTime(_trip['start']),
                       style: timeStyleinJD()
                   ),
                 ),
@@ -404,7 +416,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                   child:
                   Text(
-                      fromStartTime(trip['start']),
+                      fromStartTime(_trip['start']),
                       style: timeStyleinJD()
                   ),
                 ),

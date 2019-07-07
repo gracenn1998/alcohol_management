@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
@@ -504,4 +505,4 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     return curLocation;
   }
 
-}
+}*/
