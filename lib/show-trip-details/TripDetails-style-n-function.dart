@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-
+import 'package:firebase_database/firebase_database.dart';
 
 
 
@@ -462,13 +462,27 @@ Widget DriverInfo(_trip){
                       ],
                     ),
                   ),
-                  Row(
-                    children: <Widget>[
-                      Text("Hiện tại: ",
-                          style: driverStatusTitleStyle(0)),
-                      Text("500", style: driverStatusDataStyle(1)),
-                    ],
-                  ),
+
+                  StreamBuilder(
+                      stream: FirebaseDatabase.instance.reference().child('driver')
+                      .child(_trip['dID']).child('alcoholVal').onValue,
+                      builder: (BuildContext context, snapshot) {
+                      if(!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                      }
+                      else if(snapshot.hasData) {
+                        var alcoholVal = snapshot.data.snapshot.value;
+                        return  Row(
+                          children: <Widget>[
+                            Text("Hiện tại: ",
+                                style: driverStatusTitleStyle(0)),
+                            Text(alcoholVal.toString(), style:alcoholVal>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                          ],
+                        );
+                      }}
+                      ),
+
+
                 ],
               )),
           //Ten + Trang thai

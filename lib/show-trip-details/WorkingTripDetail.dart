@@ -34,8 +34,9 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   var location = new Location();
 
   Completer<GoogleMapController> _controller = Completer();
+  //GoogleMapController _controller; //= Completer();
   Set<Marker>  allMarkers= {};
-  Set<Polyline>_polyline={};
+  Set<Polyline>_allPolylines={};
 
 
   Widget buildMap(){
@@ -57,8 +58,10 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         _controller.complete(controller);
       },
       myLocationEnabled : true,
+
     );
   }
+
 
 
 
@@ -156,9 +159,9 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     location.onLocationChanged().listen((value) {
       setState(() {
         curLocation = value;
+
         var locationReference = FirebaseDatabase.instance.reference()
             .child('driver').child(_trip['dID']);
-
         locationReference.update({
           'lat': curLocation["latitude"],
           'lng': curLocation["longitude"],
@@ -167,16 +170,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
           print("location updated DRIVER - ${_trip['dID']}");
         });
 
-      /*  var locationReference1 = FirebaseDatabase.instance.reference()
-           .child(_trip['dID']);
-        locationReference1.push().set({
-          'lat': curLocation["latitude"],
-          'lng': curLocation["longitude"],
-          //'time': DateTime.now()
-        }).then((_) {
-          print("location updated ${_trip['dID']}");
-        });*/
-      
       });
     });
 
@@ -239,7 +232,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     _updateStatus(status);
   }
 
-
   //markers
   addToList(trip) async {
     final from = trip["from"];
@@ -274,6 +266,5 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     });
   }
-
 
 }
