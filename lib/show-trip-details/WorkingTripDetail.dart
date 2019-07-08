@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoder/geocoder.dart';
+
 
 class WorkingTripDetail extends StatefulWidget{
   final jID;
@@ -25,41 +27,36 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
   static double JourneyInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
-
-//////////GET USER LOCATION
-  Completer<GoogleMapController> _controller = Completer();
+  //////////GET USER LOCATION
   Map<String, double> curLocation;
   var location = new Location();
 
-  Future<Map<String, double>> _getLocation() async{
-    curLocation  = <String, double>{};
-    try {
-      curLocation = await location.getLocation();
-      setState(() {
+  Completer<GoogleMapController> _controller = Completer();
+  Set<Marker>  allMarkers= {};
 
-      });
-    } catch(e) {
-      curLocation = null;
-    }
-    return curLocation;
-  }
 
   Widget buildMap(){
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
-        target: curLocation == null ?
+        target:
+        /*curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location*/
+        LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
+      markers: allMarkers,
       onMapCreated: (GoogleMapController controller) {
+        allMarkers.clear();
+        addToList(_trip);
         _controller.complete(controller);
       },
       myLocationEnabled : true,
     );
   }
+
 
 
 //////////------------------------------------------------------
@@ -150,7 +147,11 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
   void initState(){
-    _getLocation();
+    location.onLocationChanged().listen((value) {
+      setState(() {
+        curLocation = value;
+      });
+    });
 
     super.initState();
     _animationController = new AnimationController(
@@ -210,5 +211,59 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     _updateStatus(status);
   }
+
+
+  /////////////////user location
+  Future<Map<String, double>> _getLocation() async{
+    curLocation  = <String, double>{};
+    try {
+      curLocation = await location.getLocation();
+      setState(() {
+
+      });
+    } catch(e) {
+      curLocation = null;
+    }
+    return curLocation;
+  }
+
+
+
+  //markers
+  addToList(trip) async {
+    final from = trip["from"];
+    var addresses = await Geocoder.local.findAddressesFromQuery(from);
+    var first = addresses.first;
+
+    final to = trip["to"];
+    var toAddresses = await Geocoder.local.findAddressesFromQuery(to);
+    var toCoor = toAddresses.first;
+
+    setState(() {
+      allMarkers.add(new Marker(
+        markerId: MarkerId('from') ,
+        draggable: false,
+        position  : new LatLng(
+            first.coordinates.latitude, first.coordinates.longitude),
+
+      )
+      );
+      //  print("Add r-------------------------------------------------------------------");
+      allMarkers.add(new Marker(
+        markerId: MarkerId('to') ,
+        draggable: false,
+        position  : new LatLng(
+            toCoor.coordinates.latitude, toCoor.coordinates.longitude),
+
+      )
+      );
+
+
+      //   print("Add r2 -------------------------------------------------------------------");
+
+    });
+  }
+
+
 
 }
