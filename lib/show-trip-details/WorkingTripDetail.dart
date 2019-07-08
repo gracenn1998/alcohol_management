@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 
 
 class WorkingTripDetail extends StatefulWidget{
@@ -33,6 +35,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
   Completer<GoogleMapController> _controller = Completer();
   Set<Marker>  allMarkers= {};
+  Set<Polyline>_polyline={};
 
 
   Widget buildMap(){
@@ -41,10 +44,10 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       initialCameraPosition:
       CameraPosition(
         target:
-        /*curLocation == null ?
+        curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location*/
-        LatLng(10.03711, 105.78825),
+        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+      //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
       markers: allMarkers,
@@ -146,10 +149,34 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
+
+
   void initState(){
+
     location.onLocationChanged().listen((value) {
       setState(() {
         curLocation = value;
+        var locationReference = FirebaseDatabase.instance.reference()
+            .child('driver').child(_trip['dID']);
+
+        locationReference.update({
+          'lat': curLocation["latitude"],
+          'lng': curLocation["longitude"],
+          //'time': DateTime.now()
+        }).then((_) {
+          print("location updated DRIVER - ${_trip['dID']}");
+        });
+
+      /*  var locationReference1 = FirebaseDatabase.instance.reference()
+           .child(_trip['dID']);
+        locationReference1.push().set({
+          'lat': curLocation["latitude"],
+          'lng': curLocation["longitude"],
+          //'time': DateTime.now()
+        }).then((_) {
+          print("location updated ${_trip['dID']}");
+        });*/
+      
       });
     });
 
@@ -213,22 +240,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
 
-  /////////////////user location
-  Future<Map<String, double>> _getLocation() async{
-    curLocation  = <String, double>{};
-    try {
-      curLocation = await location.getLocation();
-      setState(() {
-
-      });
-    } catch(e) {
-      curLocation = null;
-    }
-    return curLocation;
-  }
-
-
-
   //markers
   addToList(trip) async {
     final from = trip["from"];
@@ -263,7 +274,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     });
   }
-
 
 
 }
