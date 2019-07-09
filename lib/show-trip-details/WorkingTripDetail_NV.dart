@@ -8,17 +8,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class WorkingTripDetail extends StatefulWidget{
+class WorkingTripDetail_NV extends StatefulWidget{
   final jID;
-  const WorkingTripDetail({Key key, @required this.jID}) : super(key: key);
-  State<WorkingTripDetail> createState() => WorkingTripDetailState(jID);
+  const WorkingTripDetail_NV({Key key, @required this.jID}) : super(key: key);
+  State<WorkingTripDetail_NV> createState() => WorkingTripDetail_NVState(jID);
 
 }
 
-class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
+
+class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
   final jID;
   var _trip;
-  WorkingTripDetailState(this.jID);
+  WorkingTripDetail_NVState(this.jID);
 
   PermissionStatus _status;
   AnimationController _animationController;
@@ -28,7 +29,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   //////////GET USER LOCATION
   Map<String, double> curLocation;
-  var location = new Location();
 
   Completer<GoogleMapController> _controller = Completer();
   //GoogleMapController _controller; //= Completer();
@@ -36,22 +36,35 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   Set<Polyline>_allPolylines={};
 
 
-  Widget buildMap(){
+  Widget buildMap(driver){
+    /*if (driver != null)
+      {
+        print(driver['lng']);
+        print(driver['lat']);
+        curLocation['longitude'] = driver['lng'];
+        print(driver['lng']);
+      }*/
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
         target:
-        curLocation == null ?
+        driver == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
-      //  LatLng(10.03711, 105.78825),
+        LatLng(driver['lat'], driver['lng']), //user location
+        //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
       markers: allMarkers,
       onMapCreated: (GoogleMapController controller) {
         allMarkers.clear();
         addToList(_trip);
+        allMarkers.add(
+          new Marker(markerId: MarkerId('driverLocation'),
+            position: new LatLng(driver['lat'], driver['lng']),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
+          )
+        );
         _controller.complete(controller);
       },
       myLocationEnabled : true,
@@ -138,7 +151,22 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                 child: new Column(children: <Widget>[
                   new Expanded(
                     child:
-                    buildMap(),
+                    StreamBuilder(
+                      stream: FirebaseDatabase.instance.reference()
+                          .child('driver').child(_trip['dID']).onValue,
+                      builder: (BuildContext context, snapshot){
+                        if(!snapshot.hasData)
+                        {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                        else if(snapshot.hasData){
+                          var driver = snapshot.data.snapshot.value;
+                          print(driver);
+                          return buildMap(driver);
+                        }
+                      },
+
+                    ),
                   ),
                 ]),
               ),
@@ -152,23 +180,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
 
   void initState(){
-
-    location.onLocationChanged().listen((value) {
-      setState(() {
-        curLocation = value;
-
-        var locationReference = FirebaseDatabase.instance.reference()
-            .child('driver').child(_trip['dID']);
-        locationReference.update({
-          'lat': curLocation["latitude"],
-          'lng': curLocation["longitude"],
-          //'time': DateTime.now()
-        }).then((_) {
-          print("location updated DRIVER - ${_trip['dID']}");
-        });
-
-      });
-    });
 
     super.initState();
     _animationController = new AnimationController(

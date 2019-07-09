@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'WorkingTripDetail.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
+import 'WorkingTripDetail_NV.dart';
 
 class ShowTripDetails extends StatefulWidget{
   final String jID;
@@ -40,7 +41,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
-        return WorkingTripDetail(jID: jID);
+        return WorkingTripDetail_NV(jID: jID);
 
     }
   }

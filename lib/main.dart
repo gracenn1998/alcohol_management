@@ -8,6 +8,8 @@ import 'menu.dart';
 import 'login_screen/auth_provider.dart';
 import 'show-trip-details/showTripDetails.dart';
 
+import 'show-trip-details/showTripDetails.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
