@@ -17,7 +17,55 @@ class ShowAllDrivers extends StatefulWidget {
 class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
   int _selectedFuntion = 0;
+  int _perPage = 5;
+  List<DocumentSnapshot> _drivers = [];
+  DocumentSnapshot _lastDocument, _firstDocument;
+  ScrollController _scrollController = ScrollController();
+  bool _moreDriversAvailable = true;
 
+  var _getDriversStream;
+  _getDrivers() {
+    _getDriversStream = Firestore.instance.collection('drivers').orderBy('dID', descending: true).limit(_perPage);
+  }
+  
+  _getMoreDrivers() {
+    if(!_moreDriversAvailable) {
+      print('no more driver');
+      return ;
+    }
+    print('get more called');
+    _getDriversStream = Firestore.instance.collection('drivers').orderBy('dID', descending: true).startAfter([_lastDocument.data['dID']]).limit(_perPage);
+
+    setState(() {});
+  }
+
+  _getPreviousDrivers() {
+    if(!_moreDriversAvailable) {
+      print('no more driver');
+      return ;
+    }
+    print('get previous called');
+    _getDriversStream = Firestore.instance.collection('drivers').orderBy('dID', descending: true).startAfter([_firstDocument.data['dID']]).limit(_perPage);
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getDrivers();
+    _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+
+      if(currentScroll == maxScroll) {
+        _getMoreDrivers();
+      }
+      if(currentScroll == _scrollController.position.minScrollExtent) {
+        _getPreviousDrivers();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +91,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //        ),
           title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
         )),
-        body: //getListDriversView(),
-            StreamBuilder(
-          stream: Firestore.instance.collection('drivers').snapshots(),
+        body: StreamBuilder(
+          stream: _getDriversStream.snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting)
@@ -55,8 +102,18 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               );
-            else
+            else{
+              if(snapshots.data.documents.length == 0) {
+                _moreDriversAvailable = false;
+              }
+              else {
+                _lastDocument = snapshots.data.documents[snapshots.data.documents.length - 1];
+                _firstDocument = snapshots.data.documents[0];
+              }
+//              _drivers.addAll(snapshots.data.documents);
               return getListDriversView(snapshots.data.documents);
+            }
+
           },
         ),
         floatingActionButton: FloatingActionButton(
@@ -73,15 +130,9 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ));
   }
 
-//  List<String> getListDrivers() {
-//    var drivers = List<String>.generate(10, (counter) => "Tài xế $counter");
-//    return drivers;
-//  }
-
   Widget getListDriversView(document) {
-
-//    var listDrivers = count;
     var listView = ListView.separated(
+      controller: _scrollController,
       itemCount: document.length,
       itemBuilder: (context, index) {
 
@@ -105,7 +156,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             status = 1;
           }
         }
-
+        print(document[index]['dID']);
         return InkWell(
           child: Container(
               height: 120.0,
