@@ -21,6 +21,8 @@ class MyApp extends StatelessWidget {
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
+              backgroundColor: Colors.white,
+              scaffoldBackgroundColor: Colors.white,
               fontFamily: 'Roboto',
             )
         ),
