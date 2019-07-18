@@ -11,19 +11,19 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Welcome to Flutter',
-//      home: DriverMenu(),
-      home: MyBottomMenu(),
-//      home: ManagerMenu(),
-      theme: ThemeData(
-        primaryColor: Color(0xff0a2463),
-        backgroundColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
-      )
-    );
+  Widget build(BuildContext context) {    return
+      AuthProvider(
+        auth: Auth(),
+        child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Welcome to Flutter',
+              home: MyBottomMenu(),
+//            home: RootPage(),
+            theme: ThemeData(
+              primaryColor: Color(0xff0a2463),
+              fontFamily: 'Roboto',
+            )
+        ),
+      );
   }
 }
