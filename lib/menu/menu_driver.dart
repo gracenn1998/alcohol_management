@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
-import './show_info_screens/showAllDrivers.dart';
+import 'package:alcohol_management/show_info_screens/driver_showTrips.dart';
+import 'package:alcohol_management/show_info_screens/driver_showHistory.dart';
 
-class MyBottomMenu extends StatefulWidget {
-  MyBottomMenu ({Key key}) : super (key:key);
+class DriverMenu extends StatefulWidget {
+  DriverMenu ({Key key}) : super (key:key);
   @override
-  _MyBottomMenuState createState() => _MyBottomMenuState();
-
+  _DriverMenuState createState() => _DriverMenuState();
 }
 
-class _MyBottomMenuState extends State<MyBottomMenu>{
+class _DriverMenuState extends State<DriverMenu>{
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    ShowAllDrivers(
-    ),
-    Text(
-      'Hanh Trinh',
-      style: optionStyle,
-    ),
-    Text(
-      'Nhan Vien',
-      style: optionStyle,
-    ),
+    DriverShowTrips(),
+    DriverShowHistory(),
     Text(
       'Thong Bao',
       style: optionStyle,
@@ -49,26 +41,24 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
         type : BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            title: Text('Tài xế'),
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.local_library),
             title: Text('Hành trình'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_shared),
-            title: Text('Nhân viên'),
+            icon: Icon(Icons.history),
+            title: Text('Lịch sử'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            title: Text('Thông Báo'),
+            title: Text('Thông báo'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             title: Text('Cá nhân'),
           ),
         ],
+        backgroundColor: Colors.white,
+        unselectedItemColor: Color.fromRGBO(10,36,99,0.4),
         currentIndex: _selectedIndex,
         selectedItemColor: Color(0xff0a2463),
         onTap: _onItemTapped,

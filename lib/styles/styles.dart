@@ -8,27 +8,12 @@ const appBarTxTStyle =
 
 
 TextStyle driverStatusDataStyle(status) {
-//  if(status == 0) { //normal
-//    return TextStyle(
-//      fontSize: 13,
-//      fontWeight: FontWeight.w500,
-//      color: Color(0xff00bc94),
-//    );
-//  }
-//  else if( status == 1) { //alarming
-//    return TextStyle(
-//      fontSize: 13,
-//      fontWeight: FontWeight.w500,
-//      color: Color(0xffef3964),
-//    );
-//  }
 
-  //normal
   return TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w500,
-    color:  status == 0 ? Color(0xff00bc94) :
-            status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+    color:  status == 0 ? Color(0xff00bc94) : //normal
+            status == 1 ? Color(0xffef3964) : Color(0xff8391b3), //alarming - not working
   );
 
 }
@@ -71,6 +56,17 @@ BoxDecoration oddLineDetails() {
   );
 }
 
+TextStyle journeyStatusStyle(status) {
+  return TextStyle(
+      color: status == 0 ? Color(0xff00bc94) :
+      status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 15.0
+  );
+}
+
 BoxDecoration evenLineDetails() {
   return BoxDecoration(
       border: Border(
@@ -83,3 +79,17 @@ BoxDecoration evenLineDetails() {
 
   );
 }
+
+TextStyle tripStatusStyle(status) {
+  return TextStyle(
+      color: status == 0 ? Color(0xff00bc94) :
+      status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 15.0
+  );
+}
+
+const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+

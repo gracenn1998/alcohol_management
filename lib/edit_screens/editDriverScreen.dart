@@ -16,7 +16,7 @@ class EditDriverInfo extends StatefulWidget {
 }
 
 class _EditDriverInfoState extends State<EditDriverInfo> {
-  int _selectedIndex = 0;
+  int _selectedFunction = 0;
   String dID;
   _EditDriverInfoState(this.dID);
 
@@ -43,9 +43,10 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   }
 
   Widget build(BuildContext context) {
-    if(_selectedIndex == -1) {
+    if(_selectedFunction == -1) {
 
       return ShowDriverInfo(
+        key: PageStorageKey("showInfo"),
         dID: 'TX0001',
       );
     }
@@ -58,7 +59,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           onPressed: () {
             //backkkk
             setState(() {
-              _selectedIndex--;
+              _selectedFunction--;
             });
           },
         ),
@@ -75,7 +76,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 if(confirmed == 1) {
                   editDataDTB(driver);
                   setState(() {
-                    _selectedIndex--;
+                    _selectedFunction--;
                   });
 //                dispose();
                 }
@@ -117,13 +118,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               child: editDetails(driver['dID'], driver['email']),
             )
         ),
-
-//      Expanded(
-//        flex: 3,
-//        child: BlankPanel(),
-//      ),
-
-
       ],
     );
   }
