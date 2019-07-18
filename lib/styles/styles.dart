@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-const appBarTxTStyle =
-  TextStyle(
+var appBarTxTStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w500,
     color: Colors.white);
@@ -43,6 +42,7 @@ TextStyle driverInfoStyle() {
   );
 }
 
+
 TextStyle tripStatusStyle(status) {
   return TextStyle(
     color: status == 0 ? Color(0xff00bc94) :
@@ -53,6 +53,7 @@ TextStyle tripStatusStyle(status) {
     fontSize: 15.0
   );
 }
+
 
 BoxDecoration oddLineDetails() {
   return BoxDecoration(
@@ -66,6 +67,7 @@ BoxDecoration oddLineDetails() {
     color: Color(0xffF3F4F6),
   );
 }
+
 
 BoxDecoration evenLineDetails() {
   return BoxDecoration(
@@ -81,3 +83,5 @@ BoxDecoration evenLineDetails() {
 }
 
 const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
+

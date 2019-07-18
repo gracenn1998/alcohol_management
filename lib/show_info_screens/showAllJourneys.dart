@@ -4,32 +4,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
-class ShowAllJourneys extends StatefulWidget {
-  const ShowAllJourneys() : super();
+class ShowAllTrips extends StatefulWidget {
+  const ShowAllTrips() : super();
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showAllJourneysState();
+    return _showAllTripsState();
   }
 }
 
-class _showAllJourneysState extends State<ShowAllJourneys> {
-  String _selectedJourneyID = null;
+class _showAllTripsState extends State<ShowAllTrips> {
+  String _selectedTripID = null;
   int _selectedFuction = 0;
 
-//  if (_selectedJourneyID != null)
+//  if (_selectedTripID != null)
 //  {
-//    String id = _selectedJourneyID;
-//    _selectedJourneyID = null;
-//    return showInfoJourney(
+//    String id = _selectedTripID;
+//    _selectedTripID = null;
+//    return showInfoTrip(
 //      jID = id,
 //    );
 //  }
 
 //  if (_selectedFuction == 1)
 //  {
-//    return AddJourney();
+//    return AddTrip();
 //  }
 
   @override
@@ -50,7 +50,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
               debugPrint('Tim kiem hanh trinh');
 //              showSearch(
 //                context: context,
-//                delegate: JourneySearch(),
+//                delegate: TripSearch(),
 //              );
             },
           )
@@ -66,7 +66,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
             } else
-              return getListJourneyView(snapshots.data.documents);
+              return getListTripView(snapshots.data.documents);
           },
         ),
       floatingActionButton:
@@ -107,7 +107,7 @@ class _showAllJourneysState extends State<ShowAllJourneys> {
     );
   }
 
-  Widget getListJourneyView(document) {
+  Widget getListTripView(document) {
     var listView = ListView.separated(
       itemCount: document.length,
       itemBuilder: (context, index) {
@@ -432,6 +432,16 @@ class JourneySearch extends SearchDelegate {
   Widget buildSuggestions(BuildContext context) {
     // TODO: implement buildSuggestions
     return null;
+  }
+  Text getStatusTrip(String data) {
+    if (data == 'notStarted') return Text('Chưa bắt đầu', style: tripStatusStyle(1),);
+    else if (data == 'working') return Text('Đang làm việc', style: tripStatusStyle(2),);
+    else return Text('Đã hoàn thành', style: tripStatusStyle(0),);
+  }
+  String formattedDate(data) {
+    final df = new DateFormat('dd/MM/yyyy');
+    var formatted = df.format(data);
+    return formatted;
   }
 }
 */

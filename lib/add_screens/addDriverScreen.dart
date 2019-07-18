@@ -13,9 +13,6 @@ class AddDriver extends StatefulWidget {
 
 class _AddDriver extends State<AddDriver> {
   int _selectedFunction = 0;
-
-  static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
   final _nameController = TextEditingController();
   final _idCardController = TextEditingController();
   final _addressController = TextEditingController();
