@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-const appBarTxTStyle =
-  TextStyle(
+var appBarTxTStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w500,
     color: Colors.white);
@@ -43,6 +42,19 @@ TextStyle driverInfoStyle() {
   );
 }
 
+
+TextStyle tripStatusStyle(status) {
+  return TextStyle(
+    color: status == 0 ? Color(0xff00bc94) :
+           status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
+    fontWeight: FontWeight.w400,
+    fontFamily: "Roboto",
+    fontStyle:  FontStyle.normal,
+    fontSize: 15.0
+  );
+}
+
+
 BoxDecoration oddLineDetails() {
   return BoxDecoration(
     border: Border(
@@ -56,16 +68,6 @@ BoxDecoration oddLineDetails() {
   );
 }
 
-TextStyle journeyStatusStyle(status) {
-  return TextStyle(
-      color: status == 0 ? Color(0xff00bc94) :
-      status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
-      fontWeight: FontWeight.w400,
-      fontFamily: "Roboto",
-      fontStyle:  FontStyle.normal,
-      fontSize: 15.0
-  );
-}
 
 BoxDecoration evenLineDetails() {
   return BoxDecoration(
@@ -80,16 +82,6 @@ BoxDecoration evenLineDetails() {
   );
 }
 
-TextStyle tripStatusStyle(status) {
-  return TextStyle(
-      color: status == 0 ? Color(0xff00bc94) :
-      status == 1 ? Color(0xffef3964) : Color(0xfff9aa33),
-      fontWeight: FontWeight.w400,
-      fontFamily: "Roboto",
-      fontStyle:  FontStyle.normal,
-      fontSize: 15.0
-  );
-}
-
 const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
 

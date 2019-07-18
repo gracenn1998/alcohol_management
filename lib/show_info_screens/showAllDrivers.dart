@@ -115,51 +115,51 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                                 style: driverNameStyle()),
                           ),
                           StreamBuilder(
-                              stream: FirebaseDatabase.instance.reference().child('driver')
-                                  .child(dID).child('alcoholVal').onValue,
-                              builder: (BuildContext context, snapshot) {
-                                if(!snapshot.hasData) {
-                                  return Center(child: CircularProgressIndicator());
+                            stream: FirebaseDatabase.instance.reference().child('driver')
+                                .child(dID).child('alcoholVal').onValue,
+                            builder: (BuildContext context, snapshot) {
+                              if(!snapshot.hasData) {
+                                return Center(child: CircularProgressIndicator());
+                              }
+                              else if(snapshot.hasData) {
+                                var alcoholVal = snapshot.data.snapshot.value;
+                                if(alcoholVal == null) {
+                                  onWorking = 'Đang nghỉ';
+                                  alcoholTrack = 'Không hoạt động';
+                                  status = -1;
                                 }
-                                else if(snapshot.hasData) {
-                                  var alcoholVal = snapshot.data.snapshot.value;
-                                  if(alcoholVal == null) {
-                                    onWorking = 'Đang nghỉ';
-                                    alcoholTrack = 'Không hoạt động';
-                                    status = -1;
+                                else {
+                                  if(alcoholVal <= 350) {
+                                    onWorking = 'Đang làm việc';
+                                    alcoholTrack = alcoholVal.toString();
+                                    status = 0;
                                   }
                                   else {
-                                    if(alcoholVal <= 350) {
-                                      onWorking = 'Đang làm việc';
-                                      alcoholTrack = alcoholVal.toString();
-                                      status = 0;
-                                    }
-                                    else {
-                                      onWorking = 'Say xỉn';
-                                      alcoholTrack = alcoholVal.toString();
-                                      status = 1;
-                                    }
+                                    onWorking = 'Say xỉn';
+                                    alcoholTrack = alcoholVal.toString();
+                                    status = 1;
                                   }
-                                  return Column(
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.only(bottom: 5.0),
-                                        child: Row(
-                                          children: <Widget>[
-                                            Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                            Text("$onWorking", style: driverStatusDataStyle(status)),
-                                          ],
-                                        ),
-                                      ),
-                                      Row(
-                                        children: <Widget>[
-                                          Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                          Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                        ],
-                                      )
-                                    ],
-                                  );
                                 }
+                                return Column(
+                                  children: <Widget>[
+                                    Container(
+                                      padding: EdgeInsets.only(bottom: 5.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                          Text("$onWorking", style: driverStatusDataStyle(status)),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                        Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                                      ],
+                                    )
+                                  ],
+                                );
+                              }
 //                          else if(snapshot.hasError) => return "Error";
                               },
                             ),

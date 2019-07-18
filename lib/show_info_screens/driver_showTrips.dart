@@ -13,21 +13,21 @@ class DriverShowTrips extends StatefulWidget {
 }
 
 class _DriverShowTripsState extends State<DriverShowTrips> {
-  String _selectedJourneyID = null;
+  String _selectedTripID = null;
   int _selectedFuction = 0;
 
-//  if (_selectedJourneyID != null)
+//  if (_selectedTripID != null)
 //  {
-//    String id = _selectedJourneyID;
-//    _selectedJourneyID = null;
-//    return showInfoJourney(
+//    String id = _selectedTripID;
+//    _selectedTripID = null;
+//    return showInfoTrip(
 //      jID = id,
 //    );
 //  }
 
 //  if (_selectedFuction == 1)
 //  {
-//    return AddJourney();
+//    return AddTrip();
 //  }
 
   @override
@@ -61,7 +61,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
                       style:
                       TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
             } else
-              return getListJourneyView(snapshots.data.documents);
+              return getListTripView(snapshots.data.documents);
           },
         ),
         floatingActionButton: Container(
@@ -101,7 +101,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
     );
   }
 
-  Widget getListJourneyView(document) {
+  Widget getListTripView(document) {
     var listView = ListView.separated(
       itemCount: document.length,
       itemBuilder: (context, index) {
@@ -139,7 +139,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
                               padding: EdgeInsets.only(left: 10.0, top: 5.0),
                               child: Text(
                                 'Đã hoàn thành',
-                                style: journeyStatusStyle(0),
+                                style: tripStatusStyle(0),
                               ),
                             ),
                             flex: 2,
@@ -156,7 +156,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
                                   onPressed: () {
                                     //Xoa journey
                                     debugPrint(
-                                        "Delete journey ${document[index].documentID} tapped");
+                                        "Delete trip ${document[index].documentID} tapped");
                                     confirmDelete(
                                         context, document[index].documentID);
                                   },
@@ -311,7 +311,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
             ),
           ),
           onTap: () {
-            debugPrint("journey tapped");
+            debugPrint("trip tapped");
           },
         );
       },

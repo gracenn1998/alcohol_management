@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
+
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
   @override
@@ -12,15 +13,10 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    ShowAllDrivers(),
-    ShowAllJourneys(),
     ShowAllDrivers(
         key: PageStorageKey('showAll')
     ),
-    Text(
-      'Hanh Trinh',
-      style: optionStyle,
-    ),
+    ShowAllTrips(),
     Text(
       'Nhan Vien',
       style: optionStyle,

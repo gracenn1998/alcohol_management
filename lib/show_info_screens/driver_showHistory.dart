@@ -59,8 +59,7 @@ class _DriverShowHistoryState extends State<DriverShowHistory> {
             if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Text('Loading...',
-                      style:
-                      TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
             } else
               return getListJourneyView(snapshots.data.documents);
           },
@@ -127,7 +126,7 @@ class _DriverShowHistoryState extends State<DriverShowHistory> {
                               padding: EdgeInsets.only(left: 10.0, top: 5.0),
                               child: Text(
                                 'Đã hoàn thành',
-                                style: journeyStatusStyle(0),
+                                style: tripStatusStyle(0),
                               ),
                             ),
                             flex: 2,
