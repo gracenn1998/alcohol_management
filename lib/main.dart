@@ -28,6 +28,8 @@ class MyApp extends StatelessWidget {
 
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
+              backgroundColor: Colors.white,
+              scaffoldBackgroundColor: Colors.white,
               fontFamily: 'Roboto',
             )
         ),
