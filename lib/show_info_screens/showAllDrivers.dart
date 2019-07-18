@@ -42,10 +42,10 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //          Icons.dehaze,
 //          color: Color(0xff06E2B3),
 //        ),
-          title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
-        )),
+            title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
+            )),
         body: //getListDriversView(),
-            StreamBuilder(
+        StreamBuilder(
           stream: Firestore.instance.collection('drivers').snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -167,21 +167,21 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                         )),
                   ), //Ten + Trang thai
                   Expanded(
-                    flex: 1,
-                    child: Container(
-                      alignment: Alignment.topCenter,
-                      child: IconButton(
-                        padding: EdgeInsets.only(top: 22.0),
-                        icon: Icon(Icons.delete),
-                        iconSize: 30.0,
-                        color: Color(0xff0A2463),
-                        onPressed: () {
-                          //Xoa driver
-                          debugPrint("Delete driver ${document[index].documentID} tapped");
-                          confirmDelete(context, document[index].documentID);
-                        },
-                      ),
-                    )
+                      flex: 1,
+                      child: Container(
+                        alignment: Alignment.topCenter,
+                        child: IconButton(
+                          padding: EdgeInsets.only(top: 22.0),
+                          icon: Icon(Icons.delete),
+                          iconSize: 30.0,
+                          color: Color(0xff0A2463),
+                          onPressed: () {
+                            //Xoa driver
+                            debugPrint("Delete driver ${document[index].documentID} tapped");
+                            confirmDelete(context, document[index].documentID);
+                          },
+                        ),
+                      )
 
                   ) //Nut xoa
                 ],
