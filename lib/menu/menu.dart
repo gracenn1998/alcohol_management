@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
@@ -35,6 +36,50 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  FirebaseMessaging _fcm = FirebaseMessaging();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fcm.subscribeToTopic('alcoholTracking');
+
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> msg) {
+        print("onMessage: $msg");
+
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              content: ListTile(
+                title: Text(msg['notification']['title']),
+                subtitle: Text(msg['notification']['body']),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: ()=> Navigator.of(context).pop(),
+                )
+              ],
+            )
+        );
+      },
+      onResume: (Map<String, dynamic> msg) {
+        print("onResume: $msg");
+      },
+      onLaunch: (Map<String, dynamic> msg) {
+        print("onLaunch: $msg");
+      },
+    );
+
+    _fcm.requestNotificationPermissions(
+        IosNotificationSettings(
+
+        )
+    );
   }
 
   @override
