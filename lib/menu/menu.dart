@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import "../show_info_screens/showDriverInfoScreen.dart";
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
@@ -11,6 +12,7 @@ class MyBottomMenu extends StatefulWidget {
 
 class _MyBottomMenuState extends State<MyBottomMenu>{
   int _selectedIndex = 0;
+  var _selectedDriverID = null;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
@@ -50,7 +52,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     _fcm.configure(
       onMessage: (Map<String, dynamic> msg) {
         print("onMessage: $msg");
-
+        print(_selectedDriverID);
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -60,9 +62,28 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
               ),
               actions: <Widget>[
                 FlatButton(
-                  child: Text('Ok'),
-                  onPressed: ()=> Navigator.of(context).pop(),
+                  child: Text('Xem thông tin tài xế'), //sau chỉnh thành thông tin hành trình
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ShowDriverInfo(
+                                key: PageStorageKey("showInfo"),
+                                dID: msg['data']['dID'],
+                              )
+                      )
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+                FlatButton(
+                  child: Text('Ok'), //sau chỉnh thành thông tin hành trình
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 )
+
               ],
             )
         );
@@ -84,6 +105,15 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
 
   @override
   Widget build(BuildContext context) {
+//    if (_selectedDriverID != null) {
+//      String id = _selectedDriverID;
+//      _selectedDriverID = null;
+//      return ShowDriverInfo(
+//        key: PageStorageKey("showInfo"),
+//        dID: id,
+//      );
+//    }
+
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
