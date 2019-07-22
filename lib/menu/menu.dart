@@ -64,6 +64,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
                 FlatButton(
                   child: Text('Xem thông tin tài xế'), //sau chỉnh thành thông tin hành trình
                   onPressed: () {
+//                    Navigator.of(context).pop();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -74,7 +75,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
                               )
                       )
                     );
-                    Navigator.of(context).pop();
+//                    Navigator.of(context).pop();
                   },
                 ),
                 FlatButton(
