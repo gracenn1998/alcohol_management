@@ -33,24 +33,20 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   Set<Marker>  allMarkers = {};
 
   Set<Marker> modifyMarker(double Lat, double Lng){
-    Set<Marker> Markers = {};
-    Markers.add(
+  //  Markers.clear();
+    allMarkers.removeWhere((Marker a){ return a.markerId == MarkerId('DriverCurLocation'); });
+    Marker driverMarker =
       new Marker(
           markerId: MarkerId('DriverCurLocation'),
           draggable: false,
           position: new LatLng(Lat, Lng)
       )
-    );
+    ;
+    allMarkers.add(driverMarker);
     print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
-    print(allMarkers);
-   // Markers.add(allMarkers.first);
-/*    if (allMarkers != null ){
-      Markers.add(allMarkers.first);
-      Markers.add(allMarkers.last);
-    }*/
- //   else print("Emptyyyyyyyyyyyy");
-    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
-    return Markers;
+//    print(allMarkers);
+//    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
+       return allMarkers;
   }
 
   Widget buildMap(driver){
@@ -70,10 +66,11 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         zoom: 15,
       ),
       markers: modifyMarker(driver['lat'], driver['lng']),
-      onMapCreated: (GoogleMapController controller) {
+      onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
-        addToList(_trip);
+        await addToList(_trip);
         print("Create mappppppppppppppppppppppp");
+        print(allMarkers);
         mapController = controller;
         //_controller.complete(controller);
       },
@@ -81,7 +78,6 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     );
   }
-
 
 
 
@@ -281,8 +277,6 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       )
       );
 
-
-      //   print("Add r2 -------------------------------------------------------------------");
 
     });
   }
