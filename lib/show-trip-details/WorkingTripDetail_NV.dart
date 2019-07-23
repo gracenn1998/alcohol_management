@@ -17,6 +17,7 @@ class WorkingTripDetail_NV extends StatefulWidget{
 class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
   final jID;
   var _trip;
+  var mapCreated = 0;
   WorkingTripDetail_NVState(this.jID);
 
   PermissionStatus _status;
@@ -45,7 +46,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       )
     ;
     allMarkers.add(driverMarker);
-    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
+    //print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
 //    print(allMarkers);
 //    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
        return allMarkers;
@@ -53,8 +54,12 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
   Widget buildMap(driver){
 
-    print("buildMap: $driver");
-    print("buildMap: $allMarkers");
+    //print("buildMap: $driver");
+    //print("buildMap: $allMarkers");
+    if (driver['lat'] != null && mapCreated == 1)
+      mapController.moveCamera(
+          CameraUpdate.newLatLng(LatLng(driver['lat'], driver['lng']))
+      );
 
     return new GoogleMap(
       mapType: MapType.normal,
@@ -71,10 +76,11 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
         await addToList(_trip);
-        print("Create mappppppppppppppppppppppp");
-        print(allMarkers);
+      //  print("Create mappppppppppppppppppppppp");
+      //  print(allMarkers);
         mapController = controller;
         //_controller.complete(controller);
+        mapCreated = 1;
       },
       myLocationEnabled : true,
 
@@ -91,7 +97,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.documents[0];
-        print("Build func: streambuilder on Firestore_______________________________");
+       // print("Build func: streambuilder on Firestore_______________________________");
 
         return buildWorkingTripScreen();
       },
@@ -171,7 +177,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         }
                         else if(snapshot.hasData){
                           var driver = snapshot.data.snapshot.value;
-                          print("_buildStack: Listen on driver location changed: $driver");
+                          //print("_buildStack: Listen on driver location changed: $driver");
+
                           return buildMap(driver);
                         }
                       },
@@ -215,8 +222,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
     final double height = constraints.biggest.height - 200 ;
-    print(height);
-    print(JourneyInfoHeight);
+   // print(height);
+   // print(JourneyInfoHeight);
     final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(

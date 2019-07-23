@@ -18,6 +18,7 @@ class WorkingTripDetail extends StatefulWidget{
 class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
   final jID;
   var _trip;
+  var mapCreated = 0;
   WorkingTripDetailState(this.jID);
 
   PermissionStatus _status;
@@ -31,12 +32,19 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   var location = new Location();
 
   Completer<GoogleMapController> _controller = Completer();
-  //GoogleMapController _controller; //= Completer();
+  GoogleMapController mapController; //= Completer();
   Set<Marker>  allMarkers= {};
   Set<Polyline>_allPolylines={};
 
 
+
   Widget buildMap(){
+
+    if (mapCreated == 1 && curLocation['latitude'] != null)
+      mapController.moveCamera(
+          CameraUpdate.newLatLng(LatLng(curLocation['latitude'], curLocation['longitude']))
+      );
+
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
@@ -49,10 +57,12 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         zoom: 15,
       ),
       markers: allMarkers,
-      onMapCreated: (GoogleMapController controller) {
+      onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
-        addToList(_trip);
-        _controller.complete(controller);
+        await addToList(_trip);
+        mapController = controller;
+       // _controller.complete(controller);
+        mapCreated = 1;
       },
       myLocationEnabled : true,
 
@@ -164,7 +174,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
           'lng': curLocation["longitude"],
           //'time': DateTime.now()
         }).then((_) {
-          print("location updated DRIVER - ${_trip['dID']}");
+         // print("location updated DRIVER - ${_trip['dID']}");
         });
 
       });
@@ -194,8 +204,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
     final double height = constraints.biggest.height - 200 ;
-    print(height);
-    print(JourneyInfoHeight);
+   // print(height);
+   // print(JourneyInfoHeight);
     final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
