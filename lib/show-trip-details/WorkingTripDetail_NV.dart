@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -30,21 +28,37 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   //////////GET USER LOCATION
   Map<String, double> curLocation;
 
-  Completer<GoogleMapController> _controller = Completer();
-  //GoogleMapController _controller; //= Completer();
-  Set<Marker>  allMarkers= {};
-  Set<Polyline>_allPolylines={};
+  //Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController mapController; //= Completer();
+  Set<Marker>  allMarkers = {};
 
+  Set<Marker> modifyMarker(double Lat, double Lng){
+    Set<Marker> Markers = {};
+    Markers.add(
+      new Marker(
+          markerId: MarkerId('DriverCurLocation'),
+          draggable: false,
+          position: new LatLng(Lat, Lng)
+      )
+    );
+    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
+    print(allMarkers);
+   // Markers.add(allMarkers.first);
+/*    if (allMarkers != null ){
+      Markers.add(allMarkers.first);
+      Markers.add(allMarkers.last);
+    }*/
+ //   else print("Emptyyyyyyyyyyyy");
+    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
+    return Markers;
+  }
 
   Widget buildMap(driver){
-    /*if (driver != null)
-      {
-        print(driver['lng']);
-        print(driver['lat']);
-        curLocation['longitude'] = driver['lng'];
-        print(driver['lng']);
-      }*/
-    return GoogleMap(
+
+    print("buildMap: $driver");
+    print("buildMap: $allMarkers");
+
+    return new GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
@@ -55,17 +69,13 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
-      markers: allMarkers,
+      markers: modifyMarker(driver['lat'], driver['lng']),
       onMapCreated: (GoogleMapController controller) {
         allMarkers.clear();
         addToList(_trip);
-        allMarkers.add(
-          new Marker(markerId: MarkerId('driverLocation'),
-            position: new LatLng(driver['lat'], driver['lng']),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
-          )
-        );
-        _controller.complete(controller);
+        print("Create mappppppppppppppppppppppp");
+        mapController = controller;
+        //_controller.complete(controller);
       },
       myLocationEnabled : true,
 
@@ -83,6 +93,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.documents[0];
+        print("Build func: streambuilder on Firestore_______________________________");
+
         return buildWorkingTripScreen();
       },
     );
@@ -161,7 +173,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         }
                         else if(snapshot.hasData){
                           var driver = snapshot.data.snapshot.value;
-                          print(driver);
+                          print("_buildStack: Listen on driver location changed: $driver");
                           return buildMap(driver);
                         }
                       },
@@ -274,5 +286,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     });
   }
+
+
 
 }
