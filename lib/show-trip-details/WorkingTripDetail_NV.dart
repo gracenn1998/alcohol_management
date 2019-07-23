@@ -39,7 +39,9 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       new Marker(
           markerId: MarkerId('DriverCurLocation'),
           draggable: false,
-          position: new LatLng(Lat, Lng)
+          position: new LatLng(Lat, Lng),
+          infoWindow: InfoWindow(title: "Driver"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
       )
     ;
     allMarkers.add(driverMarker);
