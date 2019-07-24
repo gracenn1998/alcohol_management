@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
@@ -19,8 +18,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   int _selectedFunction = 0;
   String dID;
   _EditDriverInfoState(this.dID);
-
-  static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
 
   final _nameController = TextEditingController();
@@ -47,7 +44,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
       return ShowDriverInfo(
         key: PageStorageKey("showInfo"),
-        dID: 'TX0001',
+        dID: driver['dID'],
       );
     }
 
@@ -97,7 +94,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           _genderController.text = driver['gender']=='M'?'Nam':'Nữ';
 
           final df = new DateFormat('dd/MM/yyyy');
-          var formattedDOB = df.format(driver['dob'].toDate());
+          var formattedDOB = df.format(driver['dob']);
           _dobController.text = formattedDOB.toString();
 
           return editAllInfo(snapshot.data.documents[0]);

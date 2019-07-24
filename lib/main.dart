@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import './edit_screens/editDriverScreen.dart';
-import './show_info_screens/showDriverInfoScreen.dart';
-import './add_screens/addDriverScreen.dart';
+import 'package:alcohol_management/menu/menu.dart';
+import 'package:alcohol_management/menu/menu_driver.dart';
+import 'package:alcohol_management/menu/menu_manager.dart';
+import './login_screen/loginScreen.dart';
 import 'login_screen/auth.dart';
 import 'root_page.dart';
-import 'menu.dart';
 import 'login_screen/auth_provider.dart';
 import 'show-trip-details/showTripDetails.dart';
 
@@ -14,9 +14,7 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-//Comment this to test push/pull request
-    return
+  Widget build(BuildContext context) {    return
       AuthProvider(
         auth: Auth(),
         child: MaterialApp(
@@ -34,6 +32,5 @@ class MyApp extends StatelessWidget {
             )
         ),
       );
-
   }
 }

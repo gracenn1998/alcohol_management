@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -19,6 +17,7 @@ class WorkingTripDetail_NV extends StatefulWidget{
 class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
   final jID;
   var _trip;
+  var mapCreated = 0;
   WorkingTripDetail_NVState(this.jID);
 
   PermissionStatus _status;
@@ -30,21 +29,39 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   //////////GET USER LOCATION
   Map<String, double> curLocation;
 
-  Completer<GoogleMapController> _controller = Completer();
-  //GoogleMapController _controller; //= Completer();
-  Set<Marker>  allMarkers= {};
-  Set<Polyline>_allPolylines={};
+  //Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController mapController; //= Completer();
+  Set<Marker>  allMarkers = {};
 
+  Set<Marker> modifyMarker(double Lat, double Lng){
+  //  Markers.clear();
+    allMarkers.removeWhere((Marker a){ return a.markerId == MarkerId('DriverCurLocation'); });
+    Marker driverMarker =
+      new Marker(
+          markerId: MarkerId('DriverCurLocation'),
+          draggable: false,
+          position: new LatLng(Lat, Lng),
+          infoWindow: InfoWindow(title: "Driver"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
+      )
+    ;
+    allMarkers.add(driverMarker);
+    //print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
+//    print(allMarkers);
+//    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
+       return allMarkers;
+  }
 
   Widget buildMap(driver){
-    /*if (driver != null)
-      {
-        print(driver['lng']);
-        print(driver['lat']);
-        curLocation['longitude'] = driver['lng'];
-        print(driver['lng']);
-      }*/
-    return GoogleMap(
+
+    //print("buildMap: $driver");
+    //print("buildMap: $allMarkers");
+    if (driver['lat'] != null && mapCreated == 1)
+      mapController.moveCamera(
+          CameraUpdate.newLatLng(LatLng(driver['lat'], driver['lng']))
+      );
+
+    return new GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
@@ -55,23 +72,20 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
-      markers: allMarkers,
-      onMapCreated: (GoogleMapController controller) {
+      markers: modifyMarker(driver['lat'], driver['lng']),
+      onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
-        addToList(_trip);
-        allMarkers.add(
-          new Marker(markerId: MarkerId('driverLocation'),
-            position: new LatLng(driver['lat'], driver['lng']),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
-          )
-        );
-        _controller.complete(controller);
+        await addToList(_trip);
+      //  print("Create mappppppppppppppppppppppp");
+      //  print(allMarkers);
+        mapController = controller;
+        //_controller.complete(controller);
+        mapCreated = 1;
       },
       myLocationEnabled : true,
 
     );
   }
-
 
 
 
@@ -83,6 +97,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.documents[0];
+       // print("Build func: streambuilder on Firestore_______________________________");
+
         return buildWorkingTripScreen();
       },
     );
@@ -161,7 +177,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         }
                         else if(snapshot.hasData){
                           var driver = snapshot.data.snapshot.value;
-                          print(driver);
+                          //print("_buildStack: Listen on driver location changed: $driver");
+
                           return buildMap(driver);
                         }
                       },
@@ -205,8 +222,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
     final double height = constraints.biggest.height - 200 ;
-    print(height);
-    print(JourneyInfoHeight);
+   // print(height);
+   // print(JourneyInfoHeight);
     final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
@@ -270,9 +287,9 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       );
 
 
-      //   print("Add r2 -------------------------------------------------------------------");
-
     });
   }
+
+
 
 }

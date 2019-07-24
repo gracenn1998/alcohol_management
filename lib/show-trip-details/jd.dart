@@ -1,38 +1,83 @@
 /*
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
-import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:location/location.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:firebase_database/firebase_database.dart';
+import '../styles/styles.dart';
 
-
-class WorkingTripDetail extends StatefulWidget{
-  final trip;
-  const WorkingTripDetail({Key key, @required this.trip}) : super(key: key);
-  State<WorkingTripDetail> createState() => WorkingTripDetailState(trip);
+class WorkingTripDetail_NV extends StatefulWidget{
+  final jID;
+  const WorkingTripDetail_NV({Key key, @required this.jID}) : super(key: key);
+  State<WorkingTripDetail_NV> createState() => WorkingTripDetail_NVState(jID);
 
 }
 
-class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
-  final trip;
-  WorkingTripDetailState(this.trip);
 
-  GlobalKey _keyRed = GlobalKey();
+class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
+  final jID;
+  var _trip, _driver;
+  WorkingTripDetail_NVState(this.jID);
+
   PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
+
   static double JourneyInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
+  //////////GET USER LOCATION
+  Map<String, double> curLocation;
 
   Completer<GoogleMapController> _controller = Completer();
-  Map<String, double> curLocation;
-  var location = new Location();
+  //GoogleMapController _controller; //= Completer();
+  Set<Marker>  allMarkers= {};
+  Set<Polyline>_allPolylines={};
 
-  @override
+
+
+  Widget buildMap(){
+    //  while(_driver == null);
+
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition:
+      CameraPosition(
+        target:
+        _driver == null ?
+        LatLng(10.03711, 105.78825): //Can Tho City
+        LatLng(_driver['lat'], _driver['lng']), //driver location
+        zoom: 15,
+      ),
+      markers: allMarkers,
+      onMapCreated: (GoogleMapController controller) {
+        allMarkers.clear();
+        addToList(_trip);
+        _controller.complete(controller);
+      },
+      myLocationEnabled : true,
+    );
+  }
+
+
+
+
+//////////------------------------------------------------------
+
   Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      builder: (context, snapshot) {
+        if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        _trip = snapshot.data.documents[0];
+        return buildWorkingTripScreen();
+      },
+    );
+  }
 
+  Widget buildWorkingTripScreen(){
     _askPermission();
     return new Scaffold(
       appBar: new AppBar(
@@ -70,30 +115,12 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
-  Widget buildMap(){
-
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition:
-      CameraPosition(
-        target: curLocation == null ?
-        LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
-        zoom: 15,
-      ),
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-      },
-      myLocationEnabled : true,
-    );
-  }
-
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
     final Animation<RelativeRect> animation = _getPanelAnimation(constraints);
 
     return new Column(
       children: <Widget>[
-        DriverInfo(),
+        DriverInfo_NV(_trip),
         new Stack(
           children: <Widget>[
             new Container(
@@ -102,7 +129,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   height: constraints.biggest.height - 120
               ),
             ),
-            JourneyInfo(),
+            JourneyInfo(_trip),
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -112,8 +139,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                 elevation: 12.0,
                 child: new Column(children: <Widget>[
                   new Expanded(
-                    child:
-                    buildMap(),
+                      child:
+                      buildMap()
                   ),
                 ]),
               ),
@@ -124,7 +151,111 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     );
   }
 
-  Widget DriverInfo(){
+
+
+  void initState(){
+
+    super.initState();
+    _animationController = new AnimationController(
+        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
+
+    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+        .then(_updateStatus);
+  }
+
+  //ANIMATIONNNNNNNNNNNNNNNNN
+  bool get _isPanelVisible {
+    final AnimationStatus status = _animationController.status;
+    return status == AnimationStatus.completed ||
+        status == AnimationStatus.forward;
+  }
+
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+  }
+
+  Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
+
+    final double height = constraints.biggest.height - 200 ;
+    print(height);
+    print(JourneyInfoHeight);
+    final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    return new RelativeRectTween(
+      begin: new RelativeRect.fromLTRB(0.0, top, 0.0, bottom),
+      end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
+    ).animate(new CurvedAnimation(parent: _animationController, curve: Curves.linear));
+  }
+
+  //LOCATION ACCESS PERMISSIONNNNNNNNNN
+  void _updateStatus(PermissionStatus status){
+    //print("$status");
+    if (status != _status)
+    {
+      setState(() {
+        _status = status;
+      });
+    }
+  }
+
+  void _askPermission(){
+    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
+        .then(_onStatusRequested);
+  }
+
+  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
+    final status = statuses[PermissionGroup.locationWhenInUse];
+
+    if(status != PermissionStatus.granted)
+      PermissionHandler().openAppSettings();
+
+    _updateStatus(status);
+  }
+
+  //markers
+  addToList(trip) async {
+    final from = trip["from"];
+    var addresses = await Geocoder.local.findAddressesFromQuery(from);
+    var first = addresses.first;
+
+    final to = trip["to"];
+    var toAddresses = await Geocoder.local.findAddressesFromQuery(to);
+    var toCoor = toAddresses.first;
+
+    setState(() {
+      allMarkers.add(new Marker(
+        markerId: MarkerId('from') ,
+        draggable: false,
+        position  : new LatLng(
+            first.coordinates.latitude, first.coordinates.longitude),
+
+      )
+      );
+      //  print("Add r-------------------------------------------------------------------");
+      allMarkers.add(new Marker(
+        markerId: MarkerId('to') ,
+        draggable: false,
+        position  : new LatLng(
+            toCoor.coordinates.latitude, toCoor.coordinates.longitude),
+      )
+      );
+
+      allMarkers.add(
+          new Marker(markerId: MarkerId('driverLocation'),
+              position: new LatLng(_driver['lat'], _driver['lng']),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue)
+          )
+
+      );
+      print("Add r2 -------------------------------------------------------------------");
+      print(allMarkers.last.position);
+    });
+  }
+
+
+
+  Widget DriverInfo_NV(_trip){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -147,7 +278,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(trip['name'],
+                      child: Text(_trip['name'],
                           style: driverNameStyleinJD()),
                     ),
                     Container(
@@ -166,13 +297,29 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                         ],
                       ),
                     ),
-                    Row(
-                      children: <Widget>[
-                        Text("Hiện tại: ",
-                            style: driverStatusTitleStyle(0)),
-                        Text("500", style: driverStatusDataStyle(1)),
-                      ],
+
+                    StreamBuilder(
+                        stream: FirebaseDatabase.instance.reference().child('driver')
+                            .child(_trip['dID']).onValue,
+                        builder: (BuildContext context, snapshot) {
+                          if(!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          else if(snapshot.hasData) {
+                            _driver = snapshot.data.snapshot.value;
+                            var alcoholVal = _driver['alcoholVal'];
+                            print(_driver);
+                            return  Row(
+                              children: <Widget>[
+                                Text("Hiện tại: ",
+                                    style: driverStatusTitleStyle(0)),
+                                Text(alcoholVal.toString(), style:alcoholVal>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                              ],
+                            );
+                          }}
                     ),
+
+
                   ],
                 )),
             //Ten + Trang thai
@@ -186,8 +333,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   onPressed: () {
 
                     print("XULYYYYYYYYyyy");
-                    heightOfJourneyInfo();
-                    print(JourneyInfoHeight);
+                    //  heightOfJourneyInfo();
+                    //   print(JourneyInfoHeight);
                     //
 //                      final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
 //                      final sizeRed = renderBoxRed.size;
@@ -202,307 +349,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
           ],
         )
     );
-  }
-
-  Widget JourneyInfo(){
-    return Container(
-      color: Colors.white,
-      child: Column(
-        key: _keyRed,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 15.0, top: 5.0),
-                  child: Text( trip['jID'],
-                    //document[index].documentID,
-                    style: const TextStyle(
-                        color: const Color(0xff000000),
-                        fontWeight: FontWeight.w900,
-                        fontFamily: "Roboto",
-                        fontStyle: FontStyle.normal,
-                        fontSize: 28.0
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          //1
-
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 15.0, top: 5.0),
-                  child: Row(
-                    children: <Widget>[
-                      Icon(
-                        Icons.event,
-                        color: Color(0xff8391b3),
-                        size: 23.0,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 5.0),
-                        child: Text( //"20",
-                            formatDateTime(trip['schStart']), //document[index].data['schStart']
-                            style: timeStyleinJD()
-//                              TextStyle(
-//                                  color: Color(0xff0a2463),
-//                                  fontWeight: FontWeight.w400,
-//                                  fontFamily: "Roboto",
-//                                  fontStyle: FontStyle.normal,
-//                                  fontSize: 15.0)
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ), //2
-
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
-                    child: Text(
-                        "Từ:",
-                        style: const TextStyle(
-                            color:  const Color(0xff8391b3),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        )
-                    )
-                ),
-              ),
-
-              Expanded(
-                flex: 1,
-                child: Container(
-                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
-                    child: Text(
-                        "Đến:",
-                        style: const TextStyle(
-                            color:  const Color(0xff8391b3),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        )
-                    )
-                ),
-              ),
-            ],
-          ), //3
-
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 15.0, top: 1.0),
-                  child:
-                  Text(
-                    trip['from'],
-                    // document[index].data['from'],
-                    style: TextStyle(
-                        color:  Color(0xff000000),
-                        fontWeight: FontWeight.w700,
-                        fontFamily: "Roboto",
-                        fontStyle:  FontStyle.normal,
-                        fontSize: 14.0
-                    ),
-                  ),
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
-                  child:
-                  Text(
-                    trip['to'],
-
-                    style: TextStyle(
-                        color:  Color(0xff000000),
-                        fontWeight: FontWeight.w700,
-                        fontFamily: "Roboto",
-                        fontStyle:  FontStyle.normal,
-                        fontSize: 14.0
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ), //4
-
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
-                    child: Text(
-                        "Bắt đầu lúc:",
-                        style: const TextStyle(
-                            color:  const Color(0xff8391b3),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        )
-                    )
-                ),
-              ),
-
-              Expanded(
-                flex: 1,
-                child: Container(
-                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
-                    child: Text(
-                        "Đã chạy được:",
-                        style: const TextStyle(
-                            color:  const Color(0xff8391b3),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        )
-                    )
-                ),
-              ),
-            ],
-          ), //5
-
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 15.0, top: 1.0),
-                  child:
-                  Text(
-                      formatDateTime(trip['start']),
-                      style: timeStyleinJD()
-                  ),
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
-                  child:
-                  Text(
-                      fromStartTime(trip['start']),
-                      style: timeStyleinJD()
-                  ),
-                ),
-              )
-            ],
-          ), //6
-
-        ],
-      ),
-    );
-  }
-
-
-  //ANIMATIONNNNNNNNNNNNNNNNN
-  bool get _isPanelVisible {
-    final AnimationStatus status = _animationController.status;
-    return status == AnimationStatus.completed ||
-        status == AnimationStatus.forward;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _animationController.dispose();
-  }
-
-  Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
-
-    final double height = constraints.biggest.height - 200 ;
-    print(height);
-    print(JourneyInfoHeight);
-    final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
-    final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
-    return new RelativeRectTween(
-      begin: new RelativeRect.fromLTRB(0.0, top, 0.0, bottom),
-      end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
-    ).animate(new CurvedAnimation(parent: _animationController, curve: Curves.linear));
-  }
-
-  void heightOfJourneyInfo(){
-    final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
-    final sizeRed = renderBoxRed.size;
-    print("SIZE of Red: ${sizeRed.height} ");
-    JourneyInfoHeight = sizeRed.height;
-  }
-
-
-  void initState(){
-    _getLocation();
-
-    super.initState();
-    _animationController = new AnimationController(
-        duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
-
-    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-        .then(_updateStatus);
-
-  }
-
-  //LOCATION ACCESS PERMISSIONNNNNNNNNN
-
-  void _updateStatus(PermissionStatus status){
-    //print("$status");
-    if (status != _status)
-    {
-      setState(() {
-        _status = status;
-      });
-    }
-  }
-  void _askPermission(){
-    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
-        .then(_onStatusRequested);
-
-  }
-
-  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
-    final status = statuses[PermissionGroup.locationWhenInUse];
-
-    if(status != PermissionStatus.granted)
-      PermissionHandler().openAppSettings();
-
-    _updateStatus(status);
-  }
-
-//////////GET USER LOCATION
-  Future<Map<String, double>> _getLocation() async{
-    curLocation  = <String, double>{};
-    try {
-      curLocation = await location.getLocation();
-      setState(() {
-
-      });
-    } catch(e) {
-      curLocation = null;
-    }
-    return curLocation;
   }
 
 }*/
