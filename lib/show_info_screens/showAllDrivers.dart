@@ -91,7 +91,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
         return InkWell(
           child: Container(
-              height: 120.0,
+              height: 150.0,
               color: Colors.white,
               child: Row(
                 children: <Widget>[
@@ -106,13 +106,15 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                     child: Container(
                       padding: EdgeInsets.only(left: 15.0),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
                           Container(
                             padding: EdgeInsets.only(bottom: 10.0),
                             child: Text(document[index].data['name'],
-                                style: driverNameStyle()),
+                                style: driverNameStyle(),
+                            overflow: TextOverflow.ellipsis,),
                           ),
                           StreamBuilder(
                             stream: FirebaseDatabase.instance.reference().child('driver')
