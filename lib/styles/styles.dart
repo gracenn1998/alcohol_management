@@ -5,6 +5,31 @@ var appBarTxTStyle = TextStyle(
     fontWeight: FontWeight.w500,
     color: Colors.white);
 
+var notiTxtStyle = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.w400,
+  color: Colors.black
+);
+
+var notiTimeStyle = TextStyle(
+  fontSize: 16,
+  fontWeight: FontWeight.w400,
+  color: Color(0xff8391b3),
+  fontStyle: FontStyle.italic,
+);
+
+var notiHightlight = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.w600,
+  color: Colors.black
+);
+
+BoxDecoration notiColor(index, status){
+  var deco = BoxDecoration(
+    color: status == 0 ? Colors.white : Color(0xffCBE7FF) //new noti
+  );
+  return deco;
+}
 
 TextStyle driverStatusDataStyle(status) {
 
