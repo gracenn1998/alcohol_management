@@ -103,9 +103,19 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       },
       onResume: (Map<String, dynamic> msg) {
         print("onResume: $msg");
+        notiCount++;
+        setState(() {
+          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
+              msg['data']['tripID'], msg['notification']['body']);
+        });
       },
       onLaunch: (Map<String, dynamic> msg) {
         print("onLaunch: $msg");
+        notiCount++;
+        setState(() {
+          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
+              msg['data']['tripID'], msg['notification']['body']);
+        });
       },
     );
 
@@ -147,15 +157,15 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
             title: Text('Nhân viên'),
           ),
           BottomNavigationBarItem(
-            icon: new Stack(
+            icon: Stack(
               children: <Widget>[
-                new Icon(Icons.notifications),
-                new Positioned(
+                Icon(Icons.notifications),
+                Positioned(
                   right: 0,
                   child: Container(
                     padding: EdgeInsets.all(1),
                     decoration: BoxDecoration(
-                      color: notiCount == 0 ? Colors.green : Colors.red,
+                      color: notiCount == 0 ? Colors.transparent : Colors.red,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     constraints: BoxConstraints(
@@ -165,7 +175,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
                     child: Text(
                       '$notiCount',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: notiCount == 0 ? Colors.transparent : Colors.white,
                         fontSize: 10,
                       ),
                       textAlign: TextAlign.center,
