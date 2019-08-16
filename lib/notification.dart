@@ -94,6 +94,7 @@ class _NotiScreenState extends State<NotiScreen> {
               });
             },
             child: Container(
+              color: document[index].data['isTapped'] ? Colors.white : Color(0xffCBE7FF),
               padding: EdgeInsets.only(left: 25.0, top: 15.0, right: 25.0, bottom: 15.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
