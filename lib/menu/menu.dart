@@ -200,6 +200,8 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     );
   }
   void writeNoti(lastNotiTime, dID, tripID, body) {
+    int timeCreated = DateTime.now().millisecondsSinceEpoch;
+    String t = "$timeCreated";
     var docRef = Firestore.instance
         .collection('bnotification')
         .document();
@@ -208,7 +210,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       await transaction.set(
         docRef,
         {
-          'timeCreated': DateTime.now().millisecondsSinceEpoch.toString(),
+          'timeCreated': timeCreated,
           'dID': dID,
           'tripID': tripID,
           'lastNotiTime': lastNotiTime,
