@@ -39,7 +39,8 @@ class _NotiScreenState extends State<NotiScreen> {
           'Thông báo', style: appBarTxTStyle, textAlign: TextAlign.center,)),
       ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection('bnotification').orderBy('timeCreated', descending: true).snapshots(),
+        stream: Firestore.instance.collection('bnotification').orderBy(
+            'timeCreated', descending: true).snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
           if (snapshots.connectionState == ConnectionState.waiting)
@@ -60,37 +61,45 @@ class _NotiScreenState extends State<NotiScreen> {
     var listView = ListView.separated(
       itemBuilder: (context, index) {
         return InkWell(
-            onTap: (){
-              setState(() {
-                _selectedNoti = document[index].data['dID'];
-                notiIsTapped = 0;
-              });
-            },
-            child: Container(
-              color: document[index].data['isTapped'] ? Colors.white : Color(0xffCBE7FF),
-              padding: EdgeInsets.only(left: 25.0, top: 15.0, right: 25.0, bottom: 15.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  RichText(
-                    text: TextSpan(
+          onTap: () {
+            setState(() {
+              _selectedNoti = document[index].data['dID'];
+              notiIsTapped = 0;
+            });
+          },
+          child: Container(
+            color: document[index].data['isTapped'] ? Colors.white : Color(
+                0xffCBE7FF),
+            padding: EdgeInsets.only(
+                left: 25.0, top: 15.0, right: 25.0, bottom: 15.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                RichText(
+                  text: TextSpan(
                       children: <TextSpan>[
                         TextSpan(text: 'Tài xế ', style: notiTxtStyle),
-                        TextSpan(text: document[index].data['dID'], style: notiHightlight),
-                        TextSpan(text: ' có dấu hiệu vượt mức nồng độ cồn trong hành trình ', style: notiTxtStyle),
-                        TextSpan(text: document[index].data['tripID'], style: notiHightlight)
+                        TextSpan(text: document[index].data['dID'],
+                            style: notiHightlight),
+                        TextSpan(
+                            text: ' có dấu hiệu vượt mức nồng độ cồn trong hành trình ',
+                            style: notiTxtStyle),
+                        TextSpan(text: document[index].data['tripID'],
+                            style: notiHightlight)
                       ]
-                    ),
                   ),
-                  Text(
-                    DateFormat('dd/MM/yyyy kk:mm')
-                        .format(DateTime.fromMillisecondsSinceEpoch(int.parse(document[index].data['timeCreated']))).toString(),
-                    style: notiTimeStyle,
-                  ),
-                ],
-              ),
+                ),
+                Text(
+                  DateFormat('dd/MM/yyyy kk:mm')
+                      .format(DateTime.fromMillisecondsSinceEpoch(
+                      int.parse(document[index].data['timeCreated'])))
+                      .toString(),
+                  style: notiTimeStyle,
+                ),
+              ],
             ),
+          ),
         );
       },
       itemCount: document.length,
@@ -102,3 +111,4 @@ class _NotiScreenState extends State<NotiScreen> {
     );
     return listView;
   }
+}
