@@ -19,34 +19,7 @@ class _NotiScreenState extends State<NotiScreen> {
   @override
   void initState() {
     super.initState();
-    //_firebaseMessaging.subscribeToTopic('alcoholTracking');
-    /*_firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> msg) async {
-        print('on message $msg');
-        setState(() {
-          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
-              msg['data']['tripID'], msg['notification']['body']);
-        });
-      },
-      onResume: (Map<String, dynamic> msg) async {
-        print('on resume $msg');
-      },
-      onLaunch: (Map<String, dynamic> msg) async {
-        print('on launch $msg');
-      },
-    );*/
   }
-
-  /*void iOS_Permission() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true)
-    );
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings)
-    {
-      print("Settings registered: $settings");
-    });
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -129,23 +102,3 @@ class _NotiScreenState extends State<NotiScreen> {
     );
     return listView;
   }
-
-  /*void writeNoti(lastNotiTime, dID, tripID, body) {
-    var docRef = Firestore.instance
-        .collection('bnotification')
-        .document();
-
-    Firestore.instance.runTransaction((transaction) async {
-      await transaction.set(
-        docRef,
-        {
-          'timeCreated': DateTime.now().millisecondsSinceEpoch.toString(),
-          'dID': dID,
-          'tripID': tripID,
-          'lastNotiTime': lastNotiTime,
-          'body': body
-        },
-      );
-    });
-  }*/
-}
