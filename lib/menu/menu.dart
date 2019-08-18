@@ -16,7 +16,10 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     ShowAllDrivers(
         key: PageStorageKey('showAll')
     ),
-    ShowAllTrips(),
+    ShowAllTrips(
+      key: PageStorageKey('showAll'),
+      filterState: 0,
+    ),
     Text(
       'Nhan Vien',
       style: optionStyle,

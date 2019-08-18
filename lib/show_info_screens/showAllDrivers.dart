@@ -19,7 +19,6 @@ class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
   int _selectedFuntion = 0;
 
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -44,7 +43,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //        ),
             title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
             )),
-        body: //getListDriversView(),
+        body:
         StreamBuilder(
           stream: Firestore.instance.collection('drivers').snapshots(),
           builder:
@@ -63,9 +62,10 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             debugPrint("Add Driver Request");
-            setState(() {
-              _selectedFuntion = 1;
-            });
+//            setState(() {
+//              _selectedFuntion = 1;
+//            });
+            Navigator.push(context, MaterialPageRoute(builder: (context) => AddDriver()));
           },
           child: Icon(Icons.add),
           tooltip: "Thêm tài xế",
@@ -74,13 +74,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ));
   }
 
-//  List<String> getListDrivers() {
-//    var drivers = List<String>.generate(10, (counter) => "Tài xế $counter");
-//    return drivers;
-//  }
-
   Widget getListDriversView(document) {
-
 //    var listDrivers = count;
     var listView = ListView.separated(
       itemCount: document.length,
@@ -190,9 +184,15 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               )),
           onTap: () {
             //go to detail info
-            setState(() {
-              _selectedDriverID = document[index].documentID;
-            });
+//            setState(() {
+//              _selectedDriverID = document[index].documentID;
+//            });
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowDriverInfo(
+                    key: PageStorageKey('showInfo'),
+                    dID: document[index].documentID) )
+            );
           },
         );
       },

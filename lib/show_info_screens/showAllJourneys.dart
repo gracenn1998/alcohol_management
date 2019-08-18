@@ -4,18 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-
 class ShowAllTrips extends StatefulWidget {
-  const ShowAllTrips() : super();
+  final filterState;
+  const ShowAllTrips({Key key, @required this.filterState}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showAllTripsState();
+    return _showAllTripsState(filterState);
   }
 }
 
 class _showAllTripsState extends State<ShowAllTrips> {
+  int filterState;
+  _showAllTripsState(this.filterState);
+
   String _selectedTripID = null;
   int _selectedFuction = 0;
   bool _searching = false;
@@ -43,6 +46,13 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back), 
+              color: Color(0xff06e2b3), 
+              onPressed: () {
+                debugPrint('back');
+                if (filterState > 0) Navigator.pop(context);
+          }),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[
@@ -52,29 +62,14 @@ class _showAllTripsState extends State<ShowAllTrips> {
               color: Color(0xff06e2b3),
               onPressed: () {
                 debugPrint('Tim kiem hanh trinh');
-//              showSearch(context: context, delegate: TripSearch());
-//                _searchPress();
-//                Navigator.push(context, MaterialPageRoute(builder: (context) => SearchTrip()));
-              setState(() {
-                _searching = true;
-              });
+                  setState(() {
+                    _searching = true;
+                  });
               },
             )
           ],
         ),
-        body: StreamBuilder(
-          stream: Firestore.instance.collection('journeys').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-            if (snapshots.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child: Text('Loading...',
-                      style: TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.bold)));
-            } else
-              return getListTripView(snapshots.data.documents);
-          },
-        ),
+        body: display(filterState),
         floatingActionButton: Container(
           padding: EdgeInsets.only(bottom: 1.0),
           child: Row(
@@ -106,6 +101,77 @@ class _showAllTripsState extends State<ShowAllTrips> {
             ],
           ),
         ));
+  }
+
+  Widget display(int filter) {
+    debugPrint('display called. filter = ${filter}');
+    switch (filter) {
+      case 0:
+        return StreamBuilder(
+          stream: Firestore.instance.collection('journeys').snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                      style: TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold)));
+            } else
+              return getListTripView(snapshots.data.documents);
+          },
+        );
+        break;
+      case 1:
+        return StreamBuilder(
+          stream: Firestore.instance.collection('journeys')
+            .where('status', isEqualTo: 'done')
+            .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                      style: TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold)));
+            } else
+              return getListTripView(snapshots.data.documents);
+          },
+        );
+        break;
+      case 2:
+        return StreamBuilder(
+          stream: Firestore.instance.collection('journeys')
+              .where('status', isEqualTo: 'working')
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                      style: TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold)));
+            } else
+              return getListTripView(snapshots.data.documents);
+          },
+        );
+        break;
+      case 3:
+        return StreamBuilder(
+          stream: Firestore.instance.collection('journeys')
+              .where('status', isEqualTo: 'notStarted')
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                      style: TextStyle(
+                          fontSize: 30, fontWeight: FontWeight.bold)));
+            } else
+              return getListTripView(snapshots.data.documents);
+          },
+        );
+    }
   }
 
   Widget getListTripView(document) {
@@ -400,6 +466,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
 }
 
 class filterDialog extends StatefulWidget {
+  const filterDialog({Key key}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -408,6 +475,7 @@ class filterDialog extends StatefulWidget {
 }
 
 class _filterDialogState extends State<filterDialog> {
+  _filterDialogState();
   int _curentIndex = 1;
 
   @override
@@ -444,8 +512,10 @@ class _filterDialogState extends State<filterDialog> {
         ),
         FlatButton(
           onPressed: () {
-            Navigator.pop(context);
             debugPrint('Lọc r show kq theo ${_curentIndex}');
+            Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => ShowAllTrips(filterState: _curentIndex,)));
           },
           child: Text(
             'Xong',
@@ -456,40 +526,4 @@ class _filterDialogState extends State<filterDialog> {
     );
   }
 }
-
-//class TripSearch extends SearchDelegate<QuerySnapshot> {
-//  @override
-//  List<Widget> buildActions(BuildContext context) {
-//    heroTag: '01';
-//    // TODO: implement buildActions
-//    return [
-//      IconButton(
-//        icon: Icon(Icons.clear, color: Color(0xff06e2b3),),
-//        onPressed: () {
-//          debugPrint('Clear');
-//        },
-//      )
-//    ];
-//  }
-//
-//  @override
-//  Widget buildLeading(BuildContext context) {
-//    // TODO: implement buildLeading
-//    return IconButton(
-//      icon: Icon(Icons.arrow_back, color: Color(0xff06e2b3),),
-//      onPressed: () => close(context, null));
-//  }
-//
-//  @override
-//  Widget buildResults(BuildContext context) {
-//    // TODO: implement buildResults
-//    return Container();
-//  }
-//
-//  @override
-//  Widget buildSuggestions(BuildContext context) {
-//    // TODO: implement buildSuggestions
-//    return Container();
-//  }
-//}
 

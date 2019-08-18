@@ -55,9 +55,10 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           color: Color(0xff06E2B3),
           onPressed: () {
             //backkkk
-            setState(() {
-              _selectedFunction--;
-            });
+//            setState(() {
+//              _selectedFunction--;
+//            });
+          Navigator.pop(context);
           },
         ),
         title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),

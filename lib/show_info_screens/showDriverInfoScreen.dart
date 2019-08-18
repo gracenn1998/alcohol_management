@@ -44,9 +44,10 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
             color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
-              setState(() {
-                _selectedIndex--;
-              });
+//              setState(() {
+//                _selectedIndex--;
+//              });
+              Navigator.pop(context);
             },
           ),
           title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -58,14 +59,14 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 color: Color(0xff06E2B3),
                 onPressed: () {
                   //editttt
-                setState(() {
-                  _selectedIndex = 1;
-                });
-//                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-//                    return EditDriverInfo(
-//                      dID: dID,
-//                    );
-//                  }));
+//                setState(() {
+//                  _selectedIndex = 1;
+//                });
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return EditDriverInfo(
+                      dID: dID,
+                    );
+                  }));
                 },
               ),
             ),

@@ -45,7 +45,7 @@ class _searchTripState extends State<SearchTrip> {
   @override
   Widget build(BuildContext context) {
     if (!_searching) {
-      return ShowAllTrips();
+      return ShowAllTrips(filterState: 0,);
     }
 
     return Scaffold(
@@ -95,16 +95,6 @@ class _searchTripState extends State<SearchTrip> {
             } else return getListSearchView(snapshots.data.documents);
           },
         )
-//              ListView.builder(
-//                      itemCount: searchResults.length,
-//                      itemBuilder: (BuildContext context, int index) {
-//                        debugPrint('in ${searchResults.length}');
-//                        String listData = searchResults[index].toString();
-//                        return ListTile(
-//                          title: Text(listData),
-//                        );
-//                      },
-//                    )
           : StreamBuilder(
             stream: Firestore.instance.collection('journeys').snapshots(),
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
