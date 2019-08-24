@@ -3,14 +3,17 @@ import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import "../show_info_screens/showDriverInfoScreen.dart";
+import 'package:alcohol_management/notification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
   @override
   _MyBottomMenuState createState() => _MyBottomMenuState();
 }
-
+//Commit
 class _MyBottomMenuState extends State<MyBottomMenu>{
+  int notiCount = 0;
   int _selectedIndex = 0;
   var _selectedDriverID = null;
   static const TextStyle optionStyle =
@@ -19,15 +22,12 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     ShowAllDrivers(
         key: PageStorageKey('showAll')
     ),
-    ShowAllTrips(),
+    ShowAllTrips(), //Trips screen
     Text(
       'Nhan Vien',
       style: optionStyle,
     ),
-    Text(
-      'Thong Bao',
-      style: optionStyle,
-    ),
+    NotiScreen(), //Notification Screen
     Text(
       'Ca Nhan',
       style: optionStyle,
@@ -37,6 +37,11 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if (_selectedIndex == 3){
+        if (notiCount > 0 ){
+          notiCount--;
+        }
+      }
     });
   }
 
@@ -53,6 +58,11 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       onMessage: (Map<String, dynamic> msg) {
         print("onMessage: $msg");
         print(_selectedDriverID);
+        setState(() {
+          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
+              msg['data']['tripID'], msg['notification']['body']);
+        });
+        notiCount++;
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -75,7 +85,10 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
                               )
                       )
                     );
-//                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    if (notiCount > 0 ){
+                      notiCount--;
+                    }
                   },
                 ),
                 FlatButton(
@@ -91,9 +104,19 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       },
       onResume: (Map<String, dynamic> msg) {
         print("onResume: $msg");
+        notiCount++;
+        setState(() {
+          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
+              msg['data']['tripID'], msg['notification']['body']);
+        });
       },
       onLaunch: (Map<String, dynamic> msg) {
         print("onLaunch: $msg");
+        notiCount++;
+        setState(() {
+          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
+              msg['data']['tripID'], msg['notification']['body']);
+        });
       },
     );
 
@@ -121,7 +144,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       ),
       bottomNavigationBar: BottomNavigationBar(
         type : BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.group),
             title: Text('Tài xế'),
@@ -135,8 +158,34 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
             title: Text('Nhân viên'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            title: Text('Thông Báo'),
+            icon: Stack(
+              children: <Widget>[
+                Icon(Icons.notifications),
+                Positioned(
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: notiCount == 0 ? Colors.transparent : Colors.red,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 14,
+                      minHeight: 14,
+                    ),
+                    child: Text(
+                      '$notiCount',
+                      style: TextStyle(
+                        color: notiCount == 0 ? Colors.transparent : Colors.white,
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              ],
+            ),
+            title: Text('Thông báo'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
@@ -150,5 +199,25 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
         onTap: _onItemTapped,
       ),
     );
+  }
+  void writeNoti(lastNotiTime, dID, tripID, body) {
+    int timeCreated = DateTime.now().millisecondsSinceEpoch;
+    String t = "$timeCreated";
+    var docRef = Firestore.instance
+        .collection('bnotification')
+        .document();
+
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.set(
+        docRef,
+        {
+          'timeCreated': timeCreated,
+          'dID': dID,
+          'tripID': tripID,
+          'lastNotiTime': lastNotiTime,
+          'body': body
+        },
+      );
+    });
   }
 }
