@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ShowAllTrips extends StatefulWidget {
   const ShowAllTrips() : super();
@@ -160,6 +161,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                   //Xoa journey
                                   debugPrint(
                                       "Delete journey ${document[index].documentID} tapped");
+                                  Fluttertoast.showToast(msg: 'Đã xóa hành trình');
                                   confirmDelete(
                                       context, document[index].documentID);
                                 },
