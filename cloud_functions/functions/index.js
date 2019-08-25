@@ -57,7 +57,7 @@ exports.sendNoti = functions.database.ref('driver/{dID}/alcoholVal').onUpdate((c
 
     admin.database().ref("/driver/" + dID).once('value').then((snapshot) => {
             var lastNotiTime = snapshot.child('lastNotiTime').val();
-            var tripID = snapshot.child('tripCode').val();
+            var tripID = snapshot.child('tripID').val();
             console.log(curTime.getTime() - lastNotiTime);
 
             if(alcoVal >= drunkVal && (curTime.getTime() - lastNotiTime)>= delayTime) {
@@ -93,28 +93,33 @@ exports.sendNoti = functions.database.ref('driver/{dID}/alcoholVal').onUpdate((c
 });
 
 
-exports.logNoti = functions.database.ref('driver/{dID}/lastNotiTime').onUpdate((change, context) => {
+exports.logNoti = functions.database.ref('driver/{dID}').onUpdate((change, context) => {
 //    console.log('?????');
     const dID = context.params.dID;
-    const lastNotiTime = change.after.val();
-//    const child = change.after.val()['lastNotiTime'];
+//    const lastNotiTime = change.after.val();
+    const newNotiTime = change.after.val()['lastNotiTime'];
+    const oldNotiTime = change.before.val()['lastNotiTime'];
+
+    if(newNotiTime != oldNotiTime) {
+        const tripID = change.after.val()['tripID'];
+
+        var doc = db.collection('bnotification').doc(dID+newNotiTime);
+            return doc
+                  .set({
+                    body: "Tài xế " + dID + " có dấu hiệu vượt mức nồng độ cồn",
+                    dID : dID,
+                    isTapped: false,
+                    timeCreated: newNotiTime.toString(),
+                    tripID: tripID
+                  })
+                  .then(() => {
+                    return { result: 'document updated' };
+                  })
+                  .catch(function(error) {
+                    console.error("Error writing document: ", error);
+                   });
+    }
 
 
-
-    var doc = db.collection('bnotification').doc(dID+lastNotiTime);
-    return doc
-          .set({
-            body: "Tài xế " + dID + " có dấu hiệu vượt mức nồng độ cồn",
-            dID : dID,
-            isTapped: false,
-            timeCreated: lastNotiTime.toString(),
-//            tripID: "HT0003"
-          })
-          .then(() => {
-            return { result: 'document updated' };
-          })
-          .catch(function(error) {
-            console.error("Error writing document: ", error);
-           });
     }
 );
