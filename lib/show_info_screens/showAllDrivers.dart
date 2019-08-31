@@ -1,3 +1,4 @@
+import 'package:alcohol_management/search_screens/searchDriver.dart';
 import "package:flutter/material.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../styles/styles.dart';
@@ -18,6 +19,7 @@ class ShowAllDrivers extends StatefulWidget {
 class _showAllDriversState extends State<ShowAllDrivers> {
   String _selectedDriverID = null;
   int _selectedFuntion = 0;
+  bool _searching = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,17 +37,32 @@ class _showAllDriversState extends State<ShowAllDrivers> {
       return AddDriver();
     }
 
+    if (_searching) {
+      _searching = false;
+      return SearchDriver();
+    }
+
     return Scaffold(
         appBar: AppBar(
 //        leading: Icon(
 //          Icons.dehaze,
 //          color: Color(0xff06E2B3),
 //        ),
-            title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
-            )),
+            title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search, color: Color(0xff06e2b3),),
+              onPressed: () {
+                setState(() {
+                  _searching = true;
+                });
+              },
+            )
+          ],
+        ),
         body:
         StreamBuilder(
-          stream: Firestore.instance.collection('drivers').snapshots(),
+          stream: Firestore.instance.collection('drivers').where('deleted', isEqualTo: false).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting)
@@ -217,7 +234,9 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
-            Firestore.instance.collection('drivers').document(id).delete();
+            Firestore.instance.collection('drivers').document(id).updateData({
+              'deleted': true,
+            });
           },
           child: Text(
             'Xóa',

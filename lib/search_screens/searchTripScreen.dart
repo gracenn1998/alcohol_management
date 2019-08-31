@@ -1,8 +1,7 @@
+import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import 'showAllJourneys.dart';
 
 class SearchTrip extends StatefulWidget {
   const SearchTrip() : super();

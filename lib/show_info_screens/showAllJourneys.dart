@@ -1,4 +1,4 @@
-import 'package:alcohol_management/show_info_screens/searchTripScreen.dart';
+import 'package:alcohol_management/search_screens/searchTripScreen.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -48,10 +48,13 @@ class _showAllTripsState extends State<ShowAllTrips> {
         appBar: AppBar(
           leading: IconButton(
               icon: Icon(Icons.arrow_back), 
-              color: Color(0xff06e2b3), 
+              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
               onPressed: () {
                 debugPrint('back');
-                if (filterState > 0) Navigator.pop(context);
+//                if (filterState > 0) Navigator.pop(context);
+                if (filterState > 0) setState(() {
+                  filterState = 0;
+                });
           }),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
@@ -108,7 +111,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
     switch (filter) {
       case 0:
         return StreamBuilder(
-          stream: Firestore.instance.collection('journeys').snapshots(),
+          stream: Firestore.instance.collection('journeys').where('deleted', isEqualTo: false).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
@@ -124,7 +127,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
       case 1:
         return StreamBuilder(
           stream: Firestore.instance.collection('journeys')
-            .where('status', isEqualTo: 'done')
+            .where('status', isEqualTo: 'done').where('deleted', isEqualTo: false)
             .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -141,7 +144,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
       case 2:
         return StreamBuilder(
           stream: Firestore.instance.collection('journeys')
-              .where('status', isEqualTo: 'working')
+              .where('status', isEqualTo: 'working').where('deleted', isEqualTo: false)
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -158,7 +161,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
       case 3:
         return StreamBuilder(
           stream: Firestore.instance.collection('journeys')
-              .where('status', isEqualTo: 'notStarted')
+              .where('status', isEqualTo: 'notStarted').where('deleted', isEqualTo: false)
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
@@ -424,7 +427,9 @@ class _showAllTripsState extends State<ShowAllTrips> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
-            Firestore.instance.collection('journeys').document(id).delete();
+              Firestore.instance.collection('journeys').document(id).updateData({
+                'deleted': true,
+              });
           },
           child: Text(
             'Xóa',
