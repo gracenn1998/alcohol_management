@@ -69,8 +69,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         driver == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
         LatLng(driver['lat'], driver['lng']), //user location
-        //  LatLng(10.03711, 105.78825),
-        zoom: 15,
+        zoom: 15.0,
       ),
       markers: modifyMarker(driver['lat'], driver['lng']),
       onMapCreated: (GoogleMapController controller) async {
@@ -153,7 +152,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
             new Container(
               color: Colors.white,
               constraints: BoxConstraints.expand(
-                  height: constraints.biggest.height - 120
+                  height: constraints.biggest.height - 120.0
               ),
             ),
             JourneyInfo(_trip),
@@ -221,7 +220,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
-    final double height = constraints.biggest.height - 200 ;
+    final double height = constraints.biggest.height - 200.0 ;
    // print(height);
    // print(JourneyInfoHeight);
     final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
