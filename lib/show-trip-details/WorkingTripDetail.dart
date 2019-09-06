@@ -52,7 +52,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         target:
         curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation["latitude"], curLocation["longitude"]), //user location
+        LatLng(curLocation['latitude'], curLocation['longitude']), //user location
       //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
