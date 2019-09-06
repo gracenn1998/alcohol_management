@@ -58,7 +58,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             else if(snapshots.hasData) {
               List driverList=[];
 
-              DataSnapshot driverSnaps = snapshots.data.snapshot;\
+              DataSnapshot driverSnaps = snapshots.data.snapshot;
 
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
               for(var value in driverSnaps.value.values) {
