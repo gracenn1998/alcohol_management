@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
@@ -59,12 +58,14 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             else if(snapshots.hasData) {
               List driverList=[];
 
-              DataSnapshot driverSnaps = snapshots.data.snapshot;
-//              print(driverSnaps.value);
+              DataSnapshot driverSnaps = snapshots.data.snapshot;\
 
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
               for(var value in driverSnaps.value.values) {
-                driverList.add(value);
+                if(!value['isDeleted']) { //show only drivers working -- not deleted yet
+                  driverList.add(value);
+                }
+
               }
 
               return getListDriversView(driverList);
@@ -173,8 +174,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           color: Color(0xff0A2463),
                           onPressed: () {
                             //Xoa driver
-                            debugPrint("Delete driver ${driverSnaps[index].documentID} tapped");
-                            confirmDelete(context, driverSnaps[index].documentID);
+                            debugPrint("Delete driver ${dID} tapped");
+                            confirmDelete(context, dID);
                             Fluttertoast.showToast(msg: 'Đã xóa tài xế');
                           },
                         ),
@@ -212,7 +213,12 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
-            Firestore.instance.collection('drivers').document(id).delete();
+            FirebaseDatabase.instance.reference()
+                .child('driver')
+                .child(id)
+                .update({
+                  'isDeleted': true
+                });
           },
           child: Text(
             'Xóa',
