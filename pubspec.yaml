@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore:
+  cloud_firestore: 0.7.4
   intl:
   firebase_auth: 0.7.0
 
@@ -27,7 +27,8 @@ dependencies:
   permission_handler: 2.1.0
   location: 1.4.1
   geocoder: 0.1.2
-  #simple_permissions: ^0.1.9
+  fluttertoast: 2.2.11
+
   firebase_database:
 
 

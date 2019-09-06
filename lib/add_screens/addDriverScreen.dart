@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showAllDrivers.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AddDriver extends StatefulWidget {
   @override
@@ -64,6 +65,7 @@ class _AddDriver extends State<AddDriver> {
                 var confirmed = 1;
                 if(confirmed == 1) {
                   addDataDTB();
+                  Fluttertoast.showToast(msg: 'Đã thêm tài xế');
                   setState(() {
                     _selectedFunction--;
                   });

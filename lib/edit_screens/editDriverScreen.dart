@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class EditDriverInfo extends StatefulWidget {
   final dID;
@@ -72,6 +73,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 var confirmed = 1;
                 if(confirmed == 1) {
                   editDataDTB(driver);
+                  Fluttertoast.showToast(msg: 'Đã thay đổi thông tin tài xế');
                   setState(() {
                     _selectedFunction--;
                   });
