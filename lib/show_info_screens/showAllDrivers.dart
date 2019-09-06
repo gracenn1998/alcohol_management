@@ -46,19 +46,46 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),
             )),
         body: //getListDriversView(),
+//        StreamBuilder(
+//          stream: Firestore.instance.collection('drivers').snapshots(),
+//          builder:
+//              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+//            if (snapshots.connectionState == ConnectionState.waiting)
+//              return Center(
+//                child: Text(
+//                  'Loading...',
+//                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+//                ),
+//              );
+//            else
+//              return getListDriversView(snapshots.data.documents);
+//          },
+//        ),
         StreamBuilder(
-          stream: Firestore.instance.collection('drivers').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-            if (snapshots.connectionState == ConnectionState.waiting)
+          stream: FirebaseDatabase.instance.reference().child('driver').onValue,
+          builder: (BuildContext context, snapshots) {
+            if(!snapshots.hasData) {
               return Center(
                 child: Text(
                   'Loading...',
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                ),
+                )
               );
-            else
-              return getListDriversView(snapshots.data.documents);
+            }
+            else if(snapshots.hasData) {
+              List driverList=[];
+
+              DataSnapshot driverSnaps = snapshots.data.snapshot;
+//              print(driverSnaps.value);
+
+              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+              for(var value in driverSnaps.value.values) {
+                driverList.add(value);
+              }
+
+              return getListDriversView(driverList);
+            }
+//            else if(snapshot.hasError) => return "Error";
           },
         ),
         floatingActionButton: FloatingActionButton(
@@ -80,15 +107,36 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //    return drivers;
 //  }
 
-  Widget getListDriversView(document) {
+  Widget getListDriversView(driverSnaps) {
 
 //    var listDrivers = count;
     var listView = ListView.separated(
-      itemCount: document.length,
+      itemCount: driverSnaps.length,
       itemBuilder: (context, index) {
         String onWorking, alcoholTrack;
+
         int status;
-        String dID = document[index]['dID'];
+        print(driverSnaps[index]);
+        String dID = driverSnaps[index]['dID'];
+        var alcoholVal =  driverSnaps[index]['alcoholVal'];
+
+        if(alcoholVal == null) {
+          onWorking = 'Đang nghỉ';
+          alcoholTrack = 'Không hoạt động';
+          status = -1;
+        }
+        else {
+          if(alcoholVal <= 350) {
+            onWorking = 'Đang làm việc';
+            alcoholTrack = alcoholVal.toString();
+            status = 0;
+          }
+          else {
+            onWorking = 'Say xỉn';
+            alcoholTrack = alcoholVal.toString();
+            status = 1;
+          }
+        }
 
         return InkWell(
           child: Container(
@@ -112,58 +160,78 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                         children: <Widget>[
                           Container(
                             padding: EdgeInsets.only(bottom: 10.0),
-                            child: Text(document[index].data['name'],
+                            child: Text(driverSnaps[index]['basicInfo']['name'],
                                 style: driverNameStyle()),
                           ),
-                          StreamBuilder(
-                            stream: FirebaseDatabase.instance.reference().child('driver')
-                                .child(dID).child('alcoholVal').onValue,
-                            builder: (BuildContext context, snapshot) {
-                              if(!snapshot.hasData) {
-                                return Center(child: CircularProgressIndicator());
-                              }
-                              else if(snapshot.hasData) {
-                                var alcoholVal = snapshot.data.snapshot.value;
-                                if(alcoholVal == null) {
-                                  onWorking = 'Đang nghỉ';
-                                  alcoholTrack = 'Không hoạt động';
-                                  status = -1;
-                                }
-                                else {
-                                  if(alcoholVal <= 350) {
-                                    onWorking = 'Đang làm việc';
-                                    alcoholTrack = alcoholVal.toString();
-                                    status = 0;
-                                  }
-                                  else {
-                                    onWorking = 'Say xỉn';
-                                    alcoholTrack = alcoholVal.toString();
-                                    status = 1;
-                                  }
-                                }
-                                return Column(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                          Text("$onWorking", style: driverStatusDataStyle(status)),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                        Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                      ],
-                                    )
-                                  ],
-                                );
-                              }
-//                          else if(snapshot.hasError) => return "Error";
-                              },
-                            ),
+                          Column(
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(bottom: 5.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                            Text("$onWorking", style: driverStatusDataStyle(status)),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                          Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                        ],
+                      )
+                    ],
+                  ),
+//                          StreamBuilder(
+//                            stream: FirebaseDatabase.instance.reference().child('driver')
+//                                .child(dID).child('alcoholVal').onValue,
+//                            builder: (BuildContext context, snapshot) {
+//                              if(!snapshot.hasData) {
+//                                return Center(child: CircularProgressIndicator());
+//                              }
+//                              else if(snapshot.hasData) {
+//                                var alcoholVal = snapshot.data.snapshot.value;
+//                                if(alcoholVal == null) {
+//                                  onWorking = 'Đang nghỉ';
+//                                  alcoholTrack = 'Không hoạt động';
+//                                  status = -1;
+//                                }
+//                                else {
+//                                  if(alcoholVal <= 350) {
+//                                    onWorking = 'Đang làm việc';
+//                                    alcoholTrack = alcoholVal.toString();
+//                                    status = 0;
+//                                  }
+//                                  else {
+//                                    onWorking = 'Say xỉn';
+//                                    alcoholTrack = alcoholVal.toString();
+//                                    status = 1;
+//                                  }
+//                                }
+//                                return Column(
+//                                  children: <Widget>[
+//                                    Container(
+//                                      padding: EdgeInsets.only(bottom: 5.0),
+//                                      child: Row(
+//                                        children: <Widget>[
+//                                          Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+//                                          Text("$onWorking", style: driverStatusDataStyle(status)),
+//                                        ],
+//                                      ),
+//                                    ),
+//                                    Row(
+//                                      children: <Widget>[
+//                                        Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+//                                        Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+//                                      ],
+//                                    )
+//                                  ],
+//                                );
+//                              }
+////                          else if(snapshot.hasError) => return "Error";
+//                              },
+//                            ),
+
                           ],
                         )),
                   ), //Ten + Trang thai
@@ -178,8 +246,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           color: Color(0xff0A2463),
                           onPressed: () {
                             //Xoa driver
-                            debugPrint("Delete driver ${document[index].documentID} tapped");
-                            confirmDelete(context, document[index].documentID);
+                            debugPrint("Delete driver ${driverSnaps[index].documentID} tapped");
+                            confirmDelete(context, driverSnaps[index].documentID);
                             Fluttertoast.showToast(msg: 'Đã xóa tài xế');
                           },
                         ),
@@ -191,7 +259,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
           onTap: () {
             //go to detail info
             setState(() {
-              _selectedDriverID = document[index].documentID;
+              _selectedDriverID = driverSnaps[index].documentID;
             });
           },
         );
