@@ -176,7 +176,6 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                             //Xoa driver
                             debugPrint("Delete driver ${dID} tapped");
                             confirmDelete(context, dID);
-                            Fluttertoast.showToast(msg: 'Đã xóa tài xế');
                           },
                         ),
                       )
@@ -219,6 +218,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                 .update({
                   'isDeleted': true
                 });
+            Fluttertoast.showToast(msg: 'Đã xóa tài xế');
           },
           child: Text(
             'Xóa',

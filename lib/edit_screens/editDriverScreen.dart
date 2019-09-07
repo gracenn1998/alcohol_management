@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class EditDriverInfo extends StatefulWidget {
@@ -27,7 +28,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   final _genderController = TextEditingController();
   final _dobController = TextEditingController();
 
-  DocumentSnapshot driver;
+  var driver;
 
   @override
   void dispose() {
@@ -45,7 +46,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
       return ShowDriverInfo(
         key: PageStorageKey("showInfo"),
-        dID: driver['dID'],
+        dID: dID,
       );
     }
 
@@ -72,7 +73,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 //confirm edit
                 var confirmed = 1;
                 if(confirmed == 1) {
-                  editDataDTB(driver);
+                  editDataDTB();
                   Fluttertoast.showToast(msg: 'Đã thay đổi thông tin tài xế');
                   setState(() {
                     _selectedFunction--;
@@ -86,20 +87,22 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
         ],
       ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
+        stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
-          driver = snapshot.data.documents[0];
+          driver = snapshot.data.snapshot.value['basicInfo'];
           _nameController.text = driver['name'];
           _addressController.text = driver['address'];
-          _idCardController.text = driver['idCard'];
+          _idCardController.text = driver['idCard'].toString();
           _genderController.text = driver['gender']=='M'?'Nam':'Nữ';
 
           final df = new DateFormat('dd/MM/yyyy');
-          var formattedDOB = df.format(driver['dob']);
+          var formattedDOB = DateFormat('dd/MM/yyyy')
+              .format(DateTime.fromMillisecondsSinceEpoch(driver['dob']))
+              .toString();
           _dobController.text = formattedDOB.toString();
 
-          return editAllInfo(snapshot.data.documents[0]);
+          return editAllInfo(driver);
         },
       ),
       resizeToAvoidBottomPadding: false,
@@ -114,7 +117,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
         Expanded(
             child: Container(
-              child: editDetails(driver['dID'], driver['email']),
+              child: editDetails(dID, driver['email']),
             )
         ),
       ],
@@ -235,20 +238,33 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     );
   }
 
-  void editDataDTB(DocumentSnapshot driver) {
+  void editDataDTB() {
     DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
-    
-    Firestore.instance.runTransaction((transaction) async{
-      DocumentSnapshot freshSnap =
-        await transaction.get(driver.reference);
-      await transaction.update(freshSnap.reference, {
-        'name' : _nameController.text,
-        'idCard' : _idCardController.text,
-        'address' : _addressController.text,
-        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
-        'dob' : formattedDOB,
-      });
+    FirebaseDatabase.instance.reference()
+        .child('driver')
+        .child(dID).child('basicInfo')
+        .update({
+          'name' : _nameController.text,
+          'idCard' : _idCardController.text,
+          'address' : _addressController.text,
+          'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+          'dob' : formattedDOB.millisecondsSinceEpoch,
     });
+
+    //maybe transaction here???
+//    FirebaseDatabase.instance.reference()
+//        .child('driver')
+//        .child(dID).runTransaction((transaction) async{
+//      DocumentSnapshot freshSnap =
+//        await transaction.get(driver.reference);
+//      await transaction.update(freshSnap.reference, {
+//        'name' : _nameController.text,
+//        'idCard' : _idCardController.text,
+//        'address' : _addressController.text,
+//        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+//        'dob' : formattedDOB,
+//      });
+//    });
   }
 }
 
