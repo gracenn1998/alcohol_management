@@ -215,12 +215,9 @@ class _AddDriver extends State<AddDriver> {
 
     //listen if have changes
     var streamSub = FirebaseDatabase.instance.reference().child('driver')
-        .onValue.listen((driver){
+        .onChildAdded.listen((driver){
           if(!isAddCalled) {
-            Map<dynamic, dynamic> map = driver.snapshot.value;
-            List<dynamic> list = map.values.toList()..sort((a, b) => b['dID'].compareTo(a['dID']));
-
-            lastID = list[0]['dID'];
+            lastID = driver.snapshot.value['dID'];
             newID = generateNewDriverID(lastID);
           }
 
