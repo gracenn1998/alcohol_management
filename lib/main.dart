@@ -7,6 +7,9 @@ import 'login_screen/auth.dart';
 import 'root_page.dart';
 import 'login_screen/auth_provider.dart';
 
+import 'add_screens/addDriverScreen.dart';
+import 'add_screens/addTripScreen.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -17,7 +20,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-              home: MyBottomMenu(),
+              home: AddTrip(),
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
