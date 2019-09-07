@@ -24,7 +24,7 @@ dependencies:
   firebase_auth: 0.7.0
 
   google_maps_flutter: 0.5.17
-  permission_handler: 2.1.0
+  #permission_handler: 2.1.0
   location: 1.4.1
   geocoder: 0.1.2
   #simple_permissions: ^0.1.9

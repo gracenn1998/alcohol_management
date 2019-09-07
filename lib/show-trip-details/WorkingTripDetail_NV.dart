@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+//import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,7 +20,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   var mapCreated = 0;
   WorkingTripDetail_NVState(this.jID);
 
-  PermissionStatus _status;
+  //PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
 
@@ -104,7 +104,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   }
 
   Widget buildWorkingTripScreen(){
-    _askPermission();
+    //_askPermission();
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
@@ -201,8 +201,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
     _animationController = new AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
-    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-        .then(_updateStatus);
+   /* PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+        .then(_updateStatus);*/
 
   }
 
@@ -231,30 +231,30 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
     ).animate(new CurvedAnimation(parent: _animationController, curve: Curves.linear));
   }
 
-  //LOCATION ACCESS PERMISSIONNNNNNNNNN
-  void _updateStatus(PermissionStatus status){
-    //print("$status");
-    if (status != _status)
-    {
-      setState(() {
-        _status = status;
-      });
-    }
-  }
-
-  void _askPermission(){
-    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
-        .then(_onStatusRequested);
-  }
-
-  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
-    final status = statuses[PermissionGroup.locationWhenInUse];
-
-    if(status != PermissionStatus.granted)
-      PermissionHandler().openAppSettings();
-
-    _updateStatus(status);
-  }
+//  //LOCATION ACCESS PERMISSIONNNNNNNNNN
+//  void _updateStatus(PermissionStatus status){
+//    //print("$status");
+//    if (status != _status)
+//    {
+//      setState(() {
+//        _status = status;
+//      });
+//    }
+//  }
+//
+//  void _askPermission(){
+//    PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
+//        .then(_onStatusRequested);
+//  }
+//
+//  void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
+//    final status = statuses[PermissionGroup.locationWhenInUse];
+//
+//    if(status != PermissionStatus.granted)
+//      PermissionHandler().openAppSettings();
+//
+//    _updateStatus(status);
+//  }
 
   //markers
   addToList(trip) async {

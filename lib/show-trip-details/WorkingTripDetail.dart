@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
-import 'package:permission_handler/permission_handler.dart';
+//import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
@@ -21,7 +21,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   var mapCreated = 0;
   WorkingTripDetailState(this.jID);
 
-  PermissionStatus _status;
+  //PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
 
@@ -86,7 +86,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
   Widget buildWorkingTripScreen(){
-    _askPermission();
+    //_askPermission();
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
@@ -184,8 +184,8 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
     _animationController = new AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
-    PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-        .then(_updateStatus);
+    //PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+       // .then(_updateStatus);
 
   }
 
@@ -215,7 +215,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
   //LOCATION ACCESS PERMISSIONNNNNNNNNN
-  void _updateStatus(PermissionStatus status){
+ /* void _updateStatus(PermissionStatus status){
     //print("$status");
     if (status != _status)
     {
@@ -237,7 +237,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       PermissionHandler().openAppSettings();
 
     _updateStatus(status);
-  }
+  }*/
 
   //markers
   addToList(trip) async {
