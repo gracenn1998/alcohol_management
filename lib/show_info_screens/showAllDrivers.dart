@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
 import 'package:firebase_database/firebase_database.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class ShowAllDrivers extends StatefulWidget {
@@ -180,6 +181,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                             //Xoa driver
                             debugPrint("Delete driver ${document[index].documentID} tapped");
                             confirmDelete(context, document[index].documentID);
+                            Fluttertoast.showToast(msg: 'Đã xóa tài xế');
                           },
                         ),
                       )

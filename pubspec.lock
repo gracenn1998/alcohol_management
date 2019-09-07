@@ -28,7 +28,7 @@ packages:
       name: cloud_firestore
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.2+3"
+    version: "0.7.4"
   collection:
     dependency: transitive
     description:
@@ -74,6 +74,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.11"
   geocoder:
     dependency: "direct main"
     description:
