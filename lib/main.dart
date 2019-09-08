@@ -6,7 +6,7 @@ import './login_screen/loginScreen.dart';
 import 'login_screen/auth.dart';
 import 'root_page.dart';
 import 'login_screen/auth_provider.dart';
-
+import 'edit_screens/editTripScreen.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-              home: MyBottomMenu(),
+              home: EditTrip(jID: 'HT0002'),
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
