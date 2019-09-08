@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
-import '../show_info_screens/showAllJourneys.dart';
+import '../show_info_screens/showAllTrips.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AddTrip extends StatefulWidget {
@@ -33,7 +33,9 @@ class _AddTripState extends State<AddTrip> {
   Widget build(BuildContext build)
   {
       if(_selectedFunction == -1) {
-        return ShowAllTrips();
+        return ShowAllTrips(
+          filterState: 0,
+        );
           //Center(child: Text("Show all trip"));
       }
      // return Center(child: Text("Loading..."));
