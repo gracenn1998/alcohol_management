@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
-import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
+import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
