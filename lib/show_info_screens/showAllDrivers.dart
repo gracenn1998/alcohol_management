@@ -56,17 +56,17 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               );
             }
             else if(snapshots.hasData) {
-              List driverList=[];
+              List<dynamic> driverList;
 
               DataSnapshot driverSnaps = snapshots.data.snapshot;
-
+              Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
-              for(var value in driverSnaps.value.values) {
-                if(!value['isDeleted']) { //show only drivers working -- not deleted yet
-                  driverList.add(value);
-                }
-
-              }
+//              for(var value in driverSnaps.value.values) {
+//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
+//                  driverList.add(value);
+//                }
+//              }
+              driverList = map.values.toList()..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
 
               return getListDriversView(driverList);
             }
@@ -98,7 +98,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         String dID = driverSnaps[index]['dID'];
         var alcoholVal =  driverSnaps[index]['alcoholVal'];
 
-        if(alcoholVal == null) {
+        if(alcoholVal < 0) {
           onWorking = 'Đang nghỉ';
           alcoholTrack = 'Không hoạt động';
           status = -1;

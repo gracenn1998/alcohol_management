@@ -111,7 +111,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     var tripID = driver['tripID'];
     var alcoholVal =  driver['alcoholVal'];
 
-    if(alcoholVal == null) {
+    if(alcoholVal < 0) {
       onWorking = 'Đang nghỉ';
       alcoholTrack = 'Không hoạt động';
       status = -1;
