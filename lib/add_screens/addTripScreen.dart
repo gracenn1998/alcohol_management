@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showAllTrips.dart';
@@ -18,7 +18,6 @@ class _AddTripState extends State<AddTrip> {
   final _toController = TextEditingController();
   final _schController = TextEditingController();
   final _driverIDController = TextEditingController();
-  final _driverNameController = TextEditingController();
 
   void dispose() {
     // Clean up the controller when the Widget is disposed
@@ -26,7 +25,6 @@ class _AddTripState extends State<AddTrip> {
     _toController.dispose();
     _schController.dispose();
     _driverIDController.dispose();
-    _driverNameController.dispose();
     super.dispose();
   }
 
@@ -93,9 +91,8 @@ class _AddTripState extends State<AddTrip> {
               children: <Widget>[
                 fillDetailInfo('Từ', 1, _fromController),
                 fillDetailInfo('Đến', 0, _toController),
-                fillDetailInfo('Thời gian dự kiến', 1, _schController),
+                fillDetailInfo('Thời gian bắt đầu dự kiến', 1, _schController),
                 fillDetailInfo('Mã tài xế', 0, _driverIDController),
-                fillDetailInfo('Tên tài xế', 1, _driverNameController),
               ],
             )
         )
@@ -144,38 +141,45 @@ class _AddTripState extends State<AddTrip> {
   }
 
   void addDataDTB () async {
-    DateTime formattedDOB =  DateFormat("dd/MM/yyyy hh:mm").parse(_schController.text);
+    var isAddCalled = false;
+    var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
+    schMilli+=3600000; //no idea :(
     String lastID, newID;
 
-    await Firestore.instance.collection('journeys')
-        .orderBy('jID', descending: true).limit(1).getDocuments().then((journeys) {
-      lastID = journeys.documents[0].data['jID'];
+    await FirebaseDatabase.instance.reference().child('trips').once().then((trips) {
+      Map<dynamic, dynamic> map = trips.value;
+      List<dynamic> list = map.values.toList()..sort((a, b) => b['dID'].compareTo(a['dID']));
+
+      lastID = list[0]['tID'];
     });
 
     //set new id
     newID = getNewTripID(lastID);
 
     //listen if have changes
-    var streamSub = Firestore.instance.collection('journeys')
-        .orderBy('jID', descending: true).limit(1).snapshots().listen((journeys){
-      lastID = journeys.documents[0]['jID'];
-      newID = getNewTripID(lastID);
+    var streamSub = FirebaseDatabase.instance.reference().child('trips')
+        .onChildAdded.listen((trip){
+      if(!isAddCalled) {
+        lastID = trip.snapshot.value['dID'];
+        newID = getNewTripID(lastID);
+      }
+
     });
 
-    Firestore.instance.runTransaction((transaction) async{
-      await transaction.set(Firestore.instance.collection("journeys").document(newID), {
-        'schStart' : formattedDOB,
-        'jID' : newID,
-        'deleted': false,
-        'from': _fromController.text,
-        'to': _toController.text,
-        'name': _driverNameController.text,
-        'dID': _driverIDController.text,
-        'status': 'notStarted'
-      });
-    }).then((data){
+    FirebaseDatabase.instance.reference().child('trips').child(newID)
+        .set({
+      'tID' : newID,
+      'isDeleted' : false,
+      'schStart' : schMilli,
+      'deleted': false,
+      'from': _fromController.text,
+      'to': _toController.text,
+      'dID': _driverIDController.text,
+      'status': 'notStarted',
+    }).then((data) {
       streamSub.cancel();
     });
+    isAddCalled = true;
   }
 
 
