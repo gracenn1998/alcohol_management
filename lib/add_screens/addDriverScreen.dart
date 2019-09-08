@@ -78,7 +78,7 @@ class _AddDriver extends State<AddDriver> {
           ),
         ],
       ),
-      resizeToAvoidBottomInset: false,
+//      resizeToAvoidBottomInset: false,
       body: showAddInfo(),
 
     );

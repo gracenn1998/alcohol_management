@@ -73,7 +73,7 @@ class _AddTripState extends State<AddTrip> {
             ),
           ],
         ),
-        resizeToAvoidBottomInset: false,
+//        resizeToAvoidBottomInset: false,
         body:
          //Center(child: Text("Bodyyyy"),)
           fillDetails()
@@ -81,6 +81,17 @@ class _AddTripState extends State<AddTrip> {
       );
   }
 
+  Widget EditTripDetail(trip){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+//        showTripID(trip['tID']),
+        Expanded(
+          child: fillDetails(),
+        )
+      ],
+    );
+  }
 
   Widget fillDetails() {
     return Container (

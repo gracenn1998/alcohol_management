@@ -106,7 +106,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           return editAllInfo(driver);
         },
       ),
-      resizeToAvoidBottomPadding: false,
+//      resizeToAvoidBottomPadding: false,
     );
   }
 

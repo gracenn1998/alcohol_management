@@ -96,7 +96,7 @@ class EditTripState extends State<EditTrip> {
           return EditTripDetail(trip);
         },
       ),
-      resizeToAvoidBottomPadding: false,
+//      resizeToAvoidBottomPadding: false,
     );
   }
 
@@ -108,7 +108,9 @@ class EditTripState extends State<EditTrip> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         showTripID(trip['tID']),
-        editDetails(trip, 'notStarted')
+        Expanded(
+          child: editDetails(trip, 'notStarted'),
+        )
       ],
     );
   }
@@ -132,7 +134,8 @@ class EditTripState extends State<EditTrip> {
         .toString();
 
     return Container (
-        margin: EdgeInsets.only( bottom: 15.0),
+//        margin: EdgeInsets.only( bottom: 15.0),
+        height: 420.0,
         child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
