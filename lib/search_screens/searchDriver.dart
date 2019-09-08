@@ -2,6 +2,7 @@ import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SearchDriver extends StatefulWidget {
   const SearchDriver() : super();
@@ -80,39 +81,86 @@ class _searchDriverState extends State<SearchDriver> {
         ),
 //      buildBar(context),
         body: _controller.text.isNotEmpty
-            ? StreamBuilder(
-          stream: Firestore.instance.collection('drivers')
-              .orderBy('name')
-              .startAt([_controller.text]).endAt([_controller.text + '\uf8ff'])
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+            ?
+        StreamBuilder(
+          stream: FirebaseDatabase.instance.reference().child('driver')
+              .orderByChild('name')
+//              .startAt([_controller.text.toString()]).endAt([_controller.text.toString() + '\uf8ff'])
+              .onValue,
+          builder: (BuildContext context, snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Text('Loading...',
                       style: TextStyle(
                           fontSize: 30, fontWeight: FontWeight.bold)));
-            } else return getListSearchView(snapshots.data.documents);
+            }
+            else {
+              List<dynamic> driverList;
+
+              DataSnapshot driverSnaps = snapshots.data.snapshot;
+              Map<dynamic, dynamic> map = driverSnaps.value;
+              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+//              for(var value in driverSnaps.value.values) {
+//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
+//                  driverList.add(value);
+//                }
+//              }
+              driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+
+              return getListSearchView(driverList);
+            }
           },
         )
+//        StreamBuilder(
+//          stream: Firestore.instance.collection('drivers')
+//              .orderBy('name')
+//              .startAt([_controller.text]).endAt([_controller.text + '\uf8ff'])
+//              .snapshots(),
+//          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+//            if (snapshots.connectionState == ConnectionState.waiting) {
+//              return Center(
+//                  child: Text('Loading...',
+//                      style: TextStyle(
+//                          fontSize: 30, fontWeight: FontWeight.bold)));
+//            } else return getListSearchView(snapshots.data.documents);
+//          },
+//        )
             : StreamBuilder(
-          stream: Firestore.instance.collection('drivers').snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+          stream: FirebaseDatabase.instance.reference().child('driver')
+//              .orderByChild('isDeleted').equalTo(false)
+              .onValue,
+          builder: (BuildContext context, snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Text('Loading...',
                       style: TextStyle(
                           fontSize: 30, fontWeight: FontWeight.bold)));
-            } else return getListSearchView(snapshots.data.documents);
+            }
+            else {
+              List<dynamic> driverList;
+
+              DataSnapshot driverSnaps = snapshots.data.snapshot;
+              Map<dynamic, dynamic> map = driverSnaps.value;
+              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+//              for(var value in driverSnaps.value.values) {
+//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
+//                  driverList.add(value);
+//                }
+//              }
+              driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+
+              return  getListSearchView(driverList);
+            }
           },
         ));
   }
 
-  Widget getListSearchView(List<DocumentSnapshot> documents) {
+  Widget getListSearchView(documents) {
     return ListView.separated(
       itemCount: documents.length,
       itemBuilder: (BuildContext context, int index) {
         debugPrint('${searchResults.length} in body');
-        String name = documents[index].data['name'].toString();
+        String name = documents[index]['basicInfo']['name'].toString();
         return InkWell(
           child: Row(
             mainAxisSize: MainAxisSize.min,
