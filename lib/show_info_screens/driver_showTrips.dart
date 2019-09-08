@@ -2,6 +2,7 @@ import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class DriverShowTrips extends StatefulWidget {
   const DriverShowTrips() : super();
@@ -163,7 +164,7 @@ class _DriverShowTripsState extends State<DriverShowTrips> {
                     )
                   ],
                 ),
-                //1
+                //
 
                 Row(
                   children: <Widget>[

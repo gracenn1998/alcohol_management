@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
@@ -73,10 +72,10 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
           ],
         ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection('drivers').where('dID', isEqualTo: dID).snapshots(),
+        stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
-          return showAllInfo(snapshot.data.documents[0]);
+          return showAllInfo(snapshot.data.snapshot.value);
         },
       ),
       resizeToAvoidBottomPadding: false,
@@ -94,11 +93,11 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   Widget showAllInfo(driver) {
     return Column(
       children: <Widget>[
-        showBasicInfo(driver['name']),
+        showBasicInfo(driver),
         Expanded(
-            child: showDetails( driver['dID'], driver['idCard'],
-                driver['address'], driver['email'],
-                driver['gender'], driver['dob'])
+            child: showDetails( driver['dID'], driver['basicInfo']['idCard'],
+                driver['basicInfo']['address'], driver['basicInfo']['email'],
+                driver['basicInfo']['gender'], driver['basicInfo']['dob'])
         ),
         generatePasswordButton(),
 
@@ -106,9 +105,30 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     );
   }
 
-  Widget showBasicInfo(name) {
-    String onWorking, alcoholTrack, tripCode;
+  Widget showBasicInfo(driver) {
+    String onWorking, alcoholTrack;
     int status = -1;
+
+    var tripID = driver['tripID'];
+    var alcoholVal =  driver['alcoholVal'];
+
+    if(alcoholVal < 0) {
+      onWorking = 'Đang nghỉ';
+      alcoholTrack = 'Không hoạt động';
+      status = -1;
+    }
+    else {
+      if(alcoholVal <= 350) {
+        onWorking = 'Đang làm việc';
+        alcoholTrack = alcoholVal.toString();
+        status = 0;
+      }
+      else {
+        onWorking = 'Say xỉn';
+        alcoholTrack = alcoholVal.toString();
+        status = 1;
+      }
+    }
 
     return Container(
         height: 120.0,
@@ -131,89 +151,56 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 5.0),
-                      child: Text("$name", style: driverNameStyle()),
+                      child: Text(driver['basicInfo']['name'], style: driverNameStyle()),
                     ),
-                    StreamBuilder(
-                      stream: FirebaseDatabase.instance.reference().child('driver')
-                          .child('$dID').onValue,
-                      builder: (BuildContext context, snapshot) {
-                        if(!snapshot.hasData) {
-
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        else if(snapshot.hasData) {
-                          if(snapshot.data.snapshot.value == null) {
-                            onWorking = 'Đang nghỉ';
-                            alcoholTrack = 'Không hoạt động';
-                            status = -1;
-                          }
-                          else {
-                            tripCode = snapshot.data.snapshot.value['tripCode'];
-                            var alcoholVal = snapshot.data.snapshot.value['alcoholVal'];
-                            if(alcoholVal <= 350) {
-                              onWorking = 'Đang làm việc';
-                              alcoholTrack = alcoholVal.toString();
-                              status = 0;
-                            }
-                            else {
-                              onWorking = 'Say xỉn';
-                              alcoholTrack = alcoholVal.toString();
-                              status = 1;
-                            }
-                          }
-
-                          return Row(
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: <Widget>[
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                              Container(
+                                padding: EdgeInsets.only(bottom: 5.0),
+                                child: Row(
                                   children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                          Text("$onWorking", style: driverStatusDataStyle(status)),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                        Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                      ],
-                                    )
+                                    Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                    Text("$onWorking", style: driverStatusDataStyle(status)),
                                   ],
                                 ),
                               ),
-                              status >= 0 ?
-                              Container(
-                                margin: EdgeInsets.only(right: 10.0),
-                                child: IconButton(
-                                  padding: EdgeInsets.only(right: 1.0, bottom: 1.0),
-                                  icon: Icon(
-                                    Icons.local_library,
-                                    color: Color(0xff06E2B3),
-                                    size: 25.0,
-                                  ),
-                                  tooltip: 'Xem hành trình tài xế đang làm việc',
-                                  onPressed: () {
-
-                                    //return journey detail
-                                    print(tripCode);
-                                  },
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Color(0xff0a2463),
-                                  borderRadius: new BorderRadius.all(const  Radius.circular(25.0)),
-                                ),
-                              ):Container(),
+                              Row(
+                                children: <Widget>[
+                                  Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                  Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                                ],
+                              )
                             ],
-                          );
-                        }
-//                          else if(snapshot.hasError) => return "Error";
-                      },
+                          ),
+                        ),
+                        status >= 0 ?
+                        Container(
+                          margin: EdgeInsets.only(right: 10.0),
+                          child: IconButton(
+                            padding: EdgeInsets.only(right: 1.0, bottom: 1.0),
+                            icon: Icon(
+                              Icons.local_library,
+                              color: Color(0xff06E2B3),
+                              size: 25.0,
+                            ),
+                            tooltip: 'Xem hành trình tài xế đang làm việc',
+                            onPressed: () {
+
+                              //return journey detail
+                              print(tripID);
+                            },
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xff0a2463),
+                            borderRadius: new BorderRadius.all(const  Radius.circular(25.0)),
+                          ),
+                        ):Container(),
+                      ],
                     ),
                   ],
                 )
@@ -254,8 +241,9 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 }
 
 Widget showDetails(id, idCard, address, email, gender, dob) {
-  final df = new DateFormat('dd/MM/yyyy');
-  var formattedDOB = df.format(dob);
+  var formattedDOB = DateFormat('dd/MM/yyyy')
+      .format(DateTime.fromMillisecondsSinceEpoch(dob))
+      .toString();
   return Container (
       margin: EdgeInsets.only( bottom: 15.0),
       child: SingleChildScrollView(

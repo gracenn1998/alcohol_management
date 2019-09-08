@@ -1,10 +1,10 @@
 import 'package:alcohol_management/search_screens/searchDriver.dart';
 import "package:flutter/material.dart";
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../styles/styles.dart';
 import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
 import 'package:firebase_database/firebase_database.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ShowAllDrivers extends StatefulWidget {
   const ShowAllDrivers({Key key}) : super(key: key);
@@ -62,18 +62,32 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ),
         body:
         StreamBuilder(
-          stream: Firestore.instance.collection('drivers').where('deleted', isEqualTo: false).snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-            if (snapshots.connectionState == ConnectionState.waiting)
+          stream: FirebaseDatabase.instance.reference().child('driver').onValue,
+          builder: (BuildContext context, snapshots) {
+            if(!snapshots.hasData) {
               return Center(
                 child: Text(
                   'Loading...',
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                ),
+                )
               );
-            else
-              return getListDriversView(snapshots.data.documents);
+            }
+            else if(snapshots.hasData) {
+              List<dynamic> driverList;
+
+              DataSnapshot driverSnaps = snapshots.data.snapshot;
+              Map<dynamic, dynamic> map = driverSnaps.value;
+              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+//              for(var value in driverSnaps.value.values) {
+//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
+//                  driverList.add(value);
+//                }
+//              }
+              driverList = map.values.toList()..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+
+              return getListDriversView(driverList);
+            }
+//            else if(snapshot.hasError) => return "Error";
           },
         ),
         floatingActionButton: FloatingActionButton(
@@ -91,18 +105,39 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ));
   }
 
-  Widget getListDriversView(document) {
-//    var listDrivers = count;
+
+  Widget getListDriversView(driverSnaps) {
+
     var listView = ListView.separated(
-      itemCount: document.length,
+      itemCount: driverSnaps.length,
       itemBuilder: (context, index) {
         String onWorking, alcoholTrack;
+
         int status;
-        String dID = document[index]['dID'];
+        String dID = driverSnaps[index]['dID'];
+        var alcoholVal =  driverSnaps[index]['alcoholVal'];
+
+        if(alcoholVal < 0) {
+          onWorking = 'Đang nghỉ';
+          alcoholTrack = 'Không hoạt động';
+          status = -1;
+        }
+        else {
+          if(alcoholVal <= 350) {
+            onWorking = 'Đang làm việc';
+            alcoholTrack = alcoholVal.toString();
+            status = 0;
+          }
+          else {
+            onWorking = 'Say xỉn';
+            alcoholTrack = alcoholVal.toString();
+            status = 1;
+          }
+        }
 
         return InkWell(
           child: Container(
-              height: 150.0,
+              height: 120.0,
               color: Colors.white,
               child: Row(
                 children: <Widget>[
@@ -123,61 +158,30 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                         children: <Widget>[
                           Container(
                             padding: EdgeInsets.only(bottom: 10.0),
-                            child: Text(document[index].data['name'],
-                                style: driverNameStyle(),
-                            overflow: TextOverflow.ellipsis,),
+                            child: Text(driverSnaps[index]['basicInfo']['name'],
+                                style: driverNameStyle()),
                           ),
-                          StreamBuilder(
-                            stream: FirebaseDatabase.instance.reference().child('driver')
-                                .child(dID).child('alcoholVal').onValue,
-                            builder: (BuildContext context, snapshot) {
-                              if(!snapshot.hasData) {
-                                return Center(child: CircularProgressIndicator());
-                              }
-                              else if(snapshot.hasData) {
-                                var alcoholVal = snapshot.data.snapshot.value;
-                                if(alcoholVal == null) {
-                                  onWorking = 'Đang nghỉ';
-                                  alcoholTrack = 'Không hoạt động';
-                                  status = -1;
-                                }
-                                else {
-                                  if(alcoholVal <= 350) {
-                                    onWorking = 'Đang làm việc';
-                                    alcoholTrack = alcoholVal.toString();
-                                    status = 0;
-                                  }
-                                  else {
-                                    onWorking = 'Say xỉn';
-                                    alcoholTrack = alcoholVal.toString();
-                                    status = 1;
-                                  }
-                                }
-                                return Column(
+                          Column(
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(bottom: 5.0),
+                                child: Row(
                                   children: <Widget>[
-                                    Container(
-                                      padding: EdgeInsets.only(bottom: 5.0),
-                                      child: Row(
-                                        children: <Widget>[
-                                          Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                          Text("$onWorking", style: driverStatusDataStyle(status)),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                        Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                      ],
-                                    )
+                                    Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                    Text("$onWorking", style: driverStatusDataStyle(status)),
                                   ],
-                                );
-                              }
-//                          else if(snapshot.hasError) => return "Error";
-                              },
-                            ),
-                          ],
-                        )),
+                                ),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                  Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ],
+                      )),
                   ), //Ten + Trang thai
                   Expanded(
                       flex: 1,
@@ -190,8 +194,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           color: Color(0xff0A2463),
                           onPressed: () {
                             //Xoa driver
-                            debugPrint("Delete driver ${document[index].documentID} tapped");
-                            confirmDelete(context, document[index].documentID);
+                            debugPrint("Delete driver ${dID} tapped");
+                            confirmDelete(context, dID);
                           },
                         ),
                       )
@@ -202,13 +206,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
           onTap: () {
             //go to detail info
 //            setState(() {
-//              _selectedDriverID = document[index].documentID;
+//              _selectedDriverID = dID;
 //            });
             Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ShowDriverInfo(
                     key: PageStorageKey('showInfo'),
-                    dID: document[index].documentID) )
+                    dID: dID))
             );
           },
         );
@@ -234,9 +238,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
-            Firestore.instance.collection('drivers').document(id).updateData({
-              'deleted': true,
-            });
+            FirebaseDatabase.instance.reference()
+                .child('driver')
+                .child(id)
+                .update({
+                  'isDeleted': true
+                });
+            Fluttertoast.showToast(msg: 'Đã xóa tài xế');
           },
           child: Text(
             'Xóa',

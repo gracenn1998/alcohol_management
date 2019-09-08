@@ -3,6 +3,8 @@ import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ShowAllTrips extends StatefulWidget {
   final filterState;
@@ -218,23 +220,24 @@ class _showAllTripsState extends State<ShowAllTrips> {
                             flex: 2,
                           ),
                           Expanded(
-                              flex: 1,
-                              child: Container(
-                                padding: EdgeInsets.only(top: 5.0),
-                                alignment: Alignment.topRight,
-                                child: IconButton(
-                                  icon: Icon(Icons.delete),
-                                  iconSize: 30.0,
-                                  color: Color(0xff0A2463),
-                                  onPressed: () {
-                                    //Xoa journey
-                                    debugPrint(
-                                        "Delete journey ${document[index].documentID} tapped");
-                                    confirmDelete(
-                                        context, document[index].documentID);
-                                  },
-                                ),
-                              ))
+                            flex: 1,
+                            child: Container(
+                              padding: EdgeInsets.only(top: 5.0),
+                              alignment: Alignment.topRight,
+                              child: IconButton(
+                                icon: Icon(Icons.delete),
+                                iconSize: 30.0,
+                                color: Color(0xff0A2463),
+                                onPressed: () {
+                                  //Xoa journey
+                                  debugPrint(
+                                      "Delete journey ${document[index].documentID} tapped");
+                                  Fluttertoast.showToast(msg: 'Đã xóa hành trình');
+                                  confirmDelete(
+                                      context, document[index].documentID);
+                                },
+                              ),
+                            ))
                         ],
                       ),
                     )
