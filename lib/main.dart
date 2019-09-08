@@ -7,6 +7,9 @@ import 'login_screen/auth.dart';
 import 'root_page.dart';
 import 'login_screen/auth_provider.dart';
 import 'edit_screens/editTripScreen.dart';
+import 'add_screens/addDriverScreen.dart';
+import 'add_screens/addTripScreen.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import '../show_info_screens/showAllDrivers.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AddDriver extends StatefulWidget {
@@ -197,37 +198,65 @@ class _AddDriver extends State<AddDriver> {
   }
 
   void addDataDTB () async {
-    DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
+    var isAddCalled = false;
+    var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
     String lastID, newID;
     //get last driver id
-    await Firestore.instance.collection('drivers')
-        .orderBy('dID', descending: true).limit(1).getDocuments().then((driver) {
-          lastID = driver.documents[0].data['dID'];
+
+    await FirebaseDatabase.instance.reference().child('driver').orderByKey().once().then((driver) {
+      Map<dynamic, dynamic> map = driver.value;
+      List<dynamic> list = map.values.toList()..sort((a, b) => b['dID'].compareTo(a['dID']));
+
+      lastID = list[0]['dID'];
     });
 
     //set new id
     newID = generateNewDriverID(lastID);
 
     //listen if have changes
-    var streamSub = Firestore.instance.collection('drivers')
-        .orderBy('dID', descending: true).limit(1).snapshots().listen((driver){
-            lastID = driver.documents[0]['dID'];
+    var streamSub = FirebaseDatabase.instance.reference().child('driver')
+        .onChildAdded.listen((driver){
+          if(!isAddCalled) {
+            lastID = driver.snapshot.value['dID'];
             newID = generateNewDriverID(lastID);
+          }
+
         });
 
-    Firestore.instance.runTransaction((transaction) async{
-      await transaction.set(Firestore.instance.collection("drivers").document(newID), {
-        'name' : _nameController.text,
-        'idCard' : _idCardController.text,
-        'address' : _addressController.text,
-        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
-        'dob' : formattedDOB,
-        'dID' : newID,
-        'email' : newID.toLowerCase() + '@driver.potatoes.com',
-      });
-    }).then((data){
+
+    FirebaseDatabase.instance.reference().child('driver').child(newID)
+        .set({
+          'dID' : newID,
+          'isDeleted' : false,
+    }).then((data) {
       streamSub.cancel();
+      FirebaseDatabase.instance.reference().child('driver').child(newID).child('basicInfo')
+        .set({
+          'name' : _nameController.text,
+          'idCard' : _idCardController.text,
+          'address' : _addressController.text,
+          'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+          'dob' : dobMilli,
+          'email' : newID.toLowerCase() + '@driver.potatoes.com',
+      });
     });
+    isAddCalled = true;
+
+    //need transaction....
+
+//    Firestore.instance.runTransaction((transaction) async{
+//      await transaction.set(Firestore.instance.collection("drivers").document(newID), {
+//        'name' : _nameController.text,
+//        'idCard' : _idCardController.text,
+//        'address' : _addressController.text,
+//        'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+//        'dob' : formattedDOB,
+//        'dID' : newID,
+//        'email' : newID.toLowerCase() + '@driver.potatoes.com',
+//      });
+//    }).then((data){
+//      streamSub.cancel();
+//    });
   }
 
   String generateNewDriverID(String lastID) {
