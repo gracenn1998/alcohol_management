@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-              home: EditTrip(jID: 'HT0002'),
+              home: EditTrip(tID: 'HT0002'),
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),

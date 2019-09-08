@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class EditTrip extends StatefulWidget {
-  final jID;
-  const EditTrip({Key key, @required this.jID}) : super(key: key);
+  final tID;
+  const EditTrip({Key key, @required this.tID}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
-    return EditTripState(jID);
+    return EditTripState(tID);
   }
 }
 
 class EditTripState extends State<EditTrip> {
   int _selectedIndex = 0;
-  String jID;
+  String tID;
 
-  EditTripState(this.jID);
+  EditTripState(this.tID);
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   final _schController = TextEditingController();
   final _driverIDController = TextEditingController();
-  final _driverNameController = TextEditingController();
-  DocumentSnapshot trip;
+  var trip;
 
   void dispose() {
     // Clean up the controller when the Widget is disposed
@@ -31,7 +30,6 @@ class EditTripState extends State<EditTrip> {
     _toController.dispose();
     _schController.dispose();
     _driverIDController.dispose();
-    _driverNameController.dispose();
     super.dispose();
   }
 
@@ -81,14 +79,13 @@ class EditTripState extends State<EditTrip> {
       body:
       //    Center(child: Text('Loading'),),
       StreamBuilder(
-        stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+          stream: FirebaseDatabase.instance.reference().child('trips').child(tID).onValue,
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
-          trip = snapshot.data.documents[0];
+          trip = snapshot.data.snapshot.value;
           _toController.text = trip['to'];
           _fromController.text = trip['from'];
           _driverIDController.text = trip['dID'];
-          _driverNameController.text = trip['name'];
 
 //          final df = new DateFormat('dd/MM/yyyy hh:mm');
 //          var formattedStartTime = df.parse(trip['schStart']);
@@ -96,7 +93,7 @@ class EditTripState extends State<EditTrip> {
 
           _schController.text = trip['schStart'].toString();
 
-          return EditTripDetail(snapshot.data.documents[0]);
+          return EditTripDetail(trip);
         },
       ),
       resizeToAvoidBottomPadding: false,
@@ -110,7 +107,7 @@ class EditTripState extends State<EditTrip> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        showTripID(trip['jID']),
+        showTripID(trip['tID']),
         editDetails(trip, 'notStarted')
       ],
     );
@@ -121,13 +118,18 @@ class EditTripState extends State<EditTrip> {
 
 
   Widget editDetails(trip, Tstatus) {
-    String id = trip['jID'];
+    String id = trip['tID'];
     // String driver = trip['dID'] == null? "Chưa phân công": trip['dID'];
     //DateTime sch = DateFormat("dd/MM/yyyy hh:mm").parse(trip['schStart']);
 
     final start = trip['start'] == null? "Hành trình chưa bắt đầu": formatDateTime(trip['start']);
     final finish = trip['finish']== null? "Hành trình chưa bắt đầu": formatDateTime(trip['finish']);
     String status = toStatusInVN(trip['status']);
+
+    _schController.text = DateFormat('dd/MM/yyyy kk:mm')
+        .format(DateTime.fromMillisecondsSinceEpoch(
+        int.parse(_schController.text)))
+        .toString();
 
     return Container (
         margin: EdgeInsets.only( bottom: 15.0),
@@ -136,9 +138,8 @@ class EditTripState extends State<EditTrip> {
               children: <Widget>[
                 showDetailItem('ID', id, 1, 'normal'),
                 editDetailItem("Mã tài xế", _driverIDController, 0, 'normal'),
-                editDetailItem("Tên tài xế", _driverNameController, 1, 'normal'),
-                editDetailItem('Từ', _fromController, 0, 'normal'),
-                editDetailItem('Đến', _toController, 1, 'normal'),
+                editDetailItem('Từ', _fromController, 1, 'normal'),
+                editDetailItem('Đến', _toController, 0, 'normal'),
                 editDetailItem('TG dự kiến', _schController, 1, 'normal'),
                 showDetailItem('TG bắt đầu', start, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
                 showDetailItem('TG kết thúc', finish, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
@@ -240,32 +241,45 @@ class EditTripState extends State<EditTrip> {
 
 
 
-  void editDataDTB(DocumentSnapshot trip) {
-    DateTime sch =  DateFormat("dd-MM-yyyy hh:mm").parse(_schController.text);
+  void editDataDTB(trip) {
+    var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
+    schMilli+=3600000; //no idea :(
 
-    Firestore.instance.runTransaction((transaction) async{
-//      DocumentSnapshot freshSnap =
-//      await transaction.get(trip.reference);
-//      print("ABC: ");
-//      print(trip.reference);
-      await transaction.update(Firestore.instance.collection("journeys").document(jID), {
-        'from': _fromController.text,
-        'to': _toController.text,
-        'dID': _driverIDController.text,
-        'name': _driverNameController.text,
-        'schStart': sch
-      });
+    FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child(tID)
+        .update({
+      'from': _fromController.text,
+      'to': _toController.text,
+      'dID': _driverIDController.text,
+      'schStart': schMilli,
     });
+
+    //need transaction?
+
+
+//    Firestore.instance.runTransaction((transaction) async{
+////      DocumentSnapshot freshSnap =
+////      await transaction.get(trip.reference);
+////      print("ABC: ");
+////      print(trip.reference);
+//      await transaction.update(Firestore.instance.collection("journeys").document(tID), {
+//        'from': _fromController.text,
+//        'to': _toController.text,
+//        'dID': _driverIDController.text,
+//        'schStart': sch
+//      });
+//    });
   }
 
 
 
-  Widget showTripID(jID){
+  Widget showTripID(tID){
     return
       Container(
         padding: EdgeInsets.all(10.0),
         child: Text(
-          jID,
+          tID,
           style: TripID(),
         ),
         color: Colors.white,
