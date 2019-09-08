@@ -62,7 +62,9 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         ),
         body:
         StreamBuilder(
-          stream: FirebaseDatabase.instance.reference().child('driver').onValue,
+          stream: FirebaseDatabase.instance.reference().child('driver')
+              .orderByChild('isDeleted').equalTo(false)
+              .onValue,
           builder: (BuildContext context, snapshots) {
             if(!snapshots.hasData) {
               return Center(
