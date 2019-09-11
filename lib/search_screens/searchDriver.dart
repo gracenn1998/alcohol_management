@@ -95,7 +95,7 @@ class _searchDriverState extends State<SearchDriver> {
           },
         )
             : StreamBuilder(
-          stream: Firestore.instance.collection('drivers').snapshots(),
+          stream: Firestore.instance.collection('drivers').where('deleted', isEqualTo: false).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(

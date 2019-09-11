@@ -95,7 +95,7 @@ class _searchTripState extends State<SearchTrip> {
           },
         )
           : StreamBuilder(
-            stream: Firestore.instance.collection('journeys').snapshots(),
+            stream: Firestore.instance.collection('journeys').where('deleted', isEqualTo: false).snapshots(),
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
               if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(
