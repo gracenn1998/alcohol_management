@@ -14,6 +14,9 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
 
     admin.database().ref("/driver/" + dID).once('value').then((snapshot) => {
             var lastNotiTime = snapshot.child('notiInfo/lastNotiTime').val();
+            if(lastNotiTime==null) {
+                lastNotiTime = 0;
+            }
             var curTripID = snapshot.child('tripID').val();
             console.log(curTime.getTime() - lastNotiTime);
 
@@ -24,6 +27,7 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
                                 body: 'Tài xế ' + dID + ' có dấu hiệu vượt mức nồng độ cồn',
                             },
                             data : {
+                                "click_action": "FLUTTER_NOTIFICATION_CLICK",
                                 'lastNotiTime' : lastNotiTime.toString(),
                                 'dID' : dID.toString(),
                                 'tripID' : curTripID.toString()

@@ -85,7 +85,7 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
                               )
                       )
                     );
-                    Navigator.of(context).pop();
+//                    Navigator.of(context).pop();
                     if (notiCount > 0 ){
                       notiCount--;
                     }
