@@ -41,7 +41,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
-        return WorkingTripDetail(jID: jID);
+        return WorkingTripDetail_NV(jID: jID);
 
     }
   }
@@ -149,7 +149,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           child: Column(
             children: <Widget>[
               buildNotStartedTripDetail(trip),
-              buildStartBtn()
+              buildStartBtn(),
             ],
           )
 
@@ -157,6 +157,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       resizeToAvoidBottomPadding: false,
     );
   }
+
+
 
   Widget buildNotStartedTripDetail(trip){
     return Column(

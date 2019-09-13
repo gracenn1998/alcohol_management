@@ -161,6 +161,14 @@ TextStyle tripDetailsStyle(status){
   }
 }
 
+Widget assignBtn(){
+  return
+    Icon(
+      Icons.assignment_ind,
+      color: Color(0xffef3964)
+    );
+}
+
 Widget showDetailItem(title, data, line, status) {
     return Row(
       children: <Widget>[
@@ -182,7 +190,8 @@ Widget showDetailItem(title, data, line, status) {
         ),
         Expanded(
           flex: 5,
-          child: Container(
+          child: (title != "Tài xế")?
+          Container(
             height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
             padding: EdgeInsets.only(left: 15.0, right: 15.0),
@@ -194,7 +203,25 @@ Widget showDetailItem(title, data, line, status) {
                 style: tripDetailsStyle(status),
               ),
             ),
-          ),
+          ) : Row(
+            children: <Widget>[
+            Container(
+            height: 55.0,
+//          margin: const EdgeInsets.all(5.0),
+            padding: EdgeInsets.only(left: 15.0, right: 15.0),
+            decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "$data",
+                style: tripDetailsStyle(status),
+              ),
+            ),
+            ),
+              assignBtn()
+            ],
+          )
+
         ),
       ],
 
