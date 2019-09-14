@@ -505,27 +505,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     }
 
     final children = <Widget>[
-      new Center(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-              height: 300.0,
-              width: chartWidth,
-              child: new charts.TimeSeriesChart(
-                _createSampleData(),
-                animate: false,
-                selectionModels: [
-                  new charts.SelectionModelConfig(
-                    type: charts.SelectionModelType.info,
-
-                    changedListener: _onSelectionChanged,
-                  )
-                ],
-                primaryMeasureAxis: new charts.NumericAxisSpec(
-                    tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
-              )),
-        ),
-      ),
     ];
 
     // If there is a selection, then include the details.
@@ -537,6 +516,28 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     _measures?.forEach((String series, num value) {
       children.add(new Text('${series}: ${value}'));
     });
+    
+    children.add(Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+            height: 300.0,
+            width: chartWidth,
+            child: new charts.TimeSeriesChart(
+              _createSampleData(),
+              animate: false,
+              selectionModels: [
+                new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
+
+                  changedListener: _onSelectionChanged,
+                )
+              ],
+              primaryMeasureAxis: new charts.NumericAxisSpec(
+                  tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
+            )),
+      ),
+    ))
 
 //    return new Column(children: children);
 
