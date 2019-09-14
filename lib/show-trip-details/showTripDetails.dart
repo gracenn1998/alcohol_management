@@ -4,7 +4,7 @@ import 'WorkingTripDetail.dart';
 import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
-import 'WorkingTripDetail_NV.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ShowTripDetails extends StatefulWidget{
   final String jID;
@@ -255,18 +255,45 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Phân công"),
-          content: Column(
-            children: <Widget>[
-              
+          content:
+                Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _dIDControler,
+                      decoration: InputDecoration(
+                        enabledBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        focusedBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        hintText: "Nhập mã tài xế",
+                        labelText: "Mã tài xế",
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _vIDControler,
+                      decoration: InputDecoration(
+                        enabledBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        focusedBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        hintText: "Nhập mã phương tiện",
+                        labelText: "Mã phương tiện",
+                      ),
+                    ),
 
-            ],
+                  ],
+                ),
 
-          ),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
               child: new Text("Xác nhận"), //????????? chữ gì
               onPressed: () {
+                updateAssignment();
                 Navigator.of(context).pop();
               },
             ),
@@ -281,6 +308,23 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         );
       },
     );
+  }
+
+  void updateAssignment(){
+    FirebaseDatabase.instance.reference().child('trips').child(jID).set(
+      {
+        'dID': _dIDControler.text
+      }
+    );
+
+    FirebaseDatabase.instance.reference().child('sensor').child(_vIDControler.text).set(
+        {
+          'dID': _dIDControler.text,
+          'tID': jID
+        }
+    );
+
+
   }
 
 
