@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
+import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
-//import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
@@ -128,7 +128,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     return new Column(
       children: <Widget>[
-        //DriverInfo(_trip),
+        DriverInfo(_trip),
         new Stack(
           children: <Widget>[
             new Container(
@@ -137,7 +137,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   height: constraints.biggest.height - 120
               ),
             ),
-         //   JourneyInfo(_trip),
+            JourneyInfo(_trip),
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -276,7 +276,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
 
 
-/*  Widget DriverInfo(_trip){
+  Widget DriverInfo(_trip){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -368,8 +368,9 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
           ],
         )
     );
-  }*/
- /* Widget JourneyInfo(_trip){
+  }
+
+  Widget JourneyInfo(_trip){
     return Container(
       color: Colors.white,
       child: Column(
@@ -582,6 +583,5 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       ),
     );
   }
-*/
 
 }

@@ -41,7 +41,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
-        return WorkingTripDetail_NV(jID: jID);
+        return WorkingTripDetail(jID: jID);
 
     }
   }
