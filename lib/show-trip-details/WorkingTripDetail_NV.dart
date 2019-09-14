@@ -146,7 +146,15 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     return new Column(
       children: <Widget>[
-        DriverInfo(_trip),
+        StreamBuilder(
+          stream: FirebaseDatabase.instance.reference().child('driver')
+              .child(_trip['dID']).onValue,
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+            var _driver = snapshot.data.snapshot.value;
+            return DriverInfo(_driver);
+          },
+        ),//        DriverInfo(_trip),
         new Stack(
           children: <Widget>[
             new Container(
@@ -266,7 +274,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   }
 
 
-  Widget DriverInfo(_trip){
+  Widget DriverInfo(driver){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -289,7 +297,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(_trip['name'],
+                      child: Text(driver['basicInfo']['name'],
                           style: driverNameStyleinJD()),
                     ),
                     Container(
@@ -303,30 +311,19 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         children: <Widget>[
                           Text("Ban đầu: ",
                               style: driverStatusTitleStyle(0)),
-                          Text("100",
+                          Text("100", //need dynamic data
                               style: driverStatusDataStyle(0)),
                         ],
                       ),
                     ),
 
-                    StreamBuilder(
-                        stream: FirebaseDatabase.instance.reference().child('driver')
-                            .child(_trip['dID']).child('alcoholVal').onValue,
-                        builder: (BuildContext context, snapshot) {
-                          if(!snapshot.hasData) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          else if(snapshot.hasData) {
-                            var alcoholVal = snapshot.data.snapshot.value;
-                            return  Row(
-                              children: <Widget>[
-                                Text("Hiện tại: ",
-                                    style: driverStatusTitleStyle(0)),
-                                Text(alcoholVal.toString(), style:alcoholVal>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
-                              ],
-                            );
-                          }}
-                    ),
+                    Row(
+                      children: <Widget>[
+                        Text("Hiện tại: ",
+                            style: driverStatusTitleStyle(0)),
+                        Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                      ],
+                    )
 
 
                   ],
@@ -408,7 +405,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                       Container(
                         padding: EdgeInsets.only(left: 5.0),
                         child: Text( //"20",
-                            formatDateTime(_trip['schStart']), //document[index].data['schStart']
+                            formatDateTime(DateTime.fromMillisecondsSinceEpoch(_trip['schStart'])), //document[index].data['schStart']
                             style: timeStyleinJD()
 //                              TextStyle(
 //                                  color: Color(0xff0a2463),
@@ -551,7 +548,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                   padding: EdgeInsets.only(left: 15.0, top: 1.0),
                   child:
                   Text(
-                      formatDateTime(_trip['start']),
+                      formatDateTime(DateTime.fromMillisecondsSinceEpoch(_trip['start'])),
                       style: timeStyleinJD()
                   ),
                 ),
