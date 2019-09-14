@@ -1,7 +1,6 @@
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class SearchDriver extends StatefulWidget {
@@ -14,6 +13,9 @@ class SearchDriver extends StatefulWidget {
 }
 
 class _searchDriverState extends State<SearchDriver> {
+
+  String driverName = "";
+
   Icon icon = Icon(Icons.search);
   Widget appBarTittle = Text(
     'Tìm kiếm Tài xế',
@@ -83,51 +85,38 @@ class _searchDriverState extends State<SearchDriver> {
         body: _controller.text.isNotEmpty
             ?
         StreamBuilder(
-          stream: FirebaseDatabase.instance.reference().child('driver')
-              .orderByChild('name')
-//              .startAt([_controller.text.toString()]).endAt([_controller.text.toString() + '\uf8ff'])
-              .onValue,
-          builder: (BuildContext context, snapshots) {
+          stream:
+            FirebaseDatabase.instance.reference().child('driver')
+                .orderByChild('basicInfo/name')
+                .startAt(_controller.text)
+                .endAt(_controller.text + '\uf8ff')
+                .onValue,
+          builder: (BuildContext context, AsyncSnapshot snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Text('Loading...',
-                      style: TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.bold)));
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
             }
             else {
               List<dynamic> driverList;
-
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
-//              for(var value in driverSnaps.value.values) {
-//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
-//                  driverList.add(value);
-//                }
-//              }
-              driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-
+              if (map != null) { /*To not show the deleted drivers*/
+                driverList = map.values.toList();
+                for (int i = 0; i<driverList.length; ++i) {
+                  debugPrint(driverList[i]['isDeleted'].toString());
+                  if (driverList[i]['isDeleted']) driverList.removeAt(i);
+                }
+              }
+              //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
               return getListSearchView(driverList);
             }
           },
         )
-//        StreamBuilder(
-//          stream: Firestore.instance.collection('drivers')
-//              .orderBy('name')
-//              .startAt([_controller.text]).endAt([_controller.text + '\uf8ff'])
-//              .snapshots(),
-//          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-//            if (snapshots.connectionState == ConnectionState.waiting) {
-//              return Center(
-//                  child: Text('Loading...',
-//                      style: TextStyle(
-//                          fontSize: 30, fontWeight: FontWeight.bold)));
-//            } else return getListSearchView(snapshots.data.documents);
-//          },
-//        )
             : StreamBuilder(
           stream: FirebaseDatabase.instance.reference().child('driver')
-//              .orderByChild('isDeleted').equalTo(false)
+              .orderByChild('isDeleted').equalTo(false)
               .onValue,
           builder: (BuildContext context, snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
@@ -138,15 +127,9 @@ class _searchDriverState extends State<SearchDriver> {
             }
             else {
               List<dynamic> driverList;
-
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
-//              for(var value in driverSnaps.value.values) {
-//                if(!value['isDeleted']) { //show only drivers have not been deleted yet
-//                  driverList.add(value);
-//                }
-//              }
               driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
 
               return  getListSearchView(driverList);
@@ -156,10 +139,17 @@ class _searchDriverState extends State<SearchDriver> {
   }
 
   Widget getListSearchView(documents) {
+    if(documents == null || documents.length == 0)
+      return ListView.separated(
+          itemBuilder: (BuildContext context, int index) {},
+          separatorBuilder: (context, index) {},
+          itemCount: 0
+      );
+
     return ListView.separated(
       itemCount: documents.length,
       itemBuilder: (BuildContext context, int index) {
-        debugPrint('${searchResults.length} in body');
+        debugPrint('${documents.length} in body');
         String name = documents[index]['basicInfo']['name'].toString();
         return InkWell(
           child: Row(
