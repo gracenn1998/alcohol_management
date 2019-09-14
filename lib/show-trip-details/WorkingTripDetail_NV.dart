@@ -2,29 +2,28 @@ import 'package:flutter/material.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class WorkingTripDetail_NV extends StatefulWidget{
-  final jID;
-  const WorkingTripDetail_NV({Key key, @required this.jID}) : super(key: key);
-  State<WorkingTripDetail_NV> createState() => WorkingTripDetail_NVState(jID);
+  final tID;
+  const WorkingTripDetail_NV({Key key, @required this.tID}) : super(key: key);
+  State<WorkingTripDetail_NV> createState() => WorkingTripDetail_NVState(tID);
 
 }
 
 
 class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
-  final jID;
+  final tID;
   var _trip;
   var mapCreated = 0;
-  WorkingTripDetail_NVState(this.jID);
+  WorkingTripDetail_NVState(this.tID);
 
   //PermissionStatus _status;
   AnimationController _animationController;
   int _selectedIndex = 0;
 
-  static double JourneyInfoHeight = 190.0;
+  static double TripInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   //////////GET USER LOCATION
   Map<String, double> curLocation;
@@ -92,10 +91,11 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      stream: FirebaseDatabase.instance.reference().child('trips')
+          .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        _trip = snapshot.data.documents[0];
+        _trip = snapshot.data.snapshot.value;
        // print("Build func: streambuilder on Firestore_______________________________");
 
         return buildWorkingTripScreen();
@@ -155,7 +155,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                   height: constraints.biggest.height - 120.0
               ),
             ),
-            JourneyInfo(_trip),
+            TripInfo(_trip),
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -223,8 +223,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
     final double height = constraints.biggest.height - 200.0 ;
    // print(height);
    // print(JourneyInfoHeight);
-    final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
-    final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    final double top = height - TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    final double bottom =  -TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
       begin: new RelativeRect.fromLTRB(0.0, top, 0.0, bottom),
       end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
@@ -362,7 +362,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
 
 
-  Widget JourneyInfo(_trip){
+  Widget TripInfo(_trip){
     return Container(
       color: Colors.white,
       child: Column(
@@ -376,7 +376,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                 flex: 1,
                 child: Container(
                   padding: EdgeInsets.only(left: 15.0, top: 5.0),
-                  child: Text( _trip['jID'],
+                  child: Text( _trip['tID'],
                     //document[index].documentID,
                     style: const TextStyle(
                         color: const Color(0xff000000),
