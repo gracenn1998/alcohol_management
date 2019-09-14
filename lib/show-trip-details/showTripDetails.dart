@@ -5,6 +5,7 @@ import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 
 class ShowTripDetails extends StatefulWidget{
@@ -29,6 +30,46 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       );
     }*/
 
+  List<AlcoholLog> alcoholLogData = [];
+  var streamSub;
+  double chartWidth = 350;
+  int itemCnt = 0;
+  @override
+  initState() {
+    super.initState();
+
+    streamSub = FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child('HT0003')
+        .child('alcoholLog')
+        .onChildAdded.listen((alcoholLogSnap){
+
+      var alcoVal = alcoholLogSnap.snapshot.value;
+      var alcoTime = alcoholLogSnap.snapshot.key.toString();
+      var yyyy, MM, dd, hh, mm;
+      yyyy = int.parse(alcoTime.substring(0, 4));
+      MM = int.parse(alcoTime.substring(4, 6));
+      dd = int.parse(alcoTime.substring(6, 8));
+      hh = int.parse(alcoTime.substring(8, 10));
+      mm = int.parse(alcoTime.substring(10, 12));
+      setState(() {
+        alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+        itemCnt=alcoholLogData.length;
+//        print(traceAlcoVal);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+//    _timer.cancel();
+    streamSub.cancel();
+    super.dispose();
+  }
+
+  DateTime _time;
+  Map<String, num> _measures;
+
   Widget build(BuildContext context){
     return StreamBuilder(
       stream: FirebaseDatabase.instance.reference().child('trips')
@@ -39,6 +80,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       },
     );
   }
+
+
 
   Widget directTripDetailScreen(trip){
     switch (trip['status']){
@@ -86,8 +129,10 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       body: Container(
           child: Column(
             children: <Widget>[
-              buildDoneTripDetail(trip),
-              buildLogBtn()
+              showTripID(trip['tID']),
+              Expanded(
+                child: showDetails(trip, 'done')
+              )
             ],
           )
 
@@ -97,20 +142,21 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   }
 
-  Widget buildDoneTripDetail(trip){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        showTripID(trip['tID']),
-        showDetails(trip, 'done')
-      ],
-    );
-  }
+//  Widget buildDoneTripDetail(trip){
+//    return Column(
+//      crossAxisAlignment: CrossAxisAlignment.start,
+//      children: <Widget>[
+//        showTripID(trip['tID']),
+//        showDetails(trip, 'done')
+//      ],
+//    );
+//  }
 
 
   Widget showTripID(tID){
     return
       Container(
+        height: 50.0,
         padding: EdgeInsets.all(10.0),
         child: Text(
           tID,
@@ -158,7 +204,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     String status = toStatusInVN(trip['status']);
 
     return Container (
-        margin: EdgeInsets.only( bottom: 15.0),
+//        height: 500,
+//        margin: EdgeInsets.only( bottom: 15.0),
         child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -171,6 +218,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 showDetailItem('Từ', from, 0, 'normal'),
                 showDetailItem('Đến', to, 1, 'normal'),
                 showDetailItem('Trạng Thái', status, 0, Tstatus),
+                alcoholLogChart(),
               ],
             )
         )
@@ -413,7 +461,98 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     );
   }
 
+  Widget alcoholLogChart() {
+    if (itemCnt > 50) {
+      chartWidth = 25 + (325 / 50 * itemCnt);
+    }
+    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
+      return [
+        new charts.Series<AlcoholLog, DateTime>(
+          id: 'Nồng độ cồn',
+          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
+          measureFn: (AlcoholLog log, _) => log.value,
+          data: alcoholLogData,
+        )
+      ];
+    }
+
+    // Listens to the underlying selection changes, and updates the information
+    // relevant to building the primitive legend like information under the
+    // chart.
+    _onSelectionChanged(charts.SelectionModel model) {
+      final selectedDatum = model.selectedDatum;
+
+      DateTime time;
+      final measures = <String, num>{};
+
+      // We get the model that updated with a list of [SeriesDatum] which is
+      // simply a pair of series & datum.
+      //
+      // Walk the selection updating the measures map, storing off the sales and
+      // series name for each selection point.
+      if (selectedDatum.isNotEmpty) {
+        time = selectedDatum.first.datum.yyyymmddhhmm;
+        selectedDatum.forEach((charts.SeriesDatum datumPair) {
+          measures[datumPair.series.displayName] = datumPair.datum.value;
+        });
+      }
+
+      // Request a build.
+      setState(() {
+        _time = time;
+        _measures = measures;
+      });
+    }
+
+    final children = <Widget>[
+      new Center(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+              height: 300.0,
+              width: chartWidth,
+              child: new charts.TimeSeriesChart(
+                _createSampleData(),
+                animate: false,
+                selectionModels: [
+                  new charts.SelectionModelConfig(
+                    type: charts.SelectionModelType.info,
+
+                    changedListener: _onSelectionChanged,
+                  )
+                ],
+                primaryMeasureAxis: new charts.NumericAxisSpec(
+                    tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
+              )),
+        ),
+      ),
+    ];
+
+    // If there is a selection, then include the details.
+    if (_time != null) {
+      children.add(new Padding(
+          padding: new EdgeInsets.only(top: 5.0),
+          child: new Text(_time.toString())));
+    }
+    _measures?.forEach((String series, num value) {
+      children.add(new Text('${series}: ${value}'));
+    });
+
+//    return new Column(children: children);
+
+    return Column(children: children);
+  }
+
+
+
 }
 
 
+
+class AlcoholLog {
+  final DateTime yyyymmddhhmm;
+  final int value;
+
+  AlcoholLog(this.yyyymmddhhmm, this.value);
+}
 
