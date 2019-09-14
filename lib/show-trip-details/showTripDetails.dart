@@ -511,7 +511,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     if (_time != null) {
       children.add(new Padding(
           padding: new EdgeInsets.only(top: 5.0),
-          child: new Text(_time.toString())));
+          child: new Text(formatDateTime(_time))));
     }
     _measures?.forEach((String series, num value) {
       children.add(new Text('${series}: ${value}'));
