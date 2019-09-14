@@ -128,7 +128,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     return new Column(
       children: <Widget>[
-        DriverInfo(_trip),
+        //DriverInfo(_trip),
         new Stack(
           children: <Widget>[
             new Container(
@@ -137,7 +137,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   height: constraints.biggest.height - 120
               ),
             ),
-            JourneyInfo(_trip),
+         //   JourneyInfo(_trip),
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -273,5 +273,315 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     });
   }
+
+
+
+/*  Widget DriverInfo(_trip){
+    return Container(
+        height: 120.0,
+        color: Colors.white,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.only(left: 15.0),
+                child: CircleAvatar(
+                  radius: 45.0,
+                  backgroundImage: AssetImage('images/avatar.png'),
+                )), // Avatar
+
+            Container(
+                padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child: Text(_trip['name'],
+                          style: driverNameStyleinJD()),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child: Text("Chỉ số cồn ",
+                          style: timeStyleinJD()),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 5.0),
+                      child: Row(
+                        children: <Widget>[
+                          Text("Ban đầu: ",
+                              style: driverStatusTitleStyle(0)),
+                          Text("100",
+                              style: driverStatusDataStyle(0)),
+                        ],
+                      ),
+                    ),
+
+                    StreamBuilder(
+                        stream: FirebaseDatabase.instance.reference().child('driver')
+                            .child(_trip['dID']).child('alcoholVal').onValue,
+                        builder: (BuildContext context, snapshot) {
+                          if(!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          else if(snapshot.hasData) {
+                            var alcoholVal = snapshot.data.snapshot.value;
+                            return  Row(
+                              children: <Widget>[
+                                Text("Hiện tại: ",
+                                    style: driverStatusTitleStyle(0)),
+                                Text(alcoholVal.toString(), style:alcoholVal>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                              ],
+                            );
+                          }}
+                    ),
+
+
+                  ],
+                )),
+            //Ten + Trang thai
+            Expanded(
+
+              //padding: EdgeInsets.only(left: 5.0),
+              child: Container(
+                child: RaisedButton(
+                  child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
+                  color: Color(0xffef3964),
+                  onPressed: () {
+
+                    print("XULYYYYYYYYyyy");
+                    //  heightOfJourneyInfo();
+                    //   print(JourneyInfoHeight);
+                    //
+//                      final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
+//                      final sizeRed = renderBoxRed.size;
+//                      print("SIZE of Red: ${sizeRed.height} ");
+                  },
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 30.0),
+            )
+          ],
+        )
+    );
+  }*/
+ /* Widget JourneyInfo(_trip){
+    return Container(
+      color: Colors.white,
+      child: Column(
+        //key: _keyRed,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 15.0, top: 5.0),
+                  child: Text( _trip['jID'],
+                    //document[index].documentID,
+                    style: const TextStyle(
+                        color: const Color(0xff000000),
+                        fontWeight: FontWeight.w900,
+                        fontFamily: "Roboto",
+                        fontStyle: FontStyle.normal,
+                        fontSize: 28.0
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          //1
+
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 15.0, top: 5.0),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.event,
+                        color: Color(0xff8391b3),
+                        size: 23.0,
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(left: 5.0),
+                        child: Text( //"20",
+                            formatDateTime(_trip['schStart']), //document[index].data['schStart']
+                            style: timeStyleinJD()
+//                              TextStyle(
+//                                  color: Color(0xff0a2463),
+//                                  fontWeight: FontWeight.w400,
+//                                  fontFamily: "Roboto",
+//                                  fontStyle: FontStyle.normal,
+//                                  fontSize: 15.0)
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ), //2
+
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
+                    child: Text(
+                        "Từ:",
+                        style: const TextStyle(
+                            color:  const Color(0xff8391b3),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        )
+                    )
+                ),
+              ),
+
+              Expanded(
+                flex: 1,
+                child: Container(
+                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
+                    child: Text(
+                        "Đến:",
+                        style: const TextStyle(
+                            color:  const Color(0xff8391b3),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        )
+                    )
+                ),
+              ),
+            ],
+          ), //3
+
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 15.0, top: 1.0),
+                  child:
+                  Text(
+                    _trip['from'],
+                    // document[index].data['from'],
+                    style: TextStyle(
+                        color:  Color(0xff000000),
+                        fontWeight: FontWeight.w700,
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 14.0
+                    ),
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
+                  child:
+                  Text(
+                    _trip['to'],
+
+                    style: TextStyle(
+                        color:  Color(0xff000000),
+                        fontWeight: FontWeight.w700,
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 14.0
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ), //4
+
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
+                    child: Text(
+                        "Bắt đầu lúc:",
+                        style: const TextStyle(
+                            color:  const Color(0xff8391b3),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        )
+                    )
+                ),
+              ),
+
+              Expanded(
+                flex: 1,
+                child: Container(
+                    padding: EdgeInsets.only(left: 15.0, top: 10.0),
+                    child: Text(
+                        "Đã chạy được:",
+                        style: const TextStyle(
+                            color:  const Color(0xff8391b3),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        )
+                    )
+                ),
+              ),
+            ],
+          ), //5
+
+          Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 15.0, top: 1.0),
+                  child:
+                  Text(
+                      formatDateTime(_trip['start']),
+                      style: timeStyleinJD()
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
+                  child:
+                  Text(
+                      fromStartTime(_trip['start']),
+                      style: timeStyleinJD()
+                  ),
+                ),
+              )
+            ],
+          ), //6
+
+        ],
+      ),
+    );
+  }
+*/
 
 }

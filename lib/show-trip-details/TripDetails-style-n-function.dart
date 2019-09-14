@@ -3,7 +3,7 @@ import 'package:alcohol_management/styles/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
-
+import 'showTripDetails.dart';
 
 
 TextStyle TripID(){
@@ -163,11 +163,16 @@ TextStyle tripDetailsStyle(status){
 
 Widget assignBtn(){
   return
-    Icon(
-      Icons.assignment_ind,
-      color: Color(0xffef3964)
-    );
+  IconButton(
+    icon: Icon(Icons.assignment_ind,),
+    color: Color(0xffef3964),
+    onPressed: () {
+      //assignDialog();
+    },
+  );
 }
+
+
 
 Widget showDetailItem(title, data, line, status) {
     return Row(
@@ -190,20 +195,8 @@ Widget showDetailItem(title, data, line, status) {
         ),
         Expanded(
           flex: 5,
-          child: (title != "Tài xế")?
-          Container(
-            height: 55.0,
-//          margin: const EdgeInsets.all(5.0),
-            padding: EdgeInsets.only(left: 15.0, right: 15.0),
-            decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "$data",
-                style: tripDetailsStyle(status),
-              ),
-            ),
-          ) : Row(
+          child: (title == "Tài xế" && status == "notStarted")?
+          Row(
             children: <Widget>[
             Container(
             height: 55.0,
@@ -220,6 +213,18 @@ Widget showDetailItem(title, data, line, status) {
             ),
               assignBtn()
             ],
+          ): Container(
+            height: 55.0,
+//          margin: const EdgeInsets.all(5.0),
+            padding: EdgeInsets.only(left: 15.0, right: 15.0),
+            decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "$data",
+                style: tripDetailsStyle(status),
+              ),
+            ),
           )
 
         ),
@@ -232,6 +237,7 @@ Widget showDetailItem(title, data, line, status) {
 
   //----------------------------------
 
+/*
 Widget JourneyInfo(_trip){
   return Container(
     color: Colors.white,
@@ -445,7 +451,9 @@ Widget JourneyInfo(_trip){
     ),
   );
 }
+*/
 
+/*
 
 Widget DriverInfo(_trip){
   return Container(
@@ -540,6 +548,7 @@ Widget DriverInfo(_trip){
       )
   );
 }
+*/
 
 /*void heightOfJourneyInfo(){
     final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
