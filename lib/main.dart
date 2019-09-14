@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 //            home: EditTrip(tID: 'HT0002',),
 //            home: AddTrip(),
 
-            home: ShowTripDetails(jID: 'HT0003'),
+            home: ShowTripDetails(tID: 'HT0002'),
          //     home: MyBottomMenu(),
 //            home: RootPage(),
             theme: ThemeData(

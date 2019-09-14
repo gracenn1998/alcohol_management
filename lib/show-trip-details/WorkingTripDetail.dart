@@ -9,17 +9,17 @@ import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class WorkingTripDetail extends StatefulWidget{
-  final jID;
-  const WorkingTripDetail({Key key, @required this.jID}) : super(key: key);
-  State<WorkingTripDetail> createState() => WorkingTripDetailState(jID);
+  final tID;
+  const WorkingTripDetail({Key key, @required this.tID}) : super(key: key);
+  State<WorkingTripDetail> createState() => WorkingTripDetailState(tID);
 
 }
 
 class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
-  final jID;
+  final tID;
   var _trip;
   var mapCreated = 0;
-  WorkingTripDetailState(this.jID);
+  WorkingTripDetailState(this.tID);
 
   //PermissionStatus _status;
   AnimationController _animationController;
@@ -76,7 +76,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      stream: Firestore.instance.collection('journeys').where('tID', isEqualTo: tID).snapshots(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.documents[0];
@@ -384,7 +384,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                 flex: 1,
                 child: Container(
                   padding: EdgeInsets.only(left: 15.0, top: 5.0),
-                  child: Text( _trip['jID'],
+                  child: Text( _trip['tID'],
                     //document[index].documentID,
                     style: const TextStyle(
                         color: const Color(0xff000000),

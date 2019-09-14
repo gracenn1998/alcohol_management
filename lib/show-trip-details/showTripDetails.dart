@@ -5,19 +5,21 @@ import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
+
 
 class ShowTripDetails extends StatefulWidget{
-  final String jID;
-  const ShowTripDetails({Key key, @required this.jID}) : super(key: key);
-  State<ShowTripDetails> createState() => ShowTripDetailsState(jID);
+  final String tID;
+  const ShowTripDetails({Key key, @required this.tID}) : super(key: key);
+  State<ShowTripDetails> createState() => ShowTripDetailsState(tID);
 }
 
 class ShowTripDetailsState extends State<ShowTripDetails>{
-  final String jID;
+  final String tID;
   final _dIDControler = TextEditingController();
   final _vIDControler = TextEditingController();
 
-  ShowTripDetailsState(this.jID);
+  ShowTripDetailsState(this.tID);
   int _selectedIndex = 0;
   /*if(_selectedIndex == -1) {
       return ShowAllJourneys();
@@ -30,10 +32,11 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   Widget build(BuildContext context){
     return StreamBuilder(
-      stream: Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      stream: FirebaseDatabase.instance.reference().child('trips')
+          .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        return directTripDetailScreen(snapshot.data.documents[0]);
+        return directTripDetailScreen(snapshot.data.snapshot.value);
       },
     );
   }
@@ -45,7 +48,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
-        return WorkingTripDetail(jID: jID);
+        return WorkingTripDetail(tID: tID);
 
     }
   }
@@ -99,19 +102,19 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        showTripID(trip['jID']),
+        showTripID(trip['tID']),
         showDetails(trip, 'done')
       ],
     );
   }
 
 
-  Widget showTripID(jID){
+  Widget showTripID(tID){
     return
       Container(
         padding: EdgeInsets.all(10.0),
         child: Text(
-          jID,
+          tID,
           style: TripID(),
         ),
         color: Colors.white,
@@ -144,11 +147,12 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
   Widget showDetails(trip, Tstatus) {
-    String id = trip['jID'];
+    String id = trip['tID'];
+    DateTime formattedDate = DateTime.fromMillisecondsSinceEpoch(trip['schStart']);
     // String driver = trip['dID'] == null? "Chưa phân công": trip['dID'];
-    final schStart = formatDateTime(trip['schStart']);
-    final start = trip['start'] == null? "Hành trình chưa bắt đầu": formatDateTime(trip['start']);
-    final finish = trip['finish']== null? "Hành trình chưa bắt đầu": formatDateTime(trip['finish']);
+    final schStart = formatDateTime(formattedDate);
+    final start = trip['start'] == null? "Hành trình chưa bắt đầu": formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['start']));
+    final finish = trip['finish']== null? "Hành trình chưa bắt đầu": formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['finish']));
     String from = trip['from'];
     String to = trip['to'];
     String status = toStatusInVN(trip['status']);
@@ -311,7 +315,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
   void updateAssignment(){
-    FirebaseDatabase.instance.reference().child('trips').child(jID).set(
+    FirebaseDatabase.instance.reference().child('trips').child(tID).set(
       {
         'dID': _dIDControler.text
       }
@@ -320,7 +324,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     FirebaseDatabase.instance.reference().child('sensor').child(_vIDControler.text).set(
         {
           'dID': _dIDControler.text,
-          'tID': jID
+          'tID': tID
         }
     );
 
@@ -390,7 +394,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        showTripID(trip['jID']),
+        showTripID(trip['tID']),
         showDetails(trip, 'notStarted')
       ],
     );
