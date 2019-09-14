@@ -10,6 +10,9 @@ import 'edit_screens/editTripScreen.dart';
 import 'add_screens/addDriverScreen.dart';
 import 'add_screens/addTripScreen.dart';
 import 'menu/menu.dart';
+import 'show-trip-details/showTripDetails.dart';
+
+import 'show-trip-details/showTripDetails.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,9 +24,12 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-              home: MyBottomMenu(),
+//              home: MyBottomMenu(),
 //            home: EditTrip(tID: 'HT0002',),
 //            home: AddTrip(),
+
+            home: ShowTripDetails(jID: 'HT0003'),
+         //     home: MyBottomMenu(),
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),

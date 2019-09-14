@@ -81,6 +81,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.11"
+  geocoder:
+    dependency: "direct main"
+    description:
+      name: geocoder
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
+  google_maps_flutter:
+    dependency: "direct main"
+    description:
+      name: google_maps_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.17"
   intl:
     dependency: "direct main"
     description:
@@ -88,6 +102,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.16.0"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
   matcher:
     dependency: transitive
     description:
@@ -186,4 +207,4 @@ packages:
     version: "2.0.8"
 sdks:
   dart: ">=2.2.0 <3.0.0"
-  flutter: ">=0.2.4 <2.0.0"
+  flutter: ">=1.5.0 <2.0.0"
