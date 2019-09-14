@@ -12,7 +12,7 @@ import 'add_screens/addTripScreen.dart';
 import 'menu/menu.dart';
 import 'show-trip-details/showTripDetails.dart';
 
-import 'show-trip-details/showTripDetails.dart';
+import 'show-trip-details/WorkingTripDetail_NV.dart';
 
 void main() => runApp(MyApp());
 

@@ -138,8 +138,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
             var _driver = snapshot.data.snapshot.value;
             return DriverInfo(_driver);
           },
-        ),
-//        DriverInfo(_trip),
+        ),//        DriverInfo(_trip),
         new Stack(
           children: <Widget>[
             new Container(
