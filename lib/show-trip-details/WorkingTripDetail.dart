@@ -4,7 +4,6 @@ import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'package:location/location.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -18,6 +17,7 @@ class WorkingTripDetail extends StatefulWidget{
 class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
   final tID;
   var _trip;
+  var _dID;
   var mapCreated = 0;
   WorkingTripDetailState(this.tID);
 
@@ -76,10 +76,12 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Firestore.instance.collection('journeys').where('tID', isEqualTo: tID).snapshots(),
+      stream: FirebaseDatabase.instance.reference().child('trips')
+          .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        _trip = snapshot.data.documents[0];
+        _trip = snapshot.data.snapshot.value;
+        _dID = _trip['dID'];
         return buildWorkingTripScreen();
       },
     );
@@ -128,7 +130,16 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
     return new Column(
       children: <Widget>[
-        DriverInfo(_trip),
+        StreamBuilder(
+          stream: FirebaseDatabase.instance.reference().child('driver')
+              .child(_trip['dID']).onValue,
+          builder: (context, snapshot) {
+            if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+            var _driver = snapshot.data.snapshot.value;
+            return DriverInfo(_driver);
+          },
+        ),
+//        DriverInfo(_trip),
         new Stack(
           children: <Widget>[
             new Container(
@@ -168,7 +179,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
         curLocation = value;
 
         var locationReference = FirebaseDatabase.instance.reference()
-            .child('driver').child(_trip['dID']);
+            .child('trips').child(tID).child('location');
         locationReference.update({
           'lat': curLocation["latitude"],
           'lng': curLocation["longitude"],
@@ -276,7 +287,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
 
 
 
-  Widget DriverInfo(_trip){
+  Widget DriverInfo(driver){
     return Container(
         height: 120.0,
         color: Colors.white,
@@ -299,7 +310,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(_trip['name'],
+                      child: Text(driver['basicInfo']['name'],
                           style: driverNameStyleinJD()),
                     ),
                     Container(
@@ -313,30 +324,19 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                         children: <Widget>[
                           Text("Ban đầu: ",
                               style: driverStatusTitleStyle(0)),
-                          Text("100",
+                          Text("100", //need dynamic data
                               style: driverStatusDataStyle(0)),
                         ],
                       ),
                     ),
 
-                    StreamBuilder(
-                        stream: FirebaseDatabase.instance.reference().child('driver')
-                            .child(_trip['dID']).child('alcoholVal').onValue,
-                        builder: (BuildContext context, snapshot) {
-                          if(!snapshot.hasData) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          else if(snapshot.hasData) {
-                            var alcoholVal = snapshot.data.snapshot.value;
-                            return  Row(
-                              children: <Widget>[
-                                Text("Hiện tại: ",
-                                    style: driverStatusTitleStyle(0)),
-                                Text(alcoholVal.toString(), style:alcoholVal>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
-                              ],
-                            );
-                          }}
-                    ),
+                    Row(
+                      children: <Widget>[
+                        Text("Hiện tại: ",
+                            style: driverStatusTitleStyle(0)),
+                        Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                      ],
+                    )
 
 
                   ],
@@ -416,7 +416,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                       Container(
                         padding: EdgeInsets.only(left: 5.0),
                         child: Text( //"20",
-                            formatDateTime(_trip['schStart']), //document[index].data['schStart']
+                            formatDateTime(DateTime.fromMillisecondsSinceEpoch(_trip['schStart'])), //document[index].data['schStart']
                             style: timeStyleinJD()
 //                              TextStyle(
 //                                  color: Color(0xff0a2463),
@@ -559,7 +559,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 15.0, top: 1.0),
                   child:
                   Text(
-                      formatDateTime(_trip['start']),
+                      formatDateTime(DateTime.fromMillisecondsSinceEpoch(_trip['start'])),
                       style: timeStyleinJD()
                   ),
                 ),
@@ -571,7 +571,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
                   padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                   child:
                   Text(
-                      fromStartTime(_trip['start']),
+                      fromStartTime(DateTime.fromMillisecondsSinceEpoch(_trip['start'])),
                       style: timeStyleinJD()
                   ),
                 ),

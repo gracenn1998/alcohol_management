@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'WorkingTripDetail.dart';
 import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
@@ -125,19 +124,20 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     if (dID == null)
       return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
 
-    return StreamBuilder<QuerySnapshot> (
-        stream: Firestore.instance.collection('drivers').where('dID', isGreaterThanOrEqualTo: dID).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    return StreamBuilder(
+        stream: FirebaseDatabase.instance.reference().child('driver')
+            .child(dID).onValue,//Firestore.instance.collection('drivers').where('dID', isGreaterThanOrEqualTo: dID).snapshots(),
+        builder: (context, snapshot) {
           if(snapshot.hasError){
             print('Lỗi cmnr');
           }
           else {
             if (snapshot.hasData)
             {
-              print(snapshot.data.toString());
-              var t = snapshot.data.documents[0];
+//              print(snapshot.data.toString());
+              var t = snapshot.data.snapshot.value;
               if (t['dID'] == dID)
-                return showDetailItem("Tài xế", t['name'], 0, 'normal');
+                return showDetailItem("Tài xế", t['basicInfo']['name'], 0, 'normal');
               else return showDetailItem("Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
             }
             return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
