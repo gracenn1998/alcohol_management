@@ -40,7 +40,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
     streamSub = FirebaseDatabase.instance.reference()
         .child('trips')
-        .child('HT0003')
+        .child(tID)
         .child('alcoholLog')
         .onChildAdded.listen((alcoholLogSnap){
 
@@ -379,20 +379,101 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   }
 
+  Widget alcoholLogChart() {
+    if (itemCnt > 50) {
+      chartWidth = 25 + (325 / 50 * itemCnt);
+    }
+    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
+      return [
+        new charts.Series<AlcoholLog, DateTime>(
+          id: 'Nồng độ cồn',
+          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
+          measureFn: (AlcoholLog log, _) => log.value,
+          data: alcoholLogData,
+        )
+      ];
+    }
 
+    // Listens to the underlying selection changes, and updates the information
+    // relevant to building the primitive legend like information under the
+    // chart.
+    _onSelectionChanged(charts.SelectionModel model) {
+      final selectedDatum = model.selectedDatum;
 
-  Widget buildLogBtn(){
-    return Container(
-      color: Color(0xff0a2463) ,
-      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-      child: FlatButton(
-        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-        onPressed: (){
-          print("LOG Button tapped");
-        },
+      DateTime time;
+      final measures = <String, num>{};
+
+      // We get the model that updated with a list of [SeriesDatum] which is
+      // simply a pair of series & datum.
+      //
+      // Walk the selection updating the measures map, storing off the sales and
+      // series name for each selection point.
+      if (selectedDatum.isNotEmpty) {
+        time = selectedDatum.first.datum.yyyymmddhhmm;
+        selectedDatum.forEach((charts.SeriesDatum datumPair) {
+          measures[datumPair.series.displayName] = datumPair.datum.value;
+        });
+      }
+
+      // Request a build.
+      setState(() {
+        _time = time;
+        _measures = measures;
+      });
+    }
+
+    final children = <Widget>[
+    ];
+
+    // If there is a selection, then include the details.
+    if (_time != null) {
+      children.add(new Padding(
+          padding: new EdgeInsets.only(top: 5.0),
+          child: new Text(formatDateTime(_time))));
+    }
+    _measures?.forEach((String series, num value) {
+      children.add(new Text('${series}: ${value}'));
+    });
+
+    children.add(Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+            height: 300.0,
+            width: chartWidth,
+            child: new charts.TimeSeriesChart(
+              _createSampleData(),
+              animate: false,
+              selectionModels: [
+                new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
+
+                  changedListener: _onSelectionChanged,
+                )
+              ],
+              primaryMeasureAxis: new charts.NumericAxisSpec(
+                  tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
+            )),
       ),
-    );
+    ));
+
+//    return new Column(children: children);
+
+    return Column(children: children);
   }
+
+//  Widget buildLogBtn(){
+//    return Container(
+//      color: Color(0xff0a2463) ,
+//      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+//      child: FlatButton(
+//        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
+//        onPressed: (){
+//          print("LOG Button tapped");
+//        },
+//      ),
+//    );
+//  }
   //--------------------------------------------------------
 
   Widget NotStartedTripDetail(trip){
@@ -461,88 +542,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     );
   }
 
-  Widget alcoholLogChart() {
-    if (itemCnt > 50) {
-      chartWidth = 25 + (325 / 50 * itemCnt);
-    }
-    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
-      return [
-        new charts.Series<AlcoholLog, DateTime>(
-          id: 'Nồng độ cồn',
-          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
-          measureFn: (AlcoholLog log, _) => log.value,
-          data: alcoholLogData,
-        )
-      ];
-    }
 
-    // Listens to the underlying selection changes, and updates the information
-    // relevant to building the primitive legend like information under the
-    // chart.
-    _onSelectionChanged(charts.SelectionModel model) {
-      final selectedDatum = model.selectedDatum;
-
-      DateTime time;
-      final measures = <String, num>{};
-
-      // We get the model that updated with a list of [SeriesDatum] which is
-      // simply a pair of series & datum.
-      //
-      // Walk the selection updating the measures map, storing off the sales and
-      // series name for each selection point.
-      if (selectedDatum.isNotEmpty) {
-        time = selectedDatum.first.datum.yyyymmddhhmm;
-        selectedDatum.forEach((charts.SeriesDatum datumPair) {
-          measures[datumPair.series.displayName] = datumPair.datum.value;
-        });
-      }
-
-      // Request a build.
-      setState(() {
-        _time = time;
-        _measures = measures;
-      });
-    }
-
-    final children = <Widget>[
-    ];
-
-    // If there is a selection, then include the details.
-    if (_time != null) {
-      children.add(new Padding(
-          padding: new EdgeInsets.only(top: 5.0),
-          child: new Text(formatDateTime(_time))));
-    }
-    _measures?.forEach((String series, num value) {
-      children.add(new Text('${series}: ${value}'));
-    });
-    
-    children.add(Center(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-            height: 300.0,
-            width: chartWidth,
-            child: new charts.TimeSeriesChart(
-              _createSampleData(),
-              animate: false,
-              selectionModels: [
-                new charts.SelectionModelConfig(
-                  type: charts.SelectionModelType.info,
-
-                  changedListener: _onSelectionChanged,
-                )
-              ],
-              primaryMeasureAxis: new charts.NumericAxisSpec(
-                  tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
-            )),
-      ),
-    ));
-
-//    return new Column(children: children);
-
-    return Column(children: children);
-  }
 
 
 
