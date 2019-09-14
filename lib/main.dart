@@ -24,11 +24,11 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-//              home: MyBottomMenu(),
+              home: MyBottomMenu(),
 //            home: EditTrip(tID: 'HT0002',),
 //            home: AddTrip(),
 
-            home: ShowTripDetails(tID: 'HT0004'),
+//            home: ShowTripDetails(tID: 'HT0004'),
          //     home: MyBottomMenu(),
 //            home: RootPage(),
             theme: ThemeData(

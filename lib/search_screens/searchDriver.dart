@@ -2,6 +2,7 @@ import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import "../show_info_screens/showDriverInfoScreen.dart";
 
 class SearchDriver extends StatefulWidget {
   const SearchDriver() : super();
@@ -151,6 +152,7 @@ class _searchDriverState extends State<SearchDriver> {
       itemBuilder: (BuildContext context, int index) {
         debugPrint('${documents.length} in body');
         String name = documents[index]['basicInfo']['name'].toString();
+        String dID = documents[index]['dID'].toString();
         return InkWell(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -158,13 +160,25 @@ class _searchDriverState extends State<SearchDriver> {
             children: <Widget>[
               Container(
                 padding: EdgeInsets.only(left: 15.0, top: 5.0, right: 10.0),
-                child: Text(
-                  name,
-                  style: const TextStyle(
-                      color: const Color(0xff000000),
-                      fontFamily: "Roboto",
-                      fontStyle: FontStyle.normal,
-                      fontSize: 24.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      name,
+                      style: const TextStyle(
+                          color: const Color(0xff000000),
+                          fontFamily: "Roboto",
+                          fontStyle: FontStyle.normal,
+                          fontSize: 24.0),
+                    ),
+                    Text(
+                      " {$dID}",
+                      style: const TextStyle(
+                          color: const Color(0xff000000),
+                          fontFamily: "Roboto",
+                          fontStyle: FontStyle.normal,
+                          fontSize: 24.0),
+                    )
+                  ],
                 ),
               ),
 //                              Flexible(
@@ -191,7 +205,13 @@ class _searchDriverState extends State<SearchDriver> {
             ],
           ),
           onTap: () {
-            debugPrint('Driver tapped');
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowDriverInfo(
+                    key: PageStorageKey('showInfo'),
+                    dID: dID))
+            );
+//            debugPrint('Driver tapped');
           },
         );
       },
