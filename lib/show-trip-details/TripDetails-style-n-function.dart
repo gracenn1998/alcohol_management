@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/styles/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'showTripDetails.dart';
 
 
 TextStyle TripID(){
@@ -31,18 +28,6 @@ TextStyle driverNameStyleinJD() {
     fontWeight: FontWeight.w700,
     color: Colors.black,
   );
-}
-
-Widget showTripID(jID){
-  return
-    Container(
-      padding: EdgeInsets.all(10.0),
-      child: Text(
-        jID,
-        style: TripID(),
-      ),
-      color: Colors.white,
-    );
 }
 
 String toStatusInVN(String x) {
@@ -78,8 +63,34 @@ String fromStartTime(DateTime start){
   return tg;
 }
 
+TextStyle tripDetailsStyle(status){
+  switch (status){
+    case 'normal':
+      return driverInfoStyle();
+    case 'done': //dahoanthanh
+      return TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Color(0xff00bc94),
+      );
+    case 'notStarted': //chuabatdau
+      return TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Color(0xffef3964),
+      );
+    case 'working': //chuabatdau
+      return TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Color(0xfff9aa33),
+      ) ;
+  }
+}
+
 //BUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG: Do hasData work 1 cach ky cuc :)
 // nen phai implement kieu ngu si nhu nayyyy tam.
+/*
 Widget getDriverNameByID(dID) {
   if (dID == null)
     return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
@@ -104,6 +115,22 @@ Widget getDriverNameByID(dID) {
   }
   );
 }
+
+/*
+
+Widget showTripID(jID){
+  return
+    Container(
+      padding: EdgeInsets.all(10.0),
+      child: Text(
+        jID,
+        style: TripID(),
+      ),
+      color: Colors.white,
+    );
+}
+*/
+
 
 Widget showDetails(trip, Tstatus) {
     String id = trip['jID'];
@@ -135,31 +162,10 @@ Widget showDetails(trip, Tstatus) {
     );
 
   }
+*/
 
-TextStyle tripDetailsStyle(status){
-  switch (status){
-    case 'normal':
-      return driverInfoStyle();
-    case 'done': //dahoanthanh
-      return TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: Color(0xff00bc94),
-      );
-    case 'notStarted': //chuabatdau
-      return TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: Color(0xffef3964),
-      );
-    case 'working': //chuabatdau
-      return TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: Color(0xfff9aa33),
-      ) ;
-  }
-}
+
+/*
 
 Widget assignBtn(){
   return
@@ -171,8 +177,10 @@ Widget assignBtn(){
     },
   );
 }
+*/
 
 
+/*
 
 Widget showDetailItem(title, data, line, status) {
     return Row(
@@ -233,6 +241,7 @@ Widget showDetailItem(title, data, line, status) {
     );
   }
 
+*/
 
 
   //----------------------------------
