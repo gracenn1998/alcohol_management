@@ -537,7 +537,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                   tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
             )),
       ),
-    ))
+    ));
 
 //    return new Column(children: children);
 
