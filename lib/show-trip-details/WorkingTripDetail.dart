@@ -97,9 +97,10 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
           icon: Icon(Icons.arrow_back_ios),
           color: Color(0xff06E2B3),
           onPressed: () {
-            setState(() {
-              _selectedIndex--;
-            });
+//            setState(() {
+//              _selectedIndex--;
+//            });
+            Navigator.pop(context);
           }, //BACKKKKK
         ),
         actions: <Widget>[

@@ -61,9 +61,10 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           icon: Icon(Icons.arrow_back_ios),
           color: Color(0xff06E2B3),
           onPressed: () {
-            setState(() {
-              _selectedIndex--;
-            });
+//            setState(() {
+//              _selectedIndex--;
+//            });
+            Navigator.pop(context);
           }, //BACKKKKK
         ),
         title:  Center(child: Text("Thông tin hành trình", style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -355,9 +356,10 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           icon: Icon(Icons.arrow_back_ios),
           color: Color(0xff06E2B3),
           onPressed: () {
-            setState(() {
-              _selectedIndex--;
-            });
+//            setState(() {
+//              _selectedIndex--;
+//            });
+            Navigator.pop(context);
           }, //BACKKKKK
         ),
         title:  Center(child: Text("Thông tin hành trình", style: appBarTxTStyle, textAlign: TextAlign.center,)),

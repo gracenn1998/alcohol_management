@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../show-trip-details/showTripDetails.dart';
 
 class ShowAllTrips extends StatefulWidget {
   final filterState;
@@ -81,6 +82,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               FloatingActionButton(
+                  heroTag: 'filter_trip',
                   child: Icon(Icons.filter_list),
                   tooltip: 'Lọc',
                   backgroundColor: Colors.white,
@@ -91,6 +93,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
                 padding: EdgeInsets.only(left: 2.5, right: 2.5),
               ),
               FloatingActionButton(
+                heroTag: 'add_trip',
                 child: Icon(Icons.add),
                 tooltip: 'Thêm hành trình',
                 backgroundColor: Color(0xffef3964),
@@ -406,7 +409,12 @@ class _showAllTripsState extends State<ShowAllTrips> {
             ),
           ),
           onTap: () {
-            debugPrint("journey tapped");
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowTripDetails(
+                    key: PageStorageKey('showInfo'),
+                    tID: document[index]['tID']))
+            );
           },
         );
       },
