@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:alcohol_management/show_info_screens/driver_showTrips.dart';
+//import 'package:alcohol_management/show_info_screens/driver_showTrips.dart';
 import 'package:alcohol_management/show_info_screens/driver_showHistory.dart';
+import '../driver_only/profile.dart';
+import '../driver_only/show_tasks.dart';
+import '../driver_only/show_history.dart';
+import '../driver_only/showTripDetails.dart';
 
 class DriverMenu extends StatefulWidget {
   DriverMenu ({Key key}) : super (key:key);
@@ -13,15 +17,21 @@ class _DriverMenuState extends State<DriverMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    DriverShowTrips(),
-    DriverShowHistory(),
+    ShowTasks(
+        filterState:0
+    ),
+    ShowTripDetails(
+      tID: 'HT0004',
+    ),
     Text(
       'Thong Bao',
       style: optionStyle,
     ),
-    Text(
-      'Ca Nhan',
-      style: optionStyle,
+    ShowDriverInfo(
+      dID: 'TX0003'
+    ),
+    ShowHistory(
+        filterState:0
     ),
   ];
 
@@ -41,12 +51,12 @@ class _DriverMenuState extends State<DriverMenu>{
         type : BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_library),
-            title: Text('Hành trình'),
+            icon: Icon(Icons.list),
+            title: Text('Danh sách'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            title: Text('Lịch sử'),
+            icon: Icon(Icons.local_library),
+            title: Text('Hành trình'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
@@ -55,6 +65,10 @@ class _DriverMenuState extends State<DriverMenu>{
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             title: Text('Cá nhân'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            title: Text('Lịch sử'),
           ),
         ],
         backgroundColor: Colors.white,
