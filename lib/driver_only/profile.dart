@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
-import '../edit_screens/editDriverScreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class ShowDriverInfo extends StatefulWidget {
@@ -23,47 +22,10 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    if(_selectedIndex == 1) {
-      return EditDriverInfo(
-        key: PageStorageKey("editInfo"),
-        dID: dID,
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
-//        leading: IconButton(
-//          icon: Icon(Icons.arrow_back_ios),
-//          color: Color(0xff06E2B3),
-//          onPressed: () {
-//            //backkkk
-////              setState(() {
-////                _selectedIndex--;
-////              });
-//            Navigator.pop(context);
-//          },
-//        ),
         title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
-        actions: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 5.0),
-            child: IconButton(
-              icon: Icon(Icons.edit),
-              color: Color(0xff06E2B3),
-              onPressed: () {
-                //editttt
-//                setState(() {
-//                  _selectedIndex = 1;
-//                });
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return EditDriverInfo(
-                    dID: dID,
-                  );
-                }));
-              },
-            ),
-          ),
-        ],
       ),
       body: StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
