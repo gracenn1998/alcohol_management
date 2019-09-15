@@ -92,16 +92,6 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
       appBar: new AppBar(
         elevation: 0.0,
         title: new Center(child: Text("Thông tin hành trình") ,),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          color: Color(0xff06E2B3),
-          onPressed: () {
-//            setState(() {
-//              _selectedIndex--;
-//            });
-            Navigator.pop(context);
-          }, //BACKKKKK
-        ),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 5.0),
