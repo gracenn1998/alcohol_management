@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'WorkingTripDetail.dart';
+import 'WorkingTripDetail_NV.dart';
 import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
@@ -47,7 +47,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
-        return WorkingTripDetail(tID: tID);
+        return WorkingTripDetail_NV(tID: tID);
 
     }
   }

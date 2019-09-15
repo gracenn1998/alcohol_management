@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
+import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
 
 class ManagerMenu extends StatefulWidget {
   ManagerMenu ({Key key}) : super (key:key);
@@ -11,22 +13,21 @@ class _ManagerMenuState extends State<ManagerMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Tai Xe',
-      style: optionStyle,
+    ShowAllDrivers(
+        key: PageStorageKey('showAll')
     ),
-    Text(
-      'Hanh Trinh',
-      style: optionStyle,
+    ShowAllTrips(
+      key: PageStorageKey('showAll'),
+      filterState: 0,
     ),
     Text(
       'Thong Bao',
       style: optionStyle,
     ),
-    Text(
-      'Ca Nhan',
-      style: optionStyle,
-    ),
+//    Text(
+//      'Ca Nhan',
+//      style: optionStyle,
+//    ),
   ];
 
   void _onItemTapped(int index) {
@@ -45,21 +46,21 @@ class _ManagerMenuState extends State<ManagerMenu>{
         type : BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_library),
-            title: Text('Tài Xế'),
+            icon: Icon(Icons.group),
+            title: Text('Tài xế'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            title: Text('Hành Trình'),
+            icon: Icon(Icons.local_library),
+            title: Text('Hành trình'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            title: Text('Thông báo'),
+            title: Text('Thông Báo'),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            title: Text('Cá nhân'),
-          ),
+//          BottomNavigationBarItem(
+//            icon: Icon(Icons.person_outline),
+//            title: Text('Cá nhân'),
+//          ),
         ],
         backgroundColor: Colors.white,
         unselectedItemColor: Color.fromRGBO(10,36,99,0.4),
