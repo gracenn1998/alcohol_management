@@ -175,24 +175,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                 elevation: 12.0,
                 child: new Column(children: <Widget>[
                   new Expanded(
-                    child:
-                    StreamBuilder(
-                      stream: FirebaseDatabase.instance.reference()
-                          .child('trips').child(tID).child('location').onValue,
-                      builder: (BuildContext context, snapshot){
-                        if(!snapshot.hasData)
-                        {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        else if(snapshot.hasData){
-                          var location = snapshot.data.snapshot.value;
-                          //print("_buildStack: Listen on driver location changed: $driver");
-
-                          return buildMap(location);
-                        }
-                      },
-
-                    ),
+                    child: buildMap(_trip['location'])
                   ),
                 ]),
               ),
