@@ -115,9 +115,10 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
           icon: Icon(Icons.arrow_back_ios),
           color: Color(0xff06E2B3),
           onPressed: () {
-            setState(() {
-              _selectedIndex--;
-            });
+//            setState(() {
+//              _selectedIndex--;
+//            });
+            Navigator.of(context).pop();
           }, //BACKKKKK
         ),
         actions: <Widget>[
