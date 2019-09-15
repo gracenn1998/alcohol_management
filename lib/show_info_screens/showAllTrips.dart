@@ -152,7 +152,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
                 }
               }
               break;
-            case 1: //notStarted
+            case 3: //notStarted
               for(var tripItem in map.values) {
                 if(tripItem['status'] == 'notStarted' && !tripItem['isDeleted']) {
                   tripList.add(tripItem);
