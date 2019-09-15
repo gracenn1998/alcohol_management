@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import '../edit_screens/editDriverScreen.dart';
 import './showAllDrivers.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../show-trip-details/showTripDetails.dart';
 
 class ShowDriverInfo extends StatefulWidget {
   final String dID;
@@ -192,7 +193,12 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                             onPressed: () {
 
                               //return journey detail
-                              print(tripID);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => ShowTripDetails(
+                                      key: PageStorageKey('showInfo'),
+                                      tID: tripID))
+                              );
                             },
                           ),
                           decoration: BoxDecoration(
