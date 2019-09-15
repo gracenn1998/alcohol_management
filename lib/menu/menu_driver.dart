@@ -17,8 +17,7 @@ class _DriverMenuState extends State<DriverMenu>{
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    ShowTasks(
-    ),
+    ShowTasks(),
     ShowTripDetails(
       tID: 'HT0004',
     ),
@@ -29,9 +28,7 @@ class _DriverMenuState extends State<DriverMenu>{
     ShowDriverInfo(
       dID: 'TX0003'
     ),
-    ShowHistory(
-        filterState:0
-    ),
+    ShowHistory(),
   ];
 
   void _onItemTapped(int index) {

@@ -7,37 +7,21 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../show-trip-details/showTripDetails.dart';
 
 class ShowHistory extends StatefulWidget {
-  final filterState;
-  const ShowHistory({Key key, @required this.filterState}) : super(key: key);
+  const ShowHistory({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showHistoryState(filterState);
+    return _showHistoryState();
   }
 }
 
 class _showHistoryState extends State<ShowHistory> {
-  int filterState;
-  _showHistoryState(this.filterState);
+  _showHistoryState();
 
   String _selectedTripID = null;
   int _selectedFuction = 0;
   bool _searching = false;
-
-//  if (_selectedTripID != null)
-//  {
-//    String id = _selectedTripID;
-//    _selectedTripID = null;
-//    return showInfoTrip(
-//      jID = id,
-//    );
-//  }
-
-//  if (_selectedFuction == 1)
-//  {
-//    return AddTrip();
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +32,6 @@ class _showHistoryState extends State<ShowHistory> {
 
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
-              onPressed: () {
-                debugPrint('back');
-//                if (filterState > 0) Navigator.pop(context);
-                if (filterState > 0) setState(() {
-                  filterState = 0;
-                });
-              }),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[
@@ -74,87 +48,38 @@ class _showHistoryState extends State<ShowHistory> {
             )
           ],
         ),
-        body: display(filterState),
-        floatingActionButton: Container(
-          padding: EdgeInsets.only(bottom: 1.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              FloatingActionButton(
-                  heroTag: 'filter_trip',
-                  child: Icon(Icons.filter_list),
-                  tooltip: 'Lọc',
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xff8391b3),
-                  onPressed: () => showDialog(
-                      context: context, builder: (context) => filterDialog())),
-              Container(
-                padding: EdgeInsets.only(left: 2.5, right: 2.5),
-              ),
-            ],
-          ),
-        ));
-  }
-
-  Widget display(int filter) {
-    return StreamBuilder(
-      stream: FirebaseDatabase.instance.reference().child('trips')
-          .orderByChild('isDeleted').equalTo(false)
-          .onValue,
-      builder:(BuildContext context, snapshots) {
-        if (snapshots.connectionState == ConnectionState.waiting) {
-          return Center(
-              child: Text('Loading...',
-                style: tempStyle,
-              ));
-        }
-        else if(snapshots.hasData) {
-          List<dynamic> tripList = [];
-
-          DataSnapshot tripSnaps = snapshots.data.snapshot;
-          Map<dynamic, dynamic> map = tripSnaps.value;
-
-
-
-          switch (filter) {
-            case 0:
-              for(var tripItem in map.values) {
-                if(!tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 1: //done
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'done' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 2: //working
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'working' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 3: //notStarted
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'notStarted' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
+      body: StreamBuilder(
+        stream: FirebaseDatabase.instance.reference().child('trips')
+            .orderByChild('dID').equalTo('TX0003')
+            .onValue,
+        builder:(BuildContext context, snapshots) {
+          if (snapshots.connectionState == ConnectionState.waiting) {
+            return Center(
+                child: Text('Loading...',
+                  style: tempStyle,
+                ));
           }
-          //sort by tID
-          tripList..sort((a, b) => b['tID'].compareTo(a['tID']));
-          return getListTripView(tripList);
-        }
+          else if(snapshots.hasData) {
+            List<dynamic> tripList = [];
 
-      },
+            DataSnapshot tripSnaps = snapshots.data.snapshot;
+            Map<dynamic, dynamic> map = tripSnaps.value;
+
+            for(var tripItem in map.values) {
+              if(!tripItem['isDeleted'] && tripItem['status']=='done') {
+                tripList.add(tripItem);
+              }
+            }
+            //sort by tID
+            tripList..sort((a, b) => a['schStart'].compareTo(b['schStart']));
+            return getListTripView(tripList);
+          }
+
+        },
+      ),
     );
   }
+
   Widget getListTripView(document) {
     var listView = ListView.separated(
       itemCount: document.length,
