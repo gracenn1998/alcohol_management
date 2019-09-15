@@ -7,19 +7,19 @@ import 'package:location/location.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class WorkingTripDetail extends StatefulWidget{
-  final tID;
-  const WorkingTripDetail({Key key, @required this.tID}) : super(key: key);
-  State<WorkingTripDetail> createState() => WorkingTripDetailState(tID);
+class D_WorkingTripDetail extends StatefulWidget{
+  final dID;
+  const D_WorkingTripDetail({Key key, @required this.dID}) : super(key: key);
+  State<D_WorkingTripDetail> createState() => D_WorkingTripDetailState(dID);
 
 }
 
-class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerProviderStateMixin{
-  final tID;
+class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTickerProviderStateMixin{
+  final dID;
   var _trip;
-  var _dID;
+  var tID;
   var mapCreated = 0;
-  WorkingTripDetailState(this.tID);
+  D_WorkingTripDetailState(this.dID);
 
   //PermissionStatus _status;
   AnimationController _animationController;
@@ -81,7 +81,6 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.snapshot.value;
-        _dID = _trip['dID'];
         return buildWorkingTripScreen();
       },
     );
@@ -171,8 +170,18 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   }
 
 
+  var streamSub;
 
   void initState(){
+    streamSub = FirebaseDatabase.instance.reference()
+        .child('driver')
+        .child(dID)
+        .child('tripID')
+        .onValue.listen((alcoholLogSnap){
+          tID = alcoholLogSnap.snapshot.value;
+    });
+
+
 
     location.onLocationChanged().listen((value) {
       setState(() {
@@ -210,6 +219,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
   void dispose() {
     super.dispose();
     _animationController.dispose();
+    streamSub.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
@@ -347,7 +357,7 @@ class WorkingTripDetailState extends State<WorkingTripDetail> with SingleTickerP
               //padding: EdgeInsets.only(left: 5.0),
               child: Container(
                 child: RaisedButton(
-                  child: Text("XONG", style: TextStyle(color: Colors.white),),
+                  child: Text("HOÀN THÀNH", style: TextStyle(color: Colors.white),),
                   color: Color(0xff0a2463),
                   onPressed: () {
 

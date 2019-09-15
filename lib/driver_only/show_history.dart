@@ -7,20 +7,20 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../show-trip-details/showTripDetails.dart';
 
 class ShowHistory extends StatefulWidget {
-  const ShowHistory({Key key}) : super(key: key);
+  final String dID;
+  const ShowHistory({Key key, @required this.dID}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showHistoryState();
+    return _showHistoryState(dID);
   }
 }
 
 class _showHistoryState extends State<ShowHistory> {
-  _showHistoryState();
+  String dID;
+  _showHistoryState(this.dID);
 
-  String _selectedTripID = null;
-  int _selectedFuction = 0;
   bool _searching = false;
 
   @override
@@ -50,7 +50,7 @@ class _showHistoryState extends State<ShowHistory> {
         ),
       body: StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('trips')
-            .orderByChild('dID').equalTo('TX0003')
+            .orderByChild('dID').equalTo(dID)
             .onValue,
         builder:(BuildContext context, snapshots) {
           if (snapshots.connectionState == ConnectionState.waiting) {
@@ -347,66 +347,3 @@ class _showHistoryState extends State<ShowHistory> {
       );
   }
 }
-
-class filterDialog extends StatefulWidget {
-  const filterDialog({Key key}) : super(key: key);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _filterDialogState();
-  }
-}
-
-class _filterDialogState extends State<filterDialog> {
-  _filterDialogState();
-  int _curentIndex = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return AlertDialog(
-      title: Text('Lọc'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text("Trạng thái"),
-          RadioListTile(
-              title: Text('Đã hoàn thành'),
-              value: 1,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-          RadioListTile(
-              title: Text('Đang làm việc'),
-              value: 2,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-          RadioListTile(
-              title: Text('Chưa bắt đầu'),
-              value: 3,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-        ],
-      ),
-      actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Hủy'),
-        ),
-        FlatButton(
-          onPressed: () {
-            debugPrint('Lọc r show kq theo ${_curentIndex}');
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => ShowHistory(filterState: _curentIndex,)));
-          },
-          child: Text(
-            'Xong',
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
-    );
-  }
-}
-

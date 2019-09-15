@@ -4,32 +4,23 @@ import 'package:alcohol_management/show_info_screens/driver_showHistory.dart';
 import '../driver_only/profile.dart';
 import '../driver_only/show_tasks.dart';
 import '../driver_only/show_history.dart';
-import '../driver_only/showTripDetails.dart';
+import '../driver_only/WorkingTripDetail.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DriverMenu extends StatefulWidget {
-  DriverMenu ({Key key}) : super (key:key);
+  final String dID;
+  DriverMenu ({Key key, @required this.dID}) : super (key:key);
   @override
-  _DriverMenuState createState() => _DriverMenuState();
+  _DriverMenuState createState() => _DriverMenuState(dID);
 }
 
 class _DriverMenuState extends State<DriverMenu>{
+  String dID;
+  _DriverMenuState(this.dID);
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    ShowTasks(),
-    ShowTripDetails(
-      tID: 'HT0004',
-    ),
-    Text(
-      'Thong Bao',
-      style: optionStyle,
-    ),
-    ShowDriverInfo(
-      dID: 'TX0003'
-    ),
-    ShowHistory(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -39,6 +30,25 @@ class _DriverMenuState extends State<DriverMenu>{
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _widgetOptions = <Widget>[
+      ShowTasks(
+        dID: dID,
+      ),
+      D_WorkingTripDetail(
+        dID: dID,
+      ),
+      Text(
+        'Thong Bao',
+        style: optionStyle,
+      ),
+      ShowDriverInfo(
+        dID: dID,
+      ),
+      ShowHistory(
+        dID: dID,
+      ),
+    ];
+
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

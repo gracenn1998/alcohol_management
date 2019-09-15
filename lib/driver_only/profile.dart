@@ -17,9 +17,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
   static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
-
-
-  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
 

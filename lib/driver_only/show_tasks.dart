@@ -7,20 +7,20 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../show-trip-details/showTripDetails.dart';
 
 class ShowTasks extends StatefulWidget {
-  const ShowTasks({Key key}) : super(key: key);
+  final String dID;
+  const ShowTasks({Key key, @required this.dID}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showTasksState();
+    return _showTasksState(dID);
   }
 }
 
 class _showTasksState extends State<ShowTasks> {
-  _showTasksState();
+  String dID;
+  _showTasksState(this.dID);
 
-  String _selectedTripID = null;
-  int _selectedFuction = 0;
   bool _searching = false;
 
   @override
@@ -50,7 +50,7 @@ class _showTasksState extends State<ShowTasks> {
         ),
         body: StreamBuilder(
           stream: FirebaseDatabase.instance.reference().child('trips')
-              .orderByChild('dID').equalTo('TX0003')
+              .orderByChild('dID').equalTo(dID)
               .onValue,
           builder:(BuildContext context, snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
