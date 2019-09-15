@@ -51,26 +51,28 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
        return allMarkers;
   }
 
-  Widget buildMap(driver){
+  Widget buildMap(location){
 
     //print("buildMap: $driver");
     //print("buildMap: $allMarkers");
-    if (driver['lat'] != null && mapCreated == 1)
+    if (location['lat'] != null && mapCreated == 1)
       mapController.moveCamera(
-          CameraUpdate.newLatLng(LatLng(driver['lat'], driver['lng']))
+          CameraUpdate.newLatLng(LatLng(location['lat'], location['lng']))
       );
+    print(location['lat']);
+    print(location['lng']);
 
     return new GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
         target:
-        driver == null ?
+        location == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(driver['lat'], driver['lng']), //user location
+        LatLng(location['lat'], location['lng']), //user location
         zoom: 15.0,
       ),
-      markers: modifyMarker(driver['lat'], driver['lng']),
+      markers: modifyMarker(location['lat'], location['lng']),
       onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
         await addToList(_trip);
@@ -176,17 +178,17 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                     child:
                     StreamBuilder(
                       stream: FirebaseDatabase.instance.reference()
-                          .child('driver').child(_trip['dID']).onValue,
+                          .child('trips').child(tID).child('location').onValue,
                       builder: (BuildContext context, snapshot){
                         if(!snapshot.hasData)
                         {
                           return Center(child: CircularProgressIndicator());
                         }
                         else if(snapshot.hasData){
-                          var driver = snapshot.data.snapshot.value;
+                          var location = snapshot.data.snapshot.value;
                           //print("_buildStack: Listen on driver location changed: $driver");
 
-                          return buildMap(driver);
+                          return buildMap(location);
                         }
                       },
 
@@ -560,7 +562,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                   padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                   child:
                   Text(
-                      fromStartTime(_trip['start']),
+                      fromStartTime(DateTime.fromMillisecondsSinceEpoch(_trip['start'])),
                       style: timeStyleinJD()
                   ),
                 ),
