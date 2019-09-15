@@ -267,7 +267,8 @@ class _showAllTripsState extends State<ShowAllTrips> {
                               color: Color(0xff8391b3),
                               size: 23.0,
                             ),
-                            StreamBuilder(
+                            document[index]['dID'] != null
+                            ? StreamBuilder(
                               stream: FirebaseDatabase.instance.reference().child('driver')
                                   .orderByChild('dID').equalTo(document[index]['dID'])
                                   .onValue,
@@ -316,7 +317,19 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                 }
 
                               },
-                            )
+                            ): Container(
+                              constraints: BoxConstraints(maxWidth: 170),
+                              padding: EdgeInsets.only(left: 5.0),
+                              child: Text(
+                                "Chưa phân công",
+                                style: TextStyle(
+                                    color: Color(0xffef3964),
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: "Roboto",
+                                    fontStyle: FontStyle.normal,
+                                    fontSize: 20.0),
+                                overflow: TextOverflow.ellipsis,
+                              )),
                           ],
                         ),
                       ),
