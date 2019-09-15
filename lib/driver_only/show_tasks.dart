@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../show-trip-details/showTripDetails.dart';
+import '../driver_only/showTripDetails.dart';
 
 class ShowTasks extends StatefulWidget {
   final String dID;
