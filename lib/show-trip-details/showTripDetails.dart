@@ -5,6 +5,7 @@ import 'TripDetails-style-n-function.dart';
 import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import '../edit_screens/editTripScreen.dart';
 
 
 class ShowTripDetails extends StatefulWidget{
@@ -68,20 +69,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           }, //BACKKKKK
         ),
         title:  Center(child: Text("Thông tin hành trình", style: appBarTxTStyle, textAlign: TextAlign.center,)),
-        actions: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 5.0),
-            child: IconButton(
-              icon: Icon(Icons.edit),
-              color: Color(0xff06E2B3),
-              onPressed: () {
-                setState(() {
-                  _selectedIndex = 1;
-                });
-              }, // EDITTTTTTTT
-            ),
-          ),
-        ],
       ),
 
       body: Container(
@@ -123,7 +110,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   Widget getDriverNameByID(dID) {
     if (dID == null)
-      return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
+      return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
 
     return StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('driver')
@@ -141,7 +128,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 return showDetailItem("Tài xế", t['basicInfo']['name'], 0, 'normal');
               else return showDetailItem("Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
             }
-            return showDetailItem("Tài xế", "Chưa phân công", 0, 'notStarted');
+            return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
           }
         }
     );
@@ -149,6 +136,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   Widget showDetails(trip, Tstatus) {
     String id = trip['tID'];
+    String vID = trip['vID'];
     DateTime formattedDate = DateTime.fromMillisecondsSinceEpoch(trip['schStart']);
     // String driver = trip['dID'] == null? "Chưa phân công": trip['dID'];
     final schStart = formatDateTime(formattedDate);
@@ -166,6 +154,9 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 showDetailItem('ID', id, 1, 'normal'),
                 //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
                 getDriverNameByID(trip['dID']),
+                vID==null
+                    ?showDetailItem('Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
+                    :showDetailItem('Phương tiện', vID, 0, 'normal'),
                 showDetailItem('TG dự kiến', schStart, 1, 'normal'),
                 showDetailItem('TG bắt đầu', start, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
                 showDetailItem('TG kết thúc', finish, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
@@ -201,7 +192,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         ),
         Expanded(
             flex: 5,
-            child: (title == "Tài xế" && status == "notStarted")?
+            child: (title == "Tài xế")?
             Row(
               children: <Widget>[
                 Container(
@@ -217,9 +208,29 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                     ),
                   ),
                 ),
-                assignBtn()
+                assignDriverBtn()
               ],
-            ): Container(
+            ):
+            (title == "Phương tiện")?
+            Row(
+              children: <Widget>[
+                Container(
+                  height: 55.0,
+//          margin: const EdgeInsets.all(5.0),
+                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "$data",
+                      style: tripDetailsStyle(status),
+                    ),
+                  ),
+                ),
+                assignVehicleBtn()
+              ],
+            ):
+            Container(
               height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
               padding: EdgeInsets.only(left: 15.0, right: 15.0),
@@ -240,65 +251,102 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
 
-  Widget assignBtn(){
+  Widget assignDriverBtn(){
     return
       IconButton(
         icon: Icon(Icons.assignment_ind,),
         color: Color(0xffef3964),
         onPressed: () {
-          assignDialog();
+          assignDriverDialog();
         },
       );
   }
 
+  Widget assignVehicleBtn(){
+    return
+      IconButton(
+        icon: Icon(Icons.directions_car,),
+        color: Color(0xffef3964),
+        onPressed: () {
+          assignVehicleDialog();
+        },
+      );
+  }
 
-  void assignDialog()
+  void assignDriverDialog()
   {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Phân công"),
-          content:
-                Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _dIDControler,
-                      decoration: InputDecoration(
-                        enabledBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        focusedBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        hintText: "Nhập mã tài xế",
-                        labelText: "Mã tài xế",
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _vIDControler,
-                      decoration: InputDecoration(
-                        enabledBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        focusedBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        hintText: "Nhập mã phương tiện",
-                        labelText: "Mã phương tiện",
-                      ),
-                    ),
-
-                  ],
+          title: new Text("Chỉ định"),
+          content: Container(
+            child: TextFormField(
+              controller: _dIDControler,
+              decoration: InputDecoration(
+                enabledBorder: new UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xff00BC94))
                 ),
+                focusedBorder: new UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xff00BC94))
+                ),
+                hintText: "Nhập mã tài xế",
+                labelText: "Mã tài xế",
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Xác nhận"), //????????? chữ gì
+              onPressed: () {
+                updateDriver();
+                Navigator.of(context).pop();
+              },
+            ),
+
+            new FlatButton(
+              child: new Text("Đóng"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void assignVehicleDialog()
+  {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Chỉ định"),
+          content: Container(
+            child: TextFormField(
+              controller: _vIDControler,
+              decoration: InputDecoration(
+                enabledBorder: new UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xff00BC94))
+                ),
+                focusedBorder: new UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xff00BC94))
+                ),
+                hintText: "Nhập mã phương tiện",
+                labelText: "Mã phương tiện",
+              ),
+            ),
+          ),
 
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
               child: new Text("Xác nhận"), //????????? chữ gì
               onPressed: () {
-                updateAssignment();
+                updateVehicle();
                 Navigator.of(context).pop();
               },
             ),
@@ -315,14 +363,30 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     );
   }
 
-  void updateAssignment(){
-    FirebaseDatabase.instance.reference().child('trips').child(tID).set(
+  void updateVehicle(){
+    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
       {
-        'dID': _dIDControler.text
+        'vID': _vIDControler.text,
       }
     );
 
-    FirebaseDatabase.instance.reference().child('sensor').child(_vIDControler.text).set(
+    FirebaseDatabase.instance.reference().child('vehicles').child(_vIDControler.text).update(
+        {
+          'tID': tID
+        }
+    );
+
+
+  }
+
+  void updateDriver(){
+    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
+        {
+          'dID': _dIDControler.text,
+        }
+    );
+
+    FirebaseDatabase.instance.reference().child('vehicles').child(_vIDControler.text).update(
         {
           'dID': _dIDControler.text,
           'tID': tID
@@ -370,9 +434,13 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
               icon: Icon(Icons.edit),
               color: Color(0xff06E2B3),
               onPressed: () {
-                setState(() {
-                  _selectedIndex = 1;
-                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditTrip(
+                        key: PageStorageKey('editTrip'),
+                        tID: tID)
+                    )
+                );
               }, // EDITTTTTTTT
             ),
           ),
@@ -383,7 +451,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           child: Column(
             children: <Widget>[
               buildNotStartedTripDetail(trip),
-              buildStartBtn(),
             ],
           )
 
@@ -399,19 +466,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         showTripID(trip['tID']),
         showDetails(trip, 'notStarted')
       ],
-    );
-  }
-
-  Widget buildStartBtn(){
-    return Container(
-      color: Color(0xff0a2463) ,
-      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-      child: FlatButton(
-        child: Text('BẮT ĐẦU HÀNH TRÌNH', style: TextStyle(color: Colors.white, fontSize: 18),),
-        onPressed: (){
-          print("Start button tapped");
-        },
-      ),
     );
   }
 

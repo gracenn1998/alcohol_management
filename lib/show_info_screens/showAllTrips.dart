@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../show-trip-details/showTripDetails.dart';
+import '../add_screens/addTripScreen.dart';
 
 class ShowAllTrips extends StatefulWidget {
   final filterState;
@@ -99,10 +100,10 @@ class _showAllTripsState extends State<ShowAllTrips> {
                 backgroundColor: Color(0xffef3964),
                 foregroundColor: Colors.white,
                 onPressed: () {
-                  setState(() {
-                    debugPrint('Add');
-                    _selectedFuction = 1;
-                  });
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddTrip())
+                  );
                 },
               ),
             ],
@@ -219,8 +220,8 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                 color: Color(0xff0A2463),
                                 onPressed: () {
                                   //Xoa journey
-                                  debugPrint("Delete journey ${document[index].documentID} tapped");
-                                  confirmDelete(context, document[index].documentID);
+                                  debugPrint("Delete journey ${document[index]['tID']} tapped");
+                                  confirmDelete(context, document[index]['tID']);
                                 },
                               ),
                             ))
