@@ -7,37 +7,21 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../show-trip-details/showTripDetails.dart';
 
 class ShowTasks extends StatefulWidget {
-  final filterState;
-  const ShowTasks({Key key, @required this.filterState}) : super(key: key);
+  const ShowTasks({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showTasksState(filterState);
+    return _showTasksState();
   }
 }
 
 class _showTasksState extends State<ShowTasks> {
-  int filterState;
-  _showTasksState(this.filterState);
+  _showTasksState();
 
   String _selectedTripID = null;
   int _selectedFuction = 0;
   bool _searching = false;
-
-//  if (_selectedTripID != null)
-//  {
-//    String id = _selectedTripID;
-//    _selectedTripID = null;
-//    return showInfoTrip(
-//      jID = id,
-//    );
-//  }
-
-//  if (_selectedFuction == 1)
-//  {
-//    return AddTrip();
-//  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +32,6 @@ class _showTasksState extends State<ShowTasks> {
 
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
-              onPressed: () {
-                debugPrint('back');
-//                if (filterState > 0) Navigator.pop(context);
-                if (filterState > 0) setState(() {
-                  filterState = 0;
-                });
-              }),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[
@@ -74,85 +48,35 @@ class _showTasksState extends State<ShowTasks> {
             )
           ],
         ),
-        body: display(filterState),
-        floatingActionButton: Container(
-          padding: EdgeInsets.only(bottom: 1.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              FloatingActionButton(
-                  heroTag: 'filter_trip',
-                  child: Icon(Icons.filter_list),
-                  tooltip: 'Lọc',
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xff8391b3),
-                  onPressed: () => showDialog(
-                      context: context, builder: (context) => filterDialog())),
-              Container(
-                padding: EdgeInsets.only(left: 2.5, right: 2.5),
-              ),
-            ],
-          ),
-        ));
-  }
+        body: StreamBuilder(
+          stream: FirebaseDatabase.instance.reference().child('trips')
+              .orderByChild('dID').equalTo('TX0003')
+              .onValue,
+          builder:(BuildContext context, snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                    style: tempStyle,
+                  ));
+            }
+            else if(snapshots.hasData) {
+              List<dynamic> tripList = [];
 
-  Widget display(int filter) {
-    return StreamBuilder(
-      stream: FirebaseDatabase.instance.reference().child('trips')
-          .orderByChild('isDeleted').equalTo(false)
-          .onValue,
-      builder:(BuildContext context, snapshots) {
-        if (snapshots.connectionState == ConnectionState.waiting) {
-          return Center(
-              child: Text('Loading...',
-                style: tempStyle,
-              ));
-        }
-        else if(snapshots.hasData) {
-          List<dynamic> tripList = [];
+              DataSnapshot tripSnaps = snapshots.data.snapshot;
+              Map<dynamic, dynamic> map = tripSnaps.value;
 
-          DataSnapshot tripSnaps = snapshots.data.snapshot;
-          Map<dynamic, dynamic> map = tripSnaps.value;
-
-
-
-          switch (filter) {
-            case 0:
               for(var tripItem in map.values) {
-                if(!tripItem['isDeleted']) {
+                if(!tripItem['isDeleted'] && tripItem['status']=='notStarted') {
                   tripList.add(tripItem);
                 }
               }
-              break;
-            case 1: //done
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'done' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 2: //working
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'working' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 3: //notStarted
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'notStarted' && !tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-          }
-          //sort by tID
-          tripList..sort((a, b) => b['tID'].compareTo(a['tID']));
-          return getListTripView(tripList);
-        }
+              //sort by tID
+              tripList..sort((a, b) => a['schStart'].compareTo(b['schStart']));
+              return getListTripView(tripList);
+            }
 
-      },
+          },
+        ),
     );
   }
   Widget getListTripView(document) {
@@ -419,68 +343,6 @@ class _showTasksState extends State<ShowTasks> {
         'Đã hoàn thành',
         style: tripStatusStyle(0),
       );
-  }
-}
-
-class filterDialog extends StatefulWidget {
-  const filterDialog({Key key}) : super(key: key);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _filterDialogState();
-  }
-}
-
-class _filterDialogState extends State<filterDialog> {
-  _filterDialogState();
-  int _curentIndex = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return AlertDialog(
-      title: Text('Lọc'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text("Trạng thái"),
-          RadioListTile(
-              title: Text('Đã hoàn thành'),
-              value: 1,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-          RadioListTile(
-              title: Text('Đang làm việc'),
-              value: 2,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-          RadioListTile(
-              title: Text('Chưa bắt đầu'),
-              value: 3,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
-        ],
-      ),
-      actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Hủy'),
-        ),
-        FlatButton(
-          onPressed: () {
-            debugPrint('Lọc r show kq theo ${_curentIndex}');
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => ShowTasks(filterState: _curentIndex,)));
-          },
-          child: Text(
-            'Xong',
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
-    );
   }
 }
 
