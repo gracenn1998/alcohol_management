@@ -1,9 +1,7 @@
 import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:alcohol_management/styles/styles.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/intl.dart';
 
 class NotiScreen extends StatefulWidget {
@@ -13,7 +11,6 @@ class NotiScreen extends StatefulWidget {
 }
 
 class _NotiScreenState extends State<NotiScreen> {
-  //final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int notiIsTapped = 1;
   String _selectedNoti = null;
 
@@ -23,40 +20,6 @@ class _NotiScreenState extends State<NotiScreen> {
   }
 
   @override
-  /*Widget build(BuildContext context) {
-    if (_selectedNoti != null) {
-      String id = _selectedNoti;
-      _selectedNoti = null;
-      return ShowDriverInfo(
-        key: PageStorageKey("showInfo"),
-        dID: id,
-      );
-    }
-    // TODO: implement build
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Center(child: Text(
-          'Thông báo', style: appBarTxTStyle, textAlign: TextAlign.center,)),
-      ),
-      body: StreamBuilder(
-        stream: Firestore.instance.collection('bnotification').orderBy(
-            'timeCreated', descending: true).snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-          if (snapshots.connectionState == ConnectionState.waiting)
-            return Center(
-              child: Text(
-                'Loading...',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-            );
-          else
-            return getListNoti(snapshots.data.documents);
-        },
-      ),
-    );
-  }*/
   Widget build(BuildContext context) {
     if (_selectedNoti != null) {
       String id = _selectedNoti;

@@ -1,33 +1,29 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
-import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import "../show_info_screens/showDriverInfoScreen.dart";
-import 'package:alcohol_management/notification.dart';
+import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
   @override
   _MyBottomMenuState createState() => _MyBottomMenuState();
 }
-//Commit
+
 class _MyBottomMenuState extends State<MyBottomMenu>{
-  int notiCount = 0;
   int _selectedIndex = 0;
-  var _selectedDriverID = null;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     ShowAllDrivers(
         key: PageStorageKey('showAll')
     ),
-    ShowAllTrips(), //Trips screen
+    ShowAllTrips(
+      key: PageStorageKey('showAll'),
+      filterState: 0,
+    ),
     Text(
-      'Nhan Vien',
+      'Thong Bao',
       style: optionStyle,
     ),
-    NotiScreen(), //Notification Screen
     Text(
       'Ca Nhan',
       style: optionStyle,
@@ -37,116 +33,18 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      if (_selectedIndex == 3){
-        if (notiCount > 0 ){
-          notiCount--;
-        }
-      }
     });
-  }
-
-  FirebaseMessaging _fcm = FirebaseMessaging();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _fcm.subscribeToTopic('alcoholTracking');
-    _fcm.configure(
-      onMessage: (Map<String, dynamic> msg) {
-        print("onMessage: $msg");
-        print(_selectedDriverID);
-        setState(() {
-          notiCount++;
-        });
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              content: ListTile(
-                title: Text(msg['notification']['title']),
-                subtitle: Text(msg['notification']['body']),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Xem thông tin tài xế'), //sau chỉnh thành thông tin hành trình
-                  onPressed: () {
-//                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ShowDriverInfo(
-                                key: PageStorageKey("showInfo"),
-                                dID: msg['data']['dID'],
-                              )
-                      )
-                    );
-//                    Navigator.of(context).pop();
-                    if (notiCount > 0 ){
-                      notiCount--;
-                    }
-                  },
-                ),
-                FlatButton(
-                  child: Text('Ok'), //sau chỉnh thành thông tin hành trình
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-
-              ],
-            )
-        );
-      },
-      onResume: (Map<String, dynamic> msg) {
-        print("onResume: $msg");
-        setState(() {
-          notiCount++;
-        });
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-            builder: (context) =>
-            ShowDriverInfo(
-              key: PageStorageKey("showInfo"),
-              dID: msg['data']['dID'],
-            )
-            )
-        );
-      },
-      onLaunch: (Map<String, dynamic> msg) {
-        print("onLaunch: $msg");
-        setState(() {
-          notiCount++;
-        });
-      },
-    );
-
-    _fcm.requestNotificationPermissions(
-        IosNotificationSettings(
-
-        )
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-//    if (_selectedDriverID != null) {
-//      String id = _selectedDriverID;
-//      _selectedDriverID = null;
-//      return ShowDriverInfo(
-//        key: PageStorageKey("showInfo"),
-//        dID: id,
-//      );
-//    }
-
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type : BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.group),
             title: Text('Tài xế'),
@@ -160,34 +58,8 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
             title: Text('Nhân viên'),
           ),
           BottomNavigationBarItem(
-            icon: Stack(
-              children: <Widget>[
-                Icon(Icons.notifications),
-                Positioned(
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: notiCount == 0 ? Colors.transparent : Colors.red,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: 14,
-                      minHeight: 14,
-                    ),
-                    child: Text(
-                      '$notiCount',
-                      style: TextStyle(
-                        color: notiCount == 0 ? Colors.transparent : Colors.white,
-                        fontSize: 10,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            title: Text('Thông báo'),
+            icon: Icon(Icons.notifications),
+            title: Text('Thông Báo'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
