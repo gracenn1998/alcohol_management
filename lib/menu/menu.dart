@@ -1,10 +1,10 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllJourneys.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import "../show_info_screens/showDriverInfoScreen.dart";
 import 'package:alcohol_management/notification.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyBottomMenu extends StatefulWidget {
   MyBottomMenu ({Key key}) : super (key:key);
@@ -52,17 +52,13 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
     // TODO: implement initState
     super.initState();
     _fcm.subscribeToTopic('alcoholTracking');
-
-
     _fcm.configure(
       onMessage: (Map<String, dynamic> msg) {
         print("onMessage: $msg");
         print(_selectedDriverID);
         setState(() {
-          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
-              msg['data']['tripID'], msg['notification']['body']);
+          notiCount++;
         });
-        notiCount++;
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -104,18 +100,24 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       },
       onResume: (Map<String, dynamic> msg) {
         print("onResume: $msg");
-        notiCount++;
         setState(() {
-          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
-              msg['data']['tripID'], msg['notification']['body']);
+          notiCount++;
         });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+            builder: (context) =>
+            ShowDriverInfo(
+              key: PageStorageKey("showInfo"),
+              dID: msg['data']['dID'],
+            )
+            )
+        );
       },
       onLaunch: (Map<String, dynamic> msg) {
         print("onLaunch: $msg");
-        notiCount++;
         setState(() {
-          writeNoti(msg['data']['lastNotiTime'], msg['data']['dID'],
-              msg['data']['tripID'], msg['notification']['body']);
+          notiCount++;
         });
       },
     );
@@ -199,25 +201,5 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
         onTap: _onItemTapped,
       ),
     );
-  }
-  void writeNoti(lastNotiTime, dID, tripID, body) {
-    int timeCreated = DateTime.now().millisecondsSinceEpoch;
-    String t = "$timeCreated";
-    var docRef = Firestore.instance
-        .collection('bnotification')
-        .document();
-
-    Firestore.instance.runTransaction((transaction) async {
-      await transaction.set(
-        docRef,
-        {
-          'timeCreated': timeCreated,
-          'dID': dID,
-          'tripID': tripID,
-          'lastNotiTime': lastNotiTime,
-          'body': body
-        },
-      );
-    });
   }
 }
