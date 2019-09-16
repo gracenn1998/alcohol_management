@@ -32,9 +32,11 @@ class _ManagerMenuState extends State<ManagerMenu>{
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      if (_selectedIndex == 3){
+      if (_selectedIndex == 2){
         if (notiCount > 0 ){
-          notiCount--;
+          setState(() {
+            notiCount--;
+          });
         }
       }
     });
