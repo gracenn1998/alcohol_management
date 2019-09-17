@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:location/location.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class D_WorkingTripDetail extends StatefulWidget{
   final dID;
@@ -36,6 +37,15 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   Set<Marker>  allMarkers= {};
   Set<Polyline>_allPolylines={};
 
+
+  List<AlcoholLog> alcoholLogData = [];
+  var alcoholLogStream;
+  double chartWidth = 350;
+  int itemCnt = 0;
+
+
+  DateTime _time;
+  Map<String, num> _measures;
 
 
   Widget buildMap(){
@@ -138,6 +148,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
               ),
             ),
             JourneyInfo(_trip),
+
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -160,10 +171,10 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   }
 
 
-  var streamSub;
+  var driverInfoStream;
 
   void initState(){
-    streamSub = FirebaseDatabase.instance.reference()
+    driverInfoStream = FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID)
         .child('tripID')
@@ -197,6 +208,28 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     //PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
        // .then(_updateStatus);
 
+
+    //for generating chart
+    alcoholLogStream = FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child('HT0003') //need change
+        .child('alcoholLog')
+        .onChildAdded.listen((alcoholLogSnap){
+
+      var alcoVal = alcoholLogSnap.snapshot.value;
+      var alcoTime = alcoholLogSnap.snapshot.key.toString();
+      var yyyy, MM, dd, hh, mm;
+      yyyy = int.parse(alcoTime.substring(0, 4));
+      MM = int.parse(alcoTime.substring(4, 6));
+      dd = int.parse(alcoTime.substring(6, 8));
+      hh = int.parse(alcoTime.substring(8, 10));
+      mm = int.parse(alcoTime.substring(10, 12));
+      setState(() {
+        alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+        itemCnt=alcoholLogData.length;
+//        print(traceAlcoVal);
+      });
+    });
   }
 
   //ANIMATIONNNNNNNNNNNNNNNNN
@@ -209,7 +242,8 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   void dispose() {
     super.dispose();
     _animationController.dispose();
-    streamSub.cancel();
+    driverInfoStream.cancel();
+    alcoholLogStream.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
@@ -397,8 +431,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
                 ),
               ),
             ],
-          ),
-          //1
+          ), //1
 
           Row(
             children: <Widget>[
@@ -578,10 +611,101 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
               )
             ],
           ), //6
+          alcoholLogChart(),
 
         ],
       ),
     );
   }
 
+  Widget alcoholLogChart() {
+    if (itemCnt > 50) {
+      chartWidth = 25 + (325 / 50 * itemCnt);
+    }
+    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
+      return [
+        new charts.Series<AlcoholLog, DateTime>(
+          id: 'Nồng độ cồn',
+          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
+          measureFn: (AlcoholLog log, _) => log.value,
+          data: alcoholLogData,
+        )
+      ];
+    }
+
+    // Listens to the underlying selection changes, and updates the information
+    // relevant to building the primitive legend like information under the
+    // chart.
+    _onSelectionChanged(charts.SelectionModel model) {
+      final selectedDatum = model.selectedDatum;
+
+      DateTime time;
+      final measures = <String, num>{};
+
+      // We get the model that updated with a list of [SeriesDatum] which is
+      // simply a pair of series & datum.
+      //
+      // Walk the selection updating the measures map, storing off the sales and
+      // series name for each selection point.
+      if (selectedDatum.isNotEmpty) {
+        time = selectedDatum.first.datum.yyyymmddhhmm;
+        selectedDatum.forEach((charts.SeriesDatum datumPair) {
+          measures[datumPair.series.displayName] = datumPair.datum.value;
+        });
+      }
+
+      // Request a build.
+      setState(() {
+        _time = time;
+        _measures = measures;
+      });
+    }
+
+    final children = <Widget>[
+    ];
+
+    // If there is a selection, then include the details.
+    if (_time != null) {
+      children.add(new Padding(
+          padding: new EdgeInsets.only(top: 5.0),
+          child: new Text(formatDateTime(_time))));
+    }
+    _measures?.forEach((String series, num value) {
+      children.add(new Text('${series}: ${value}'));
+    });
+
+    children.add(Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+            height: 100.0,
+            width: chartWidth,
+            child: new charts.TimeSeriesChart(
+              _createSampleData(),
+              animate: false,
+              selectionModels: [
+                new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
+
+                  changedListener: _onSelectionChanged,
+                )
+              ],
+              primaryMeasureAxis: new charts.NumericAxisSpec(
+                  tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
+            )),
+      ),
+    ));
+
+//    return new Column(children: children);
+
+    return Column(children: children);
+  }
+
+}
+
+class AlcoholLog {
+  final DateTime yyyymmddhhmm;
+  final int value;
+
+  AlcoholLog(this.yyyymmddhhmm, this.value);
 }

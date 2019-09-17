@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'WorkingTripDetail_NV.dart';
 import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
-import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:intl/intl.dart';
 import '../edit_screens/editTripScreen.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 
 class ShowTripDetails extends StatefulWidget{
@@ -14,13 +13,15 @@ class ShowTripDetails extends StatefulWidget{
   State<ShowTripDetails> createState() => ShowTripDetailsState(tID);
 }
 
-class ShowTripDetailsState extends State<ShowTripDetails>{
+class ShowTripDetailsState extends State<ShowTripDetails> {
   final String tID;
   final _dIDControler = TextEditingController();
   final _vIDControler = TextEditingController();
 
   ShowTripDetailsState(this.tID);
+
   int _selectedIndex = 0;
+
   /*if(_selectedIndex == -1) {
       return ShowAllJourneys();
     }
@@ -30,31 +31,78 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       );
     }*/
 
-  Widget build(BuildContext context){
+  List<AlcoholLog> alcoholLogData = [];
+  var streamSub;
+  double chartWidth = 350;
+  int itemCnt = 0;
+
+  @override
+  initState() {
+    super.initState();
+
+    streamSub = FirebaseDatabase.instance
+        .reference()
+        .child('trips')
+        .child(tID)
+        .child('alcoholLog')
+        .onChildAdded
+        .listen((alcoholLogSnap) {
+      var alcoVal = alcoholLogSnap.snapshot.value;
+      var alcoTime = alcoholLogSnap.snapshot.key.toString();
+      var yyyy, MM, dd, hh, mm;
+      yyyy = int.parse(alcoTime.substring(0, 4));
+      MM = int.parse(alcoTime.substring(4, 6));
+      dd = int.parse(alcoTime.substring(6, 8));
+      hh = int.parse(alcoTime.substring(8, 10));
+      mm = int.parse(alcoTime.substring(10, 12));
+      setState(() {
+        alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+        itemCnt = alcoholLogData.length;
+//        print(traceAlcoVal);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+//    _timer.cancel();
+    streamSub.cancel();
+    super.dispose();
+  }
+
+  DateTime _time;
+  Map<String, num> _measures;
+
+  Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FirebaseDatabase.instance.reference().child('trips')
-          .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
+      stream: FirebaseDatabase.instance
+          .reference()
+          .child('trips')
+          .child(tID)
+          .onValue,
+      //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
       builder: (context, snapshot) {
-        if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData)
+          return Center(child: CircularProgressIndicator());
         return directTripDetailScreen(snapshot.data.snapshot.value);
       },
     );
   }
 
-  Widget directTripDetailScreen(trip){
-    switch (trip['status']){
+
+  Widget directTripDetailScreen(trip) {
+    switch (trip['status']) {
       case 'done':
         return DoneTripDetail(trip);
       case 'notStarted':
         return NotStartedTripDetail(trip);
       case 'working':
         return WorkingTripDetail_NV(tID: tID);
-
     }
   }
 
 //------------------------------------------------------
-  Widget DoneTripDetail(trip){
+  Widget DoneTripDetail(trip) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -68,37 +116,47 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
             Navigator.pop(context);
           }, //BACKKKKK
         ),
-        title:  Center(child: Text("Thông tin hành trình", style: appBarTxTStyle, textAlign: TextAlign.center,)),
+        title: Center(child: Text("Thông tin hành trình", style: appBarTxTStyle,
+          textAlign: TextAlign.center,)),
       ),
 
       body: Container(
           child: Column(
             children: <Widget>[
-              buildDoneTripDetail(trip),
-              buildLogBtn()
+              showTripID(trip['tID']),
+              Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        showDetails(trip, 'done'),
+                        alcoholLogChart(),
+                      ],
+                    ),
+                  )
+              )
             ],
           )
 
       ),
       resizeToAvoidBottomPadding: false,
     );
-
   }
 
-  Widget buildDoneTripDetail(trip){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        showTripID(trip['tID']),
-        showDetails(trip, 'done')
-      ],
-    );
-  }
+//  Widget buildDoneTripDetail(trip){
+//    return Column(
+//      crossAxisAlignment: CrossAxisAlignment.start,
+//      children: <Widget>[
+//        showTripID(trip['tID']),
+//        showDetails(trip, 'done')
+//      ],
+//    );
+//  }
 
 
-  Widget showTripID(tID){
+  Widget showTripID(tID) {
     return
       Container(
+        height: 50.0,
         padding: EdgeInsets.all(10.0),
         child: Text(
           tID,
@@ -113,20 +171,26 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
 
     return StreamBuilder(
-        stream: FirebaseDatabase.instance.reference().child('driver')
-            .child(dID).onValue,//Firestore.instance.collection('drivers').where('dID', isGreaterThanOrEqualTo: dID).snapshots(),
+        stream: FirebaseDatabase.instance
+            .reference()
+            .child('driver')
+            .child(dID)
+            .onValue,
+        //Firestore.instance.collection('drivers').where('dID', isGreaterThanOrEqualTo: dID).snapshots(),
         builder: (context, snapshot) {
-          if(snapshot.hasError){
+          if (snapshot.hasError) {
             print('Lỗi cmnr');
           }
           else {
-            if (snapshot.hasData)
-            {
+            if (snapshot.hasData) {
 //              print(snapshot.data.toString());
               var t = snapshot.data.snapshot.value;
               if (t['dID'] == dID)
-                return showDetailItem("Tài xế", t['basicInfo']['name'], 0, 'normal');
-              else return showDetailItem("Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
+                return showDetailItem(
+                    "Tài xế", t['basicInfo']['name'], 0, 'normal');
+              else
+                return showDetailItem(
+                    "Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
             }
             return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
           }
@@ -137,37 +201,43 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   Widget showDetails(trip, Tstatus) {
     String id = trip['tID'];
     String vID = trip['vID'];
-    DateTime formattedDate = DateTime.fromMillisecondsSinceEpoch(trip['schStart']);
+    DateTime formattedDate = DateTime.fromMillisecondsSinceEpoch(
+        trip['schStart']);
     // String driver = trip['dID'] == null? "Chưa phân công": trip['dID'];
     final schStart = formatDateTime(formattedDate);
-    final start = trip['start'] == null? "Hành trình chưa bắt đầu": formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['start']));
-    final finish = trip['finish']== null? "Hành trình chưa bắt đầu": formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['finish']));
+    final start = trip['start'] == null
+        ? "Hành trình chưa bắt đầu"
+        : formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['start']));
+    final finish = trip['finish'] == null
+        ? "Hành trình chưa bắt đầu"
+        : formatDateTime(DateTime.fromMillisecondsSinceEpoch(trip['finish']));
     String from = trip['from'];
     String to = trip['to'];
     String status = toStatusInVN(trip['status']);
 
-    return Container (
-        margin: EdgeInsets.only( bottom: 15.0),
-        child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                showDetailItem('ID', id, 1, 'normal'),
-                //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
-                getDriverNameByID(trip['dID']),
-                vID==null
-                    ?showDetailItem('Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
-                    :showDetailItem('Phương tiện', vID, 0, 'normal'),
-                showDetailItem('TG dự kiến', schStart, 1, 'normal'),
-                showDetailItem('TG bắt đầu', start, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('TG kết thúc', finish, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('Từ', from, 0, 'normal'),
-                showDetailItem('Đến', to, 1, 'normal'),
-                showDetailItem('Trạng Thái', status, 0, Tstatus),
-              ],
-            )
+    return Container(
+//        height: 500,
+//        margin: EdgeInsets.only( bottom: 15.0),
+        child: Column(
+          children: <Widget>[
+            showDetailItem('ID', id, 1, 'normal'),
+            //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
+            getDriverNameByID(trip['dID']),
+            vID == null
+                ? showDetailItem(
+                'Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
+                : showDetailItem('Phương tiện', vID, 0, 'normal'),
+            showDetailItem('TG dự kiến', schStart, 1, 'normal'),
+            showDetailItem('TG bắt đầu', start, 0,
+                (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
+            showDetailItem('TG kết thúc', finish, 1,
+                (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
+            showDetailItem('Từ', from, 0, 'normal'),
+            showDetailItem('Đến', to, 1, 'normal'),
+            showDetailItem('Trạng Thái', status, 0, Tstatus),
+          ],
         )
     );
-
   }
 
 
@@ -180,7 +250,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
               height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
               padding: EdgeInsets.only(left: 25.0),
-              decoration: line == 1 ? oddLineDetails() : evenLineDetails(), //             <--- BoxDecoration here
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              //             <--- BoxDecoration here
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -192,7 +263,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         ),
         Expanded(
             flex: 5,
-            child: (title == "Tài xế")?
+            child: (title == "Tài xế") ?
             Row(
               children: <Widget>[
                 Container(
@@ -210,8 +281,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 ),
                 assignDriverBtn()
               ],
-            ):
-            (title == "Phương tiện")?
+            ) :
+            (title == "Phương tiện") ?
             Row(
               children: <Widget>[
                 Container(
@@ -229,7 +300,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 ),
                 assignVehicleBtn()
               ],
-            ):
+            ) :
             Container(
               height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
@@ -251,7 +322,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
 
-  Widget assignDriverBtn(){
+  Widget assignDriverBtn() {
     return
       IconButton(
         icon: Icon(Icons.assignment_ind,),
@@ -262,7 +333,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       );
   }
 
-  Widget assignVehicleBtn(){
+  Widget assignVehicleBtn() {
     return
       IconButton(
         icon: Icon(Icons.directions_car,),
@@ -273,8 +344,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       );
   }
 
-  void assignDriverDialog()
-  {
+  void assignDriverDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -317,8 +387,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       },
     );
   }
-  void assignVehicleDialog()
-  {
+
+  void assignVehicleDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -363,56 +433,136 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     );
   }
 
-  void updateVehicle(){
+  void updateVehicle() {
     FirebaseDatabase.instance.reference().child('trips').child(tID).update(
-      {
-        'vID': _vIDControler.text,
+        {
+          'vID': _vIDControler.text,
+        }
+    );
+
+    FirebaseDatabase.instance.reference().child('vehicles').child(
+        _vIDControler.text).update(
+        {
+          'tID': tID
+        }
+    );
+  }
+
+  void updateDriver() {
+    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
+        {
+          'dID': _dIDControler.text,
+        }
+    );
+
+    FirebaseDatabase.instance.reference().child('vehicles').child(
+        _vIDControler.text).update(
+        {
+          'dID': _dIDControler.text,
+          'tID': tID
+        }
+    );
+  }
+
+  Widget alcoholLogChart() {
+    if (itemCnt > 50) {
+      chartWidth = 25 + (325 / 50 * itemCnt);
+    }
+    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
+      return [
+        new charts.Series<AlcoholLog, DateTime>(
+          id: 'Nồng độ cồn',
+          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
+          measureFn: (AlcoholLog log, _) => log.value,
+          data: alcoholLogData,
+        )
+      ];
+    }
+
+    // Listens to the underlying selection changes, and updates the information
+    // relevant to building the primitive legend like information under the
+    // chart.
+    _onSelectionChanged(charts.SelectionModel model) {
+      final selectedDatum = model.selectedDatum;
+
+      DateTime time;
+      final measures = <String, num>{};
+
+      // We get the model that updated with a list of [SeriesDatum] which is
+      // simply a pair of series & datum.
+      //
+      // Walk the selection updating the measures map, storing off the sales and
+      // series name for each selection point.
+      if (selectedDatum.isNotEmpty) {
+        time = selectedDatum.first.datum.yyyymmddhhmm;
+        selectedDatum.forEach((charts.SeriesDatum datumPair) {
+          measures[datumPair.series.displayName] = datumPair.datum.value;
+        });
       }
-    );
 
-    FirebaseDatabase.instance.reference().child('vehicles').child(_vIDControler.text).update(
-        {
-          'tID': tID
-        }
-    );
+      // Request a build.
+      setState(() {
+        _time = time;
+        _measures = measures;
+      });
+    }
 
+    final children = <Widget>[
+    ];
 
-  }
+    // If there is a selection, then include the details.
+    if (_time != null) {
+      children.add(new Padding(
+          padding: new EdgeInsets.only(top: 5.0),
+          child: new Text(formatDateTime(_time))));
+    }
+    _measures?.forEach((String series, num value) {
+      children.add(new Text('${series}: ${value}'));
+    });
 
-  void updateDriver(){
-    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
-        {
-          'dID': _dIDControler.text,
-        }
-    );
+    children.add(Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+            height: 300.0,
+            width: chartWidth,
+            child: new charts.TimeSeriesChart(
+              _createSampleData(),
+              animate: false,
+              selectionModels: [
+                new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
 
-    FirebaseDatabase.instance.reference().child('vehicles').child(_vIDControler.text).update(
-        {
-          'dID': _dIDControler.text,
-          'tID': tID
-        }
-    );
-
-
-  }
-
-
-
-  Widget buildLogBtn(){
-    return Container(
-      color: Color(0xff0a2463) ,
-      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-      child: FlatButton(
-        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-        onPressed: (){
-          print("LOG Button tapped");
-        },
+                  changedListener: _onSelectionChanged,
+                )
+              ],
+              primaryMeasureAxis: new charts.NumericAxisSpec(
+                  tickProviderSpec: new charts.BasicNumericTickProviderSpec(
+                      zeroBound: false)),
+            )),
       ),
-    );
+    ));
+
+//    return new Column(children: children);
+
+    return Column(children: children);
   }
+
+//  Widget buildLogBtn(){
+//    return Container(
+//      color: Color(0xff0a2463) ,
+//      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+//      child: FlatButton(
+//        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
+//        onPressed: (){
+//          print("LOG Button tapped");
+//        },
+//      ),
+//    );
+//  }
   //--------------------------------------------------------
 
-  Widget NotStartedTripDetail(trip){
+  Widget NotStartedTripDetail(trip) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -426,7 +576,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
             Navigator.pop(context);
           }, //BACKKKKK
         ),
-        title:  Center(child: Text("Thông tin hành trình", style: appBarTxTStyle, textAlign: TextAlign.center,)),
+        title: Center(child: Text("Thông tin hành trình", style: appBarTxTStyle,
+          textAlign: TextAlign.center,)),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 5.0),
@@ -436,9 +587,10 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
               onPressed: () {
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EditTrip(
-                        key: PageStorageKey('editTrip'),
-                        tID: tID)
+                    MaterialPageRoute(builder: (context) =>
+                        EditTrip(
+                            key: PageStorageKey('editTrip'),
+                            tID: tID)
                     )
                 );
               }, // EDITTTTTTTT
@@ -450,7 +602,12 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       body: Container(
           child: Column(
             children: <Widget>[
-              buildNotStartedTripDetail(trip),
+              showTripID(trip['tID']),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: showDetails(trip, 'notStarted'),
+                ),
+              ),
             ],
           )
 
@@ -459,7 +616,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
     );
   }
 
-  Widget buildNotStartedTripDetail(trip){
+  Widget buildNotStartedTripDetail(trip) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -468,8 +625,11 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       ],
     );
   }
-
 }
+class AlcoholLog {
+  final DateTime yyyymmddhhmm;
+  final int value;
 
-
+  AlcoholLog(this.yyyymmddhhmm, this.value);
+}
 
