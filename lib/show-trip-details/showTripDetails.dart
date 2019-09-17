@@ -75,7 +75,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           child: Column(
             children: <Widget>[
               buildDoneTripDetail(trip),
-              buildLogBtn()
             ],
           )
 
@@ -251,6 +250,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
 
+
+  //--------------------------------------------------------
   Widget assignDriverBtn(){
     return
       IconButton(
@@ -365,9 +366,9 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   void updateVehicle(){
     FirebaseDatabase.instance.reference().child('trips').child(tID).update(
-      {
-        'vID': _vIDControler.text,
-      }
+        {
+          'vID': _vIDControler.text,
+        }
     );
 
     FirebaseDatabase.instance.reference().child('vehicles').child(_vIDControler.text).update(
@@ -396,21 +397,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
 
   }
 
-
-
-  Widget buildLogBtn(){
-    return Container(
-      color: Color(0xff0a2463) ,
-      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-      child: FlatButton(
-        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-        onPressed: (){
-          print("LOG Button tapped");
-        },
-      ),
-    );
-  }
-  //--------------------------------------------------------
 
   Widget NotStartedTripDetail(trip){
     return Scaffold(
