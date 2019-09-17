@@ -10,6 +10,9 @@ import 'edit_screens/editTripScreen.dart';
 import 'add_screens/addDriverScreen.dart';
 import 'add_screens/addTripScreen.dart';
 import 'menu/menu.dart';
+import 'show-trip-details/showTripDetails.dart';
+
+import 'show-trip-details/WorkingTripDetail_NV.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,6 +27,9 @@ class MyApp extends StatelessWidget {
               home: MyBottomMenu(),
 //            home: EditTrip(tID: 'HT0002',),
 //            home: AddTrip(),
+
+//            home: ShowTripDetails(tID: 'HT0004'),
+         //     home: MyBottomMenu(),
 //            home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
