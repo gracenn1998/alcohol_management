@@ -1,23 +1,23 @@
 import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
 import 'package:alcohol_management/styles/styles.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SearchTrip extends StatefulWidget {
-  const SearchTrip() : super();
+  final searchBy;
+  const SearchTrip({Key key, @required this.searchBy}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _searchTripState();
+    return _searchTripState(searchBy);
   }
 }
 
 class _searchTripState extends State<SearchTrip> {
+  String searchBy;
   Icon icon = Icon(Icons.search);
-  Widget appBarTittle = Text(
-    'Tìm kiếm Hành Trình',
-    style: appBarTxTStyle,
-  );
+  Widget appBarTittle = Text('Tìm kiếm Hành Trình', style: appBarTxTStyle);
   TextEditingController _controller = new TextEditingController();
   String _searchText = '';
   bool _searching = true;
@@ -26,12 +26,11 @@ class _searchTripState extends State<SearchTrip> {
   var queryResultSet = [];
   var tmpSearchStore = [];
 
-  _searchTripState() {
+  _searchTripState(this.searchBy) {
     _controller.addListener(() {
       if (_controller.text.isEmpty) {
         setState(() {
           _searchText = '';
-          // do something ?
         });
       } else {
         setState(() {
@@ -44,8 +43,9 @@ class _searchTripState extends State<SearchTrip> {
   @override
   Widget build(BuildContext context) {
     if (!_searching) {
-      return ShowAllTrips(filterState: 0,);
+      return ShowAllTrips(filterState: 0);
     }
+//    debugPrint('Tìm bằng: ${searchBy}');
 
     return Scaffold(
       appBar: AppBar(
@@ -75,53 +75,126 @@ class _searchTripState extends State<SearchTrip> {
                 Icons.close,
                 color: Color(0xff06e2b3),
               ),
-              onPressed: () => _controller.clear())
+              onPressed: () => _controller.clear()
+          ),
+          SearchByButton(),
         ],
       ),
 //      buildBar(context),
       body: _controller.text.isNotEmpty
-            ? StreamBuilder(
-          stream: Firestore.instance.collection('journeys')
-                    .orderBy('jID')
-                    .startAt([_controller.text]).endAt([_controller.text + '\uf8ff'])
-                    .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-            if (snapshots.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child: Text('Loading...',
-                      style: TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.bold)));
-            } else return getListSearchView(snapshots.data.documents);
-          },
-        )
-          : StreamBuilder(
-            stream: Firestore.instance.collection('journeys').snapshots(),
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
-              if (snapshots.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: Text('Loading...',
-                style: TextStyle(
-                fontSize: 30, fontWeight: FontWeight.bold)));
-              } else return getListSearchView(snapshots.data.documents);
+            ?
+      (
+          (searchBy == 'Điểm xuất phát')
+          ?
+          StreamBuilder(
+            stream: FirebaseDatabase.instance.reference().child('trips')
+                .orderByChild('from')
+                .startAt(_controller.text).endAt(_controller.text+'\uf8ff')
+                .onValue,
+            builder: (BuildContext context, AsyncSnapshot snapshots) {
+              if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
+              else {
+                List<dynamic> tripList;
+                DataSnapshot tripSnaps = snapshots.data.snapshot;
+                Map<dynamic, dynamic> map = tripSnaps.value;
+                if (map != null) {
+                  tripList = map.values.toList();
+                  for (int i=0; i<tripList.length; ++i) {
+                    if (tripList[i]['isDeleted'])
+                      tripList.removeAt(i);
+                  }
+                }
+                return getListSearchView(tripList);
+              }
             },
-          ));
+          )
+          :
+//          (
+//            (searchBy == 'Điểm đến')
+//                ?
+            StreamBuilder(
+              stream: FirebaseDatabase.instance.reference().child('trips')
+                      .orderByChild('to')
+                      .startAt(_controller.text).endAt(_controller.text+'\uf8ff')
+                      .onValue,
+              builder: (BuildContext context, AsyncSnapshot snapshots) {
+                if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
+                else {
+                  List<dynamic> tripList;
+                  DataSnapshot tripSnaps = snapshots.data.snapshot;
+                  Map<dynamic, dynamic> map = tripSnaps.value;
+                  if (map != null) {
+                    tripList = map.values.toList();
+                    for (int i=0; i<tripList.length; ++i) {
+                      if (tripList[i]['isDeleted'])
+                        tripList.removeAt(i);
+                    }
+                  }
+                  return getListSearchView(tripList);
+                }
+              },
+            )
+//                : //searchBy == 'Tài xế'
+//            StreamBuilder()
+//          )
+      )
+          :
+      StreamBuilder(
+        stream: FirebaseDatabase.instance.reference().child('trips')
+                .orderByChild('isDeleted').equalTo(false)
+                .onValue,
+        builder: (BuildContext context, AsyncSnapshot snapshots) {
+          if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
+          else {
+            List<dynamic> tripList;
+            DataSnapshot tripSnaps = snapshots.data.snapshot;
+            Map<dynamic, dynamic> map = tripSnaps.value;
+            if (map != null) tripList = map.values.toList();
+            return getListSearchView(tripList);
+          }
+        },
+      )
+
+//            StreamBuilder(
+//              stream:
+//              Firestore.instance.collection('journeys')
+//                        .orderBy('jID')
+//                        .startAt([_controller.text]).endAt([_controller.text + '\uf8ff'])
+//                        .snapshots(),
+//              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshots) {
+//                if (snapshots.connectionState == ConnectionState.waiting) {
+//                  return Center(
+//                      child: Text('Loading...',
+//                          style: TextStyle(
+//                              fontSize: 30, fontWeight: FontWeight.bold)));
+//                } else return getListSearchView(snapshots.data.documents);
+//              },
+//            )
+    );
   }
 
-  Widget getListSearchView(List<DocumentSnapshot> documents) {
+  Widget getListSearchView(documents) {
+    if(documents == null || documents.length == 0)
+      return ListView.separated(
+          itemBuilder: (BuildContext context, int index) {},
+          separatorBuilder: (context, index) {},
+          itemCount: 0
+      );
+
     return ListView.separated(
       itemCount: documents.length,
       itemBuilder: (BuildContext context, int index) {
-        debugPrint('${searchResults.length} in body');
-        String jID = documents[index].documentID;
+        debugPrint('${documents.length} in body');
+        String tID = documents[index]['tID'];
         return InkWell(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-            Container(
+            new Container(
               padding: EdgeInsets.only(left: 15.0, top: 5.0, right: 10.0),
               child: Text(
-                jID,
+                tID,
                 style: const TextStyle(
                   color: const Color(0xff000000),
                   fontFamily: "Roboto",
@@ -160,6 +233,29 @@ class _searchTripState extends State<SearchTrip> {
       separatorBuilder: (context, index) {
         return Divider();
       },
+    );
+  }
+
+  Widget SearchByButton() {
+    final List<String> _searchBy = [
+      'Điểm xuất phát',
+      'Điểm đến',
+//      'Tài xế',
+    ];
+
+    return PopupMenuButton(
+      itemBuilder: (context) => _searchBy.map((option) => PopupMenuItem(
+        value: option,
+        child: Text(option),
+      )).toList(),
+      initialValue: _searchBy.first,
+      onSelected: (value) {
+        debugPrint('search by ${value}');
+        setState(() {
+          searchBy = value;
+        });
+      },
+      icon: Icon(Icons.arrow_drop_down_circle, color: Color(0xff06e2b3),),
     );
   }
 }

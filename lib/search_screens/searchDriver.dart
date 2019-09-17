@@ -88,8 +88,7 @@ class _searchDriverState extends State<SearchDriver> {
           stream:
             FirebaseDatabase.instance.reference().child('driver')
                 .orderByChild('basicInfo/name')
-                .startAt(_controller.text)
-                .endAt(_controller.text + '\uf8ff')
+                .startAt(_controller.text).endAt(_controller.text + '\uf8ff')
                 .onValue,
           builder: (BuildContext context, AsyncSnapshot snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
@@ -118,24 +117,20 @@ class _searchDriverState extends State<SearchDriver> {
           stream: FirebaseDatabase.instance.reference().child('driver')
               .orderByChild('isDeleted').equalTo(false)
               .onValue,
-          builder: (BuildContext context, snapshots) {
-            if (snapshots.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child: Text('Loading...',
-                      style: TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.bold)));
-            }
+          builder: (BuildContext context, AsyncSnapshot snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
             else {
               List<dynamic> driverList;
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
-              driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+              if (map != null) driverList = map.values.toList();//..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
 
               return  getListSearchView(driverList);
             }
           },
-        ));
+        )
+    );
   }
 
   Widget getListSearchView(documents) {

@@ -84,4 +84,8 @@ BoxDecoration evenLineDetails() {
 
 const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
+//var dropdownStyle = TextStyle(color: Colors.white, fontSize: 15,);
+
+var LoadingState = Center(child: Text('Loading...', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+
 

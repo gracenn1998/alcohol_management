@@ -42,7 +42,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
   Widget build(BuildContext context) {
     if (_searching) {
       _searching = false;
-      return SearchTrip();
+      return SearchTrip(searchBy: 'Điểm xuất phát',);
     }
 
     return Scaffold(
@@ -114,10 +114,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
           .onValue,
       builder:(BuildContext context, snapshots) {
         if (snapshots.connectionState == ConnectionState.waiting) {
-          return Center(
-              child: Text('Loading...',
-                style: tempStyle,
-              ));
+          return LoadingState;
         }
         else if(snapshots.hasData) {
           List<dynamic> tripList = [];
@@ -125,46 +122,46 @@ class _showAllTripsState extends State<ShowAllTrips> {
           DataSnapshot tripSnaps = snapshots.data.snapshot;
           Map<dynamic, dynamic> map = tripSnaps.value;
 
-
-
           switch (filter) {
             case 0:
-              for(var tripItem in map.values) {
-                if(!tripItem['isDeleted']) {
-                  tripList.add(tripItem);
-                }
-              }
+//              for(var tripItem in map.values) {
+//                if(!tripItem['isDeleted']) {
+//                  tripList.add(tripItem);
+//                }
+//              }
+              tripList = map.values.toList();
               break;
             case 1: //done
               for(var tripItem in map.values) {
-                if(tripItem['status'] == 'done' && !tripItem['isDeleted']) {
+                if(tripItem['status'] == 'done') {
                   tripList.add(tripItem);
                 }
               }
               break;
             case 2: //working
               for(var tripItem in map.values) {
-                if(tripItem['status'] == 'working' && !tripItem['isDeleted']) {
+                if(tripItem['status'] == 'working') {
                   tripList.add(tripItem);
                 }
               }
               break;
-            case 1: //notStarted
+            case 3: //notStarted
               for(var tripItem in map.values) {
-                if(tripItem['status'] == 'notStarted' && !tripItem['isDeleted']) {
+                if(tripItem['status'] == 'notStarted') {
                   tripList.add(tripItem);
                 }
               }
               break;
           }
           //sort by tID
-          tripList..sort((a, b) => b['tID'].compareTo(a['tID']));
+          tripList.sort((a, b) => b['tID'].compareTo(a['tID']));
           return getListTripView(tripList);
         }
 
       },
     );
   }
+
   Widget getListTripView(document) {
     var listView = ListView.separated(
       itemCount: document.length,
@@ -216,8 +213,8 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                 color: Color(0xff0A2463),
                                 onPressed: () {
                                   //Xoa journey
-                                  debugPrint("Delete journey ${document[index].documentID} tapped");
-                                  confirmDelete(context, document[index].documentID);
+                                  debugPrint("Delete journey ${document[index]['tID']} tapped");
+                                  confirmDelete(context, document[index]['tID']);
                                 },
                               ),
                             ))
@@ -406,7 +403,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
   void confirmDelete(BuildContext context, id) {
     var confirmDialog = AlertDialog(
-      title: Text('Bạn muốn xóa hành trình này?'),
+      title: Text('Bạn muốn xóa hành trình ${id}?'),
       content: null,
       actions: <Widget>[
         FlatButton(
@@ -423,6 +420,9 @@ class _showAllTripsState extends State<ShowAllTrips> {
               'isDeleted': true
             });
             Fluttertoast.showToast(msg: 'Đã xóa tài xế');
+            setState(() {
+
+            });
           },
           child: Text(
             'Xóa',
@@ -475,7 +475,7 @@ class filterDialog extends StatefulWidget {
 
 class _filterDialogState extends State<filterDialog> {
   _filterDialogState();
-  int _curentIndex = 1;
+  int _currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -490,18 +490,18 @@ class _filterDialogState extends State<filterDialog> {
           RadioListTile(
               title: Text('Đã hoàn thành'),
               value: 1,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
           RadioListTile(
               title: Text('Đang làm việc'),
               value: 2,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
           RadioListTile(
               title: Text('Chưa bắt đầu'),
               value: 3,
-              groupValue: _curentIndex,
-              onChanged: (int val) => setState(() => _curentIndex = val)),
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
         ],
       ),
       actions: <Widget>[
@@ -511,10 +511,10 @@ class _filterDialogState extends State<filterDialog> {
         ),
         FlatButton(
           onPressed: () {
-            debugPrint('Lọc r show kq theo ${_curentIndex}');
+            debugPrint('Lọc r show kq theo ${_currentIndex}');
             Navigator.pushReplacement(
                 context, 
-                MaterialPageRoute(builder: (context) => ShowAllTrips(filterState: _curentIndex,)));
+                MaterialPageRoute(builder: (context) => ShowAllTrips(filterState: _currentIndex,)));
           },
           child: Text(
             'Xong',

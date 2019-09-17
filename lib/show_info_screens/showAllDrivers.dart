@@ -67,12 +67,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               .onValue,
           builder: (BuildContext context, snapshots) {
             if(!snapshots.hasData) {
-              return Center(
-                child: Text(
-                  'Loading...',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                )
-              );
+              return LoadingState;
             }
             else if(snapshots.hasData) {
               List<dynamic> driverList;
