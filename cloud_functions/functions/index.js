@@ -28,15 +28,14 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
                             },
                             data : {
                                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
-                                'lastNotiTime' : lastNotiTime.toString(),
                                 'dID' : dID.toString(),
                                 'tripID' : curTripID.toString()
                             }
                         }
                     //send noti
+                    lastNotiTime = curTime.getTime();
                     admin.messaging().sendToTopic('alcoholTracking', msg).then((response) => {
                         console.log("Success", response);
-                        lastNotiTime = curTime.getTime();
                         admin.database().ref("/driver/" + dID).update({lastNotiTime});
                     })
                     .catch((error) => {
@@ -49,7 +48,7 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
                     admin.database().ref("/bnotification/" + notiID).set({
                         body: "Tài xế " + dID + " có dấu hiệu vượt mức nồng độ cồn",
                         dID : dID,
-                        isTapped: false,
+                        isSolved: false,
                         timeCreated: lastNotiTime,
                         tripID: curTripID
                     })
