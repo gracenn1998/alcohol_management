@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import "package:flutter/material.dart";
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:intl/intl.dart';
+import 'package:alcohol_management/show-trip-details/showTripDetails.dart';
 
 class NotiScreen extends StatefulWidget {
   const NotiScreen() : super();
@@ -69,10 +70,13 @@ class _NotiScreenState extends State<NotiScreen> {
         String timeCreated = "$t";
         return InkWell(
           onTap: () {
-            setState(() {
-              _selectedNoti = notiSnaps[index]['dID'];
-              notiIsTapped = 0;
-            });
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowTripDetails(
+                    key: PageStorageKey('showInfo'),
+                    tID: notiSnaps[index]['tripID']))
+            );
+            notiIsTapped = 0;
           },
           child: Container(
             color: notiSnaps[index]['isSolved'] ? Colors.white : Color(

@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
 
 class WorkingTripDetail_NV extends StatefulWidget{
   final tID;
@@ -261,85 +262,95 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
 
   Widget DriverInfo(driver){
-    return Container(
-        height: 120.0,
-        color: Colors.white,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(left: 15.0),
-                child: CircleAvatar(
-                  radius: 45.0,
-                  backgroundImage: AssetImage('images/avatar.png'),
-                )), // Avatar
+    return InkWell(
+      child: Container(
+          height: 120.0,
+          color: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: CircleAvatar(
+                    radius: 45.0,
+                    backgroundImage: AssetImage('images/avatar.png'),
+                  )), // Avatar
 
-            Container(
-                padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(driver['basicInfo']['name'],
-                          style: driverNameStyleinJD()),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text("Chỉ số cồn ",
-                          style: timeStyleinJD()),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text("Ban đầu: ",
-                              style: driverStatusTitleStyle(0)),
-                          Text("100", //need dynamic data
-                              style: driverStatusDataStyle(0)),
-                        ],
+              Container(
+                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(driver['basicInfo']['name'],
+                            style: driverNameStyleinJD()),
                       ),
-                    ),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text("Chỉ số cồn ",
+                            style: timeStyleinJD()),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 5.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text("Ban đầu: ",
+                                style: driverStatusTitleStyle(0)),
+                            Text("100", //need dynamic data
+                                style: driverStatusDataStyle(0)),
+                          ],
+                        ),
+                      ),
 
-                    Row(
-                      children: <Widget>[
-                        Text("Hiện tại: ",
-                            style: driverStatusTitleStyle(0)),
-                        Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
-                      ],
-                    )
+                      Row(
+                        children: <Widget>[
+                          Text("Hiện tại: ",
+                              style: driverStatusTitleStyle(0)),
+                          Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                        ],
+                      )
 
 
-                  ],
-                )),
-            //Ten + Trang thai
-            Expanded(
+                    ],
+                  )),
+              //Ten + Trang thai
+              Expanded(
 
-              //padding: EdgeInsets.only(left: 5.0),
-              child: Container(
-                child: RaisedButton(
-                  child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
-                  color: Color(0xffef3964),
-                  onPressed: () {
+                //padding: EdgeInsets.only(left: 5.0),
+                child: Container(
+                  child: RaisedButton(
+                    child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
+                    color: Color(0xffef3964),
+                    onPressed: () {
 
-                    print("XULYYYYYYYYyyy");
-                    //  heightOfJourneyInfo();
-                    //   print(JourneyInfoHeight);
-                    //
+                      print("XULYYYYYYYYyyy");
+                      //  heightOfJourneyInfo();
+                      //   print(JourneyInfoHeight);
+                      //
 //                      final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
 //                      final sizeRed = renderBoxRed.size;
 //                      print("SIZE of Red: ${sizeRed.height} ");
-                  },
+                    },
+                  ),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.only(left: 30.0),
-            )
-          ],
-        )
+              Container(
+                padding: EdgeInsets.only(left: 30.0),
+              )
+            ],
+          )
+      ),
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ShowDriverInfo(
+                key: PageStorageKey('showInfo'),
+                dID: driver['dID']))
+        );
+      },
     );
   }
 

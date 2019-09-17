@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:alcohol_management/show_info_screens/showAllDrivers.dart';
 import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import "../show_info_screens/showDriverInfoScreen.dart";
+//import "../show_info_screens/showDriverInfoScreen.dart";
 import 'package:alcohol_management/notification.dart';
+import '../show-trip-details/showTripDetails.dart';
 
 class ManagerMenu extends StatefulWidget {
   ManagerMenu ({Key key}) : super (key:key);
@@ -65,19 +66,16 @@ class _ManagerMenuState extends State<ManagerMenu>{
               ),
               actions: <Widget>[
                 FlatButton(
-                  child: Text('Xem thông tin tài xế'), //sau chỉnh thành thông tin hành trình
+                  child: Text('Xem thông tin hành trình đang chạy'),
                   onPressed: () {
-//                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ShowDriverInfo(
-                                  key: PageStorageKey("showInfo"),
-                                  dID: msg['data']['dID'],
-                                )
-                        )
+                        MaterialPageRoute(builder: (context) => ShowTripDetails(
+                            key: PageStorageKey('showInfo'),
+                            tID: msg['data']['tripID']))
                     );
+
 //                    Navigator.of(context).pop();
                     if (notiCount > 0 ){
                       notiCount--;
@@ -102,13 +100,9 @@ class _ManagerMenuState extends State<ManagerMenu>{
         });
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ShowDriverInfo(
-                      key: PageStorageKey("showInfo"),
-                      dID: msg['data']['dID'],
-                    )
-            )
+            MaterialPageRoute(builder: (context) => ShowTripDetails(
+                key: PageStorageKey('showInfo'),
+                tID: msg['data']['tripID']))
         );
       },
       onLaunch: (Map<String, dynamic> msg) {
@@ -116,6 +110,12 @@ class _ManagerMenuState extends State<ManagerMenu>{
         setState(() {
           notiCount++;
         });
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ShowTripDetails(
+                key: PageStorageKey('showInfo'),
+                tID: msg['data']['tripID']))
+        );
       },
     );
 
