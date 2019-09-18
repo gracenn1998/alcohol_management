@@ -21,10 +21,6 @@ class _MyBottomMenuState extends State<MyBottomMenu>{
       filterState: 0,
     ),
     Text(
-      'Nhan Vien',
-      style: optionStyle,
-    ),
-    Text(
       'Thong Bao',
       style: optionStyle,
     ),

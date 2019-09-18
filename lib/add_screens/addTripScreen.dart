@@ -17,14 +17,26 @@ class _AddTripState extends State<AddTrip> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   final _schController = TextEditingController();
-  final _driverIDController = TextEditingController();
+  var streamSub;
+  var latestID, newID;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    streamSub = FirebaseDatabase.instance.reference().child('trips')
+        .onChildAdded.listen((data) {
+       latestID = data.snapshot.value['tID'];
+       newID = getNewTripID(latestID);
+    });
+  }
 
   void dispose() {
     // Clean up the controller when the Widget is disposed
     _fromController.dispose();
     _toController.dispose();
     _schController.dispose();
-    _driverIDController.dispose();
+    streamSub.cancel();
     super.dispose();
   }
 
@@ -103,7 +115,6 @@ class _AddTripState extends State<AddTrip> {
                 fillDetailInfo('Từ', 1, _fromController),
                 fillDetailInfo('Đến', 0, _toController),
                 fillDetailInfo('Thời gian bắt đầu dự kiến', 1, _schController),
-                fillDetailInfo('Mã tài xế', 0, _driverIDController),
               ],
             )
         )
@@ -155,42 +166,19 @@ class _AddTripState extends State<AddTrip> {
     var isAddCalled = false;
     var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
     schMilli+=3600000; //no idea :(
-    String lastID, newID;
-
-    await FirebaseDatabase.instance.reference().child('trips').once().then((trips) {
-      Map<dynamic, dynamic> map = trips.value;
-      List<dynamic> list = map.values.toList()..sort((a, b) => b['dID'].compareTo(a['dID']));
-
-      lastID = list[0]['tID'];
-    });
-
-    //set new id
-    newID = getNewTripID(lastID);
-
-    //listen if have changes
-    var streamSub = FirebaseDatabase.instance.reference().child('trips')
-        .onChildAdded.listen((trip){
-      if(!isAddCalled) {
-        lastID = trip.snapshot.value['dID'];
-        newID = getNewTripID(lastID);
-      }
-
-    });
 
     FirebaseDatabase.instance.reference().child('trips').child(newID)
         .set({
       'tID' : newID,
       'isDeleted' : false,
       'schStart' : schMilli,
-      'deleted': false,
       'from': _fromController.text,
       'to': _toController.text,
-      'dID': _driverIDController.text,
       'status': 'notStarted',
     }).then((data) {
       streamSub.cancel();
     });
-    isAddCalled = true;
+//    isAddCalled = true;
   }
 
 

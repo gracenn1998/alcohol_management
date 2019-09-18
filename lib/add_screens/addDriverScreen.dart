@@ -23,6 +23,23 @@ class _AddDriver extends State<AddDriver> {
 
   DocumentSnapshot driver;
 
+  var streamSub;
+  var latestID, newID;
+  var isAddCalled = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    streamSub = FirebaseDatabase.instance.reference().child('driver')
+        .onChildAdded.listen((data) {
+          if(!isAddCalled) {
+            latestID = data.snapshot.value['dID'];
+            newID = generateNewDriverID(latestID);
+          }
+    });
+  }
+
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
@@ -198,36 +215,13 @@ class _AddDriver extends State<AddDriver> {
   }
 
   void addDataDTB () async {
-    var isAddCalled = false;
     var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
-    String lastID, newID;
-    //get last driver id
-
-    await FirebaseDatabase.instance.reference().child('driver').orderByKey().once().then((driver) {
-      Map<dynamic, dynamic> map = driver.value;
-      List<dynamic> list = map.values.toList()..sort((a, b) => b['dID'].compareTo(a['dID']));
-
-      lastID = list[0]['dID'];
-    });
-
-    //set new id
-    newID = generateNewDriverID(lastID);
-
-    //listen if have changes
-    var streamSub = FirebaseDatabase.instance.reference().child('driver')
-        .onChildAdded.listen((driver){
-          if(!isAddCalled) {
-            lastID = driver.snapshot.value['dID'];
-            newID = generateNewDriverID(lastID);
-          }
-
-        });
-
 
     FirebaseDatabase.instance.reference().child('driver').child(newID)
         .set({
           'dID' : newID,
           'isDeleted' : false,
+          'alcoholVal' : -1,
     }).then((data) {
       streamSub.cancel();
       FirebaseDatabase.instance.reference().child('driver').child(newID).child('basicInfo')

@@ -4,61 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../show-trip-details/showTripDetails.dart';
-import '../add_screens/addTripScreen.dart';
+import '../driver_only/showTripDetails.dart';
 
-class ShowAllTrips extends StatefulWidget {
-  final filterState;
-  const ShowAllTrips({Key key, @required this.filterState}) : super(key: key);
+class ShowTasks extends StatefulWidget {
+  final String dID;
+  const ShowTasks({Key key, @required this.dID}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _showAllTripsState(filterState);
+    return _showTasksState(dID);
   }
 }
 
-class _showAllTripsState extends State<ShowAllTrips> {
-  int filterState;
-  _showAllTripsState(this.filterState);
+class _showTasksState extends State<ShowTasks> {
+  String dID;
+  _showTasksState(this.dID);
 
-  String _selectedTripID = null;
-  int _selectedFuction = 0;
   bool _searching = false;
-
-//  if (_selectedTripID != null)
-//  {
-//    String id = _selectedTripID;
-//    _selectedTripID = null;
-//    return showInfoTrip(
-//      jID = id,
-//    );
-//  }
-
-//  if (_selectedFuction == 1)
-//  {
-//    return AddTrip();
-//  }
 
   @override
   Widget build(BuildContext context) {
     if (_searching) {
       _searching = false;
-      return SearchTrip(searchBy: 'Điểm xuất phát',);
+      return SearchTrip();
     }
 
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back), 
-              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
-              onPressed: () {
-                debugPrint('back');
-//                if (filterState > 0) Navigator.pop(context);
-                if (filterState > 0) setState(() {
-                  filterState = 0;
-                });
-          }),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[
@@ -68,104 +41,44 @@ class _showAllTripsState extends State<ShowAllTrips> {
               color: Color(0xff06e2b3),
               onPressed: () {
                 debugPrint('Tim kiem hanh trinh');
-                  setState(() {
-                    _searching = true;
-                  });
+                setState(() {
+                  _searching = true;
+                });
               },
             )
           ],
         ),
-        body: display(filterState),
-        floatingActionButton: Container(
-          padding: EdgeInsets.only(bottom: 1.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              FloatingActionButton(
-                  heroTag: 'filter_trip',
-                  child: Icon(Icons.filter_list),
-                  tooltip: 'Lọc',
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xff8391b3),
-                  onPressed: () => showDialog(
-                      context: context, builder: (context) => filterDialog())),
-              Container(
-                padding: EdgeInsets.only(left: 2.5, right: 2.5),
-              ),
-              FloatingActionButton(
-                heroTag: 'add_trip',
-                child: Icon(Icons.add),
-                tooltip: 'Thêm hành trình',
-                backgroundColor: Color(0xffef3964),
-                foregroundColor: Colors.white,
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AddTrip())
-                  );
-                },
-              ),
-            ],
-          ),
-        ));
-  }
+        body: StreamBuilder(
+          stream: FirebaseDatabase.instance.reference().child('trips')
+              .orderByChild('dID').equalTo(dID)
+              .onValue,
+          builder:(BuildContext context, snapshots) {
+            if (snapshots.connectionState == ConnectionState.waiting) {
+              return Center(
+                  child: Text('Loading...',
+                    style: tempStyle,
+                  ));
+            }
+            else if(snapshots.hasData) {
+              List<dynamic> tripList = [];
 
-  Widget display(int filter) {
-    return StreamBuilder(
-      stream: FirebaseDatabase.instance.reference().child('trips')
-          .orderByChild('isDeleted').equalTo(false)
-          .onValue,
-      builder:(BuildContext context, snapshots) {
-        if (snapshots.connectionState == ConnectionState.waiting) {
-          return LoadingState;
-        }
-        else if(snapshots.hasData) {
-          List<dynamic> tripList = [];
+              DataSnapshot tripSnaps = snapshots.data.snapshot;
+              Map<dynamic, dynamic> map = tripSnaps.value;
 
-          DataSnapshot tripSnaps = snapshots.data.snapshot;
-          Map<dynamic, dynamic> map = tripSnaps.value;
-
-          switch (filter) {
-            case 0:
-//              for(var tripItem in map.values) {
-//                if(!tripItem['isDeleted']) {
-//                  tripList.add(tripItem);
-//                }
-//              }
-              tripList = map.values.toList();
-              break;
-            case 1: //done
               for(var tripItem in map.values) {
-                if(tripItem['status'] == 'done') {
+                if(!tripItem['isDeleted'] && tripItem['status']=='notStarted') {
                   tripList.add(tripItem);
                 }
               }
-              break;
-            case 2: //working
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'working') {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-            case 3: //notStarted
-              for(var tripItem in map.values) {
-                if(tripItem['status'] == 'notStarted') {
-                  tripList.add(tripItem);
-                }
-              }
-              break;
-          }
-          //sort by tID
-          tripList.sort((a, b) => b['tID'].compareTo(a['tID']));
-          return getListTripView(tripList);
-        }
+              //sort by tID
+              tripList..sort((a, b) => a['schStart'].compareTo(b['schStart']));
+              return getListTripView(tripList);
+            }
 
-      },
+          },
+        ),
     );
   }
-
   Widget getListTripView(document) {
     var listView = ListView.separated(
       itemCount: document.length,
@@ -202,26 +115,10 @@ class _showAllTripsState extends State<ShowAllTrips> {
                             child: Container(
                               padding: EdgeInsets.only(left: 10.0, top: 5.0),
                               child:
-                                  getStatusTrip(document[index]['status']),
+                              getStatusTrip(document[index]['status']),
                             ),
                             flex: 2,
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              padding: EdgeInsets.only(top: 5.0),
-                              alignment: Alignment.topRight,
-                              child: IconButton(
-                                icon: Icon(Icons.delete),
-                                iconSize: 30.0,
-                                color: Color(0xff0A2463),
-                                onPressed: () {
-                                  //Xoa journey
-                                  debugPrint("Delete journey ${document[index]['tID']} tapped");
-                                  confirmDelete(context, document[index]['tID']);
-                                },
-                              ),
-                            ))
                         ],
                       ),
                     )
@@ -269,7 +166,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
                               size: 23.0,
                             ),
                             document[index]['dID'] != null
-                            ? StreamBuilder(
+                                ? StreamBuilder(
                               stream: FirebaseDatabase.instance.reference().child('driver')
                                   .orderByChild('dID').equalTo(document[index]['dID'])
                                   .onValue,
@@ -319,18 +216,18 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
                               },
                             ): Container(
-                              constraints: BoxConstraints(maxWidth: 170),
-                              padding: EdgeInsets.only(left: 5.0),
-                              child: Text(
-                                "Chưa phân công",
-                                style: TextStyle(
-                                    color: Color(0xffef3964),
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: "Roboto",
-                                    fontStyle: FontStyle.normal,
-                                    fontSize: 20.0),
-                                overflow: TextOverflow.ellipsis,
-                              )),
+                                constraints: BoxConstraints(maxWidth: 170),
+                                padding: EdgeInsets.only(left: 5.0),
+                                child: Text(
+                                  "Chưa phân công",
+                                  style: TextStyle(
+                                      color: Color(0xffef3964),
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: "Roboto",
+                                      fontStyle: FontStyle.normal,
+                                      fontSize: 20.0),
+                                  overflow: TextOverflow.ellipsis,
+                                )),
                           ],
                         ),
                       ),
@@ -389,7 +286,7 @@ class _showAllTripsState extends State<ShowAllTrips> {
                       flex: 1,
                       child: Container(
                         padding:
-                            EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
+                        EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                         child: Text(
                           document[index]['to'],
                           style: TextStyle(
@@ -423,43 +320,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
     return listView;
   }
 
-  void confirmDelete(BuildContext context, id) {
-    var confirmDialog = AlertDialog(
-      title: Text('Bạn muốn xóa hành trình ${id}?'),
-      content: null,
-      actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
-        FlatButton(
-          onPressed: () {
-            Navigator.pop(context);
-            FirebaseDatabase.instance.reference()
-                .child('trips')
-                .child(id)
-                .update({
-              'isDeleted': true
-            });
-            Fluttertoast.showToast(msg: 'Đã xóa tài xế');
-            setState(() {
-
-            });
-          },
-          child: Text(
-            'Xóa',
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
-    );
-
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) => confirmDialog);
-  }
-
   String formattedDate(data) {
     final df = new DateFormat('dd/MM/yyyy');
     var formatted = df.format(DateTime.fromMillisecondsSinceEpoch(data))
@@ -483,68 +343,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
         'Đã hoàn thành',
         style: tripStatusStyle(0),
       );
-  }
-}
-
-class filterDialog extends StatefulWidget {
-  const filterDialog({Key key}) : super(key: key);
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _filterDialogState();
-  }
-}
-
-class _filterDialogState extends State<filterDialog> {
-  _filterDialogState();
-  int _currentIndex = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return AlertDialog(
-      title: Text('Lọc'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text("Trạng thái"),
-          RadioListTile(
-              title: Text('Đã hoàn thành'),
-              value: 1,
-              groupValue: _currentIndex,
-              onChanged: (int val) => setState(() => _currentIndex = val)),
-          RadioListTile(
-              title: Text('Đang làm việc'),
-              value: 2,
-              groupValue: _currentIndex,
-              onChanged: (int val) => setState(() => _currentIndex = val)),
-          RadioListTile(
-              title: Text('Chưa bắt đầu'),
-              value: 3,
-              groupValue: _currentIndex,
-              onChanged: (int val) => setState(() => _currentIndex = val)),
-        ],
-      ),
-      actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Hủy'),
-        ),
-        FlatButton(
-          onPressed: () {
-            debugPrint('Lọc r show kq theo ${_currentIndex}');
-            Navigator.pushReplacement(
-                context, 
-                MaterialPageRoute(builder: (context) => ShowAllTrips(filterState: _currentIndex,)));
-          },
-          child: Text(
-            'Xong',
-            style: TextStyle(color: Colors.red),
-          ),
-        )
-      ],
-    );
   }
 }
 

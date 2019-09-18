@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:alcohol_management/show_info_screens/driver_showTrips.dart';
-import 'package:alcohol_management/show_info_screens/driver_showHistory.dart';
+//import 'package:alcohol_management/show_info_screens/driver_showTrips.dart';
+import '../driver_only/profile.dart';
+import '../driver_only/show_tasks.dart';
+import '../driver_only/show_history.dart';
+import '../driver_only/WorkingTripDetail.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DriverMenu extends StatefulWidget {
-  DriverMenu ({Key key}) : super (key:key);
+  final String dID;
+  DriverMenu ({Key key, @required this.dID}) : super (key:key);
   @override
-  _DriverMenuState createState() => _DriverMenuState();
+  _DriverMenuState createState() => _DriverMenuState(dID);
 }
 
 class _DriverMenuState extends State<DriverMenu>{
+  String dID;
+  _DriverMenuState(this.dID);
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    DriverShowTrips(),
-    DriverShowHistory(),
-    Text(
-      'Thong Bao',
-      style: optionStyle,
-    ),
-    Text(
-      'Ca Nhan',
-      style: optionStyle,
-    ),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -33,6 +29,25 @@ class _DriverMenuState extends State<DriverMenu>{
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _widgetOptions = <Widget>[
+      ShowTasks(
+        dID: dID,
+      ),
+      D_WorkingTripDetail(
+        dID: dID,
+      ),
+      Text(
+        'Thong Bao',
+        style: optionStyle,
+      ),
+      ShowDriverInfo(
+        dID: dID,
+      ),
+      ShowHistory(
+        dID: dID,
+      ),
+    ];
+
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -41,12 +56,12 @@ class _DriverMenuState extends State<DriverMenu>{
         type : BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_library),
-            title: Text('Hành trình'),
+            icon: Icon(Icons.list),
+            title: Text('Danh sách'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            title: Text('Lịch sử'),
+            icon: Icon(Icons.local_library),
+            title: Text('Hành trình'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
@@ -55,6 +70,10 @@ class _DriverMenuState extends State<DriverMenu>{
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             title: Text('Cá nhân'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            title: Text('Lịch sử'),
           ),
         ],
         backgroundColor: Colors.white,

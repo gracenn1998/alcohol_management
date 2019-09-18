@@ -21,7 +21,8 @@ class EditTripState extends State<EditTrip> {
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
   final _schController = TextEditingController();
-  final _driverIDController = TextEditingController();
+//  final _driverIDController = TextEditingController();
+//  final _vehicleIDController = TextEditingController();
   var trip;
 
   void dispose() {
@@ -29,17 +30,12 @@ class EditTripState extends State<EditTrip> {
     _fromController.dispose();
     _toController.dispose();
     _schController.dispose();
-    _driverIDController.dispose();
+//    _driverIDController.dispose();
     super.dispose();
   }
 
   Widget build(BuildContext bc)
   {
-    if(_selectedIndex == -1) {
-      return Center(
-        child: Text("Detail Screen"),
-      );
-    }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -47,9 +43,7 @@ class EditTripState extends State<EditTrip> {
           color: Color(0xff06E2B3),
           onPressed: () {
             //backkkk
-            setState(() {
-              _selectedIndex--;
-            });
+            Navigator.of(context).pop();
           },
         ),
         title:  Center(child: Text('Chỉnh sửa hành trình', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -61,16 +55,7 @@ class EditTripState extends State<EditTrip> {
               color: Color(0xff06E2B3),
               onPressed: () {
                 //confirm edit
-                var confirmed = 1;
-                if(confirmed == 1) {
-                  editDataDTB(trip);
-                  Fluttertoast.showToast(msg: 'Đã thay đổi thông tin hành trình');
-                  setState(() {
-                    _selectedIndex--;
-                  });
-//                dispose();
-                }
-
+                confirmEdit(context);
               },
             ),
           ),
@@ -85,7 +70,7 @@ class EditTripState extends State<EditTrip> {
           trip = snapshot.data.snapshot.value;
           _toController.text = trip['to'];
           _fromController.text = trip['from'];
-          _driverIDController.text = trip['dID'];
+//          _driverIDController.text = trip['dID'];
 
 //          final df = new DateFormat('dd/MM/yyyy hh:mm');
 //          var formattedStartTime = df.parse(trip['schStart']);
@@ -140,13 +125,14 @@ class EditTripState extends State<EditTrip> {
             child: Column(
               children: <Widget>[
                 showDetailItem('ID', id, 1, 'normal'),
-                editDetailItem("Mã tài xế", _driverIDController, 0, 'normal'),
-                editDetailItem('Từ', _fromController, 1, 'normal'),
-                editDetailItem('Đến', _toController, 0, 'normal'),
-                editDetailItem('TG dự kiến', _schController, 1, 'normal'),
-                showDetailItem('TG bắt đầu', start, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('TG kết thúc', finish, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('Trạng Thái', status, 0, Tstatus),
+//                editDetailItem("Mã tài xế", _driverIDController, 0, 'normal'),
+//                editDetailItem("Mã phương tiện", _vehicleIDController, 1, 'normal'),
+                editDetailItem('Từ', _fromController, 0, 'normal'),
+                editDetailItem('Đến', _toController, 1, 'normal'),
+                editDetailItem('TG dự kiến', _schController, 0, 'normal'),
+//                showDetailItem('TG bắt đầu', start, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
+//                showDetailItem('TG kết thúc', finish, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
+//                showDetailItem('Trạng Thái', status, 1, Tstatus),
               ],
             )
         )
@@ -244,7 +230,7 @@ class EditTripState extends State<EditTrip> {
 
 
 
-  void editDataDTB(trip) {
+  void editDataDTB() {
     var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
     schMilli+=3600000; //no idea :(
 
@@ -254,9 +240,17 @@ class EditTripState extends State<EditTrip> {
         .update({
       'from': _fromController.text,
       'to': _toController.text,
-      'dID': _driverIDController.text,
+//      'dID': _driverIDController.text,
       'schStart': schMilli,
+//      'vID': _vehicleIDController.text,
     });
+
+//    FirebaseDatabase.instance.reference().child('vehicles').child(trip['vID']).update(
+//        {
+////          'dID': _driverIDController.text,
+//          'tID': tID
+//        }
+//    );
 
     //need transaction?
 
@@ -336,6 +330,35 @@ class EditTripState extends State<EditTrip> {
         return "Đang đi???";
     }
     return null;
+  }
+
+  void confirmEdit(BuildContext context) {
+    var confirmDialog = AlertDialog(
+      title: Text('Bạn muốn thay đổi thông tin hành trình này?'),
+      content: null,
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
+        FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+            editDataDTB();
+            Fluttertoast.showToast(msg: 'Đã thay đổi thông tin hành trình');
+          },
+          child: Text(
+            'Xác nhận',
+            style: TextStyle(color: Colors.red),
+          ),
+        )
+      ],
+    );
+
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) => confirmDialog);
   }
 
 }

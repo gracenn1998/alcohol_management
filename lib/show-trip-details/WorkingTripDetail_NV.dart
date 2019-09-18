@@ -4,6 +4,8 @@ import '../styles/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class WorkingTripDetail_NV extends StatefulWidget{
   final tID;
@@ -51,26 +53,34 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
        return allMarkers;
   }
 
-  Widget buildMap(driver){
+  List<AlcoholLog> alcoholLogData = [];
+  var streamSub;
+  double chartWidth = 350;
+  int itemCnt = 0;
+
+
+  DateTime _time;
+  Map<String, num> _measures;
+
+  Widget buildMap(location){
 
     //print("buildMap: $driver");
     //print("buildMap: $allMarkers");
-    if (driver['lat'] != null && mapCreated == 1)
+    if (location['lat'] != null && mapCreated == 1)
       mapController.moveCamera(
-          CameraUpdate.newLatLng(LatLng(driver['lat'], driver['lng']))
+          CameraUpdate.newLatLng(LatLng(location['lat'], location['lng']))
       );
-
     return new GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
         target:
-        driver == null ?
+        location == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(driver['lat'], driver['lng']), //user location
+        LatLng(location['lat'], location['lng']), //user location
         zoom: 15.0,
       ),
-      markers: modifyMarker(driver['lat'], driver['lng']),
+      markers: modifyMarker(location['lat'], location['lng']),
       onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
         await addToList(_trip);
@@ -113,9 +123,10 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
           icon: Icon(Icons.arrow_back_ios),
           color: Color(0xff06E2B3),
           onPressed: () {
-            setState(() {
-              _selectedIndex--;
-            });
+//            setState(() {
+//              _selectedIndex--;
+//            });
+            Navigator.of(context).pop();
           }, //BACKKKKK
         ),
         actions: <Widget>[
@@ -159,11 +170,17 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
           children: <Widget>[
             new Container(
               color: Colors.white,
+              height: 300,
               constraints: BoxConstraints.expand(
                   height: constraints.biggest.height - 120.0
               ),
             ),
-            TripInfo(_trip),
+            Container(
+              height: 200,
+              child: SingleChildScrollView(
+                child: TripInfo(_trip),
+              ),
+            ),
             new PositionedTransition(
               rect: animation,
               child: new Material(
@@ -173,24 +190,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                 elevation: 12.0,
                 child: new Column(children: <Widget>[
                   new Expanded(
-                    child:
-                    StreamBuilder(
-                      stream: FirebaseDatabase.instance.reference()
-                          .child('driver').child(_trip['dID']).onValue,
-                      builder: (BuildContext context, snapshot){
-                        if(!snapshot.hasData)
-                        {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        else if(snapshot.hasData){
-                          var driver = snapshot.data.snapshot.value;
-                          //print("_buildStack: Listen on driver location changed: $driver");
-
-                          return buildMap(driver);
-                        }
-                      },
-
-                    ),
+                    child: buildMap(_trip['location'])
                   ),
                 ]),
               ),
@@ -212,6 +212,28 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
    /* PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
         .then(_updateStatus);*/
 
+    //for generating chart
+    streamSub = FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child('HT0003') //need change
+        .child('alcoholLog')
+        .onChildAdded.listen((alcoholLogSnap){
+
+      var alcoVal = alcoholLogSnap.snapshot.value;
+      var alcoTime = alcoholLogSnap.snapshot.key.toString();
+      var yyyy, MM, dd, hh, mm;
+      yyyy = int.parse(alcoTime.substring(0, 4));
+      MM = int.parse(alcoTime.substring(4, 6));
+      dd = int.parse(alcoTime.substring(6, 8));
+      hh = int.parse(alcoTime.substring(8, 10));
+      mm = int.parse(alcoTime.substring(10, 12));
+      setState(() {
+        alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+        itemCnt=alcoholLogData.length;
+//        print(traceAlcoVal);
+      });
+    });
+
   }
 
   //ANIMATIONNNNNNNNNNNNNNNNN
@@ -224,6 +246,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   void dispose() {
     super.dispose();
     _animationController.dispose();
+    streamSub.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
@@ -275,85 +298,95 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
 
   Widget DriverInfo(driver){
-    return Container(
-        height: 120.0,
-        color: Colors.white,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(left: 15.0),
-                child: CircleAvatar(
-                  radius: 45.0,
-                  backgroundImage: AssetImage('images/avatar.png'),
-                )), // Avatar
+    return InkWell(
+      child: Container(
+          height: 120.0,
+          color: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: CircleAvatar(
+                    radius: 45.0,
+                    backgroundImage: AssetImage('images/avatar.png'),
+                  )), // Avatar
 
-            Container(
-                padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(driver['basicInfo']['name'],
-                          style: driverNameStyleinJD()),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text("Chỉ số cồn ",
-                          style: timeStyleinJD()),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 5.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text("Ban đầu: ",
-                              style: driverStatusTitleStyle(0)),
-                          Text("100", //need dynamic data
-                              style: driverStatusDataStyle(0)),
-                        ],
+              Container(
+                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(driver['basicInfo']['name'],
+                            style: driverNameStyleinJD()),
                       ),
-                    ),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text("Chỉ số cồn ",
+                            style: timeStyleinJD()),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 5.0),
+                        child: Row(
+                          children: <Widget>[
+                            Text("Ban đầu: ",
+                                style: driverStatusTitleStyle(0)),
+                            Text("100", //need dynamic data
+                                style: driverStatusDataStyle(0)),
+                          ],
+                        ),
+                      ),
 
-                    Row(
-                      children: <Widget>[
-                        Text("Hiện tại: ",
-                            style: driverStatusTitleStyle(0)),
-                        Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
-                      ],
-                    )
+                      Row(
+                        children: <Widget>[
+                          Text("Hiện tại: ",
+                              style: driverStatusTitleStyle(0)),
+                          Text(driver['alcoholVal'].toString(), style:driver['alcoholVal']>=350? driverStatusDataStyle(1) : driverStatusDataStyle(0)),
+                        ],
+                      )
 
 
-                  ],
-                )),
-            //Ten + Trang thai
-            Expanded(
+                    ],
+                  )),
+              //Ten + Trang thai
+              Expanded(
 
-              //padding: EdgeInsets.only(left: 5.0),
-              child: Container(
-                child: RaisedButton(
-                  child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
-                  color: Color(0xffef3964),
-                  onPressed: () {
+                //padding: EdgeInsets.only(left: 5.0),
+                child: Container(
+                  child: RaisedButton(
+                    child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
+                    color: Color(0xffef3964),
+                    onPressed: () {
 
-                    print("XULYYYYYYYYyyy");
-                    //  heightOfJourneyInfo();
-                    //   print(JourneyInfoHeight);
-                    //
+                      print("XULYYYYYYYYyyy");
+                      //  heightOfJourneyInfo();
+                      //   print(JourneyInfoHeight);
+                      //
 //                      final RenderBox renderBoxRed = _keyRed.currentContext.findRenderObject();
 //                      final sizeRed = renderBoxRed.size;
 //                      print("SIZE of Red: ${sizeRed.height} ");
-                  },
+                    },
+                  ),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.only(left: 30.0),
-            )
-          ],
-        )
+              Container(
+                padding: EdgeInsets.only(left: 30.0),
+              )
+            ],
+          )
+      ),
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ShowDriverInfo(
+                key: PageStorageKey('showInfo'),
+                dID: driver['dID']))
+        );
+      },
     );
   }
 
@@ -560,19 +593,106 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                   padding: EdgeInsets.only(left: 5.0, right: 15.0, top: 1.0),
                   child:
                   Text(
-                      fromStartTime(_trip['start']),
+                      fromStartTime(DateTime.fromMillisecondsSinceEpoch(_trip['start'])),
                       style: timeStyleinJD()
                   ),
                 ),
               )
             ],
           ), //6
-
+          alcoholLogChart(),
         ],
       ),
     );
   }
 
+  Widget alcoholLogChart() {
+    if (itemCnt > 50) {
+      chartWidth = 25 + (325 / 50 * itemCnt);
+    }
+    List<charts.Series<AlcoholLog, DateTime>> _createSampleData() {
+      return [
+        new charts.Series<AlcoholLog, DateTime>(
+          id: 'Nồng độ cồn',
+          domainFn: (AlcoholLog log, _) => log.yyyymmddhhmm,
+          measureFn: (AlcoholLog log, _) => log.value,
+          data: alcoholLogData,
+        )
+      ];
+    }
 
+    // Listens to the underlying selection changes, and updates the information
+    // relevant to building the primitive legend like information under the
+    // chart.
+    _onSelectionChanged(charts.SelectionModel model) {
+      final selectedDatum = model.selectedDatum;
 
+      DateTime time;
+      final measures = <String, num>{};
+
+      // We get the model that updated with a list of [SeriesDatum] which is
+      // simply a pair of series & datum.
+      //
+      // Walk the selection updating the measures map, storing off the sales and
+      // series name for each selection point.
+      if (selectedDatum.isNotEmpty) {
+        time = selectedDatum.first.datum.yyyymmddhhmm;
+        selectedDatum.forEach((charts.SeriesDatum datumPair) {
+          measures[datumPair.series.displayName] = datumPair.datum.value;
+        });
+      }
+
+      // Request a build.
+      setState(() {
+        _time = time;
+        _measures = measures;
+      });
+    }
+
+    final children = <Widget>[
+    ];
+
+    // If there is a selection, then include the details.
+    if (_time != null) {
+      children.add(new Padding(
+          padding: new EdgeInsets.only(top: 5.0),
+          child: new Text(formatDateTime(_time))));
+    }
+    _measures?.forEach((String series, num value) {
+      children.add(new Text('${series}: ${value}'));
+    });
+
+    children.add(Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+            height: 100.0,
+            width: chartWidth,
+            child: new charts.TimeSeriesChart(
+              _createSampleData(),
+              animate: false,
+              selectionModels: [
+                new charts.SelectionModelConfig(
+                  type: charts.SelectionModelType.info,
+
+                  changedListener: _onSelectionChanged,
+                )
+              ],
+              primaryMeasureAxis: new charts.NumericAxisSpec(
+                  tickProviderSpec:new charts.BasicNumericTickProviderSpec(zeroBound: false)),
+            )),
+      ),
+    ));
+
+//    return new Column(children: children);
+
+    return Column(children: children);
+  }
+}
+
+class AlcoholLog {
+  final DateTime yyyymmddhhmm;
+  final int value;
+
+  AlcoholLog(this.yyyymmddhhmm, this.value);
 }
