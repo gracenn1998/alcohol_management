@@ -422,8 +422,13 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
               //padding: EdgeInsets.only(left: 5.0),
               child: Container(
+                height: 50,
                 child: RaisedButton(
-                  child: Text("HOÀN THÀNH", style: TextStyle(color: Colors.white),),
+                  child: Text(
+                    "HOÀN THÀNH",
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                    textAlign: TextAlign.center,
+                  ),
                   color: Color(0xff0a2463),
                   onPressed: () {
                     confirmFinish(context);
