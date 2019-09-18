@@ -85,6 +85,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 //////////------------------------------------------------------
 
   Widget build(BuildContext context) {
+    if(!isInfoGot) {
+      return LoadingState;
+    }
     return StreamBuilder(
       stream: FirebaseDatabase.instance.reference().child('trips')
           .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
@@ -172,6 +175,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
   var driverInfoStream;
+  var isInfoGot = false;
 
   void initState(){
     driverInfoStream = FirebaseDatabase.instance.reference()
@@ -180,6 +184,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         .child('tripID')
         .onValue.listen((alcoholLogSnap){
           tID = alcoholLogSnap.snapshot.value;
+          isInfoGot = true;
     });
 
 
@@ -322,6 +327,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
   Widget DriverInfo(driver){
+    if(!isInfoGot) {
+      return LoadingState;
+    }
     return Container(
         height: 120.0,
         color: Colors.white,
