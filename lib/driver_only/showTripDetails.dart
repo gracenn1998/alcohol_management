@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:alcohol_management/driver_only/WorkingTripDetail.dart';
 
 
 class ShowTripDetails extends StatefulWidget{
@@ -27,14 +28,16 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         jID: jID,
       );
     }*/
-
+  var _dID;
   Widget build(BuildContext context){
     return StreamBuilder(
       stream: FirebaseDatabase.instance.reference().child('trips')
           .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        return directTripDetailScreen(snapshot.data.snapshot.value);
+        var tripSnap = snapshot.data.snapshot;
+        _dID = tripSnap.value['dID'];
+        return directTripDetailScreen(tripSnap.value);
       },
     );
   }
@@ -70,7 +73,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           child: Column(
             children: <Widget>[
               buildDoneTripDetail(trip),
-              buildLogBtn()
             ],
           )
 
@@ -199,7 +201,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                     ),
                   ),
                 ),
-                assignBtn()
               ],
             ): Container(
               height: 55.0,
@@ -222,112 +223,8 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
 
-  Widget assignBtn(){
-    return
-      IconButton(
-        icon: Icon(Icons.assignment_ind,),
-        color: Color(0xffef3964),
-        onPressed: () {
-          assignDialog();
-        },
-      );
-  }
 
 
-  void assignDialog()
-  {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Phân công"),
-          content:
-                Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _dIDControler,
-                      decoration: InputDecoration(
-                        enabledBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        focusedBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        hintText: "Nhập mã tài xế",
-                        labelText: "Mã tài xế",
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _vIDControler,
-                      decoration: InputDecoration(
-                        enabledBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        focusedBorder: new UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xff00BC94))
-                        ),
-                        hintText: "Nhập mã phương tiện",
-                        labelText: "Mã phương tiện",
-                      ),
-                    ),
-
-                  ],
-                ),
-
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Xác nhận"), //????????? chữ gì
-              onPressed: () {
-                updateAssignment();
-                Navigator.of(context).pop();
-              },
-            ),
-
-            new FlatButton(
-              child: new Text("Đóng"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void updateAssignment(){
-    FirebaseDatabase.instance.reference().child('trips').child(tID).set(
-      {
-        'dID': _dIDControler.text
-      }
-    );
-
-    FirebaseDatabase.instance.reference().child('sensor').child(_vIDControler.text).set(
-        {
-          'dID': _dIDControler.text,
-          'tID': tID
-        }
-    );
-
-
-  }
-
-
-
-  Widget buildLogBtn(){
-    return Container(
-      color: Color(0xff0a2463) ,
-      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-      child: FlatButton(
-        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-        onPressed: (){
-          print("LOG Button tapped");
-        },
-      ),
-    );
-  }
   //--------------------------------------------------------
 
   Widget NotStartedTripDetail(trip){
@@ -378,8 +275,63 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         child: Text('BẮT ĐẦU HÀNH TRÌNH', style: TextStyle(color: Colors.white, fontSize: 18),),
         onPressed: (){
           print("Start button tapped");
+          confirmStart(context);
         },
       ),
+    );
+  }
+
+
+  void confirmStart(BuildContext context) {
+    var confirmDialog = AlertDialog(
+      title: Text('Bạn muốn bắt đầu hành trình?'),
+      content: null,
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
+        FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+            startTrip(context);
+          },
+          child: Text(
+            'Bắt đầu',
+            style: TextStyle(color: Colors.red),
+          ),
+        )
+      ],
+    );
+
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) => confirmDialog
+    );
+  }
+
+  void startTrip(context) async {
+    FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child(tID)
+        .update({
+      'start' : DateTime.now().millisecondsSinceEpoch,
+      'status' : 'working'
+    });
+
+    await FirebaseDatabase.instance.reference()
+        .child('driver')
+        .child(_dID)
+        .update({
+      'tripID' : tID,
+    });
+    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>
+            D_WorkingTripDetail(dID: _dID)
+        )
     );
   }
 

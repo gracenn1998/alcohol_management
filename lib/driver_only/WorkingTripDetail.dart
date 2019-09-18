@@ -7,6 +7,7 @@ import 'package:location/location.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:alcohol_management/menu/menu_driver.dart';
 
 class D_WorkingTripDetail extends StatefulWidget{
   final dID;
@@ -20,6 +21,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   var _trip;
   var tID;
   var mapCreated = 0;
+  var isFinish = false;
   D_WorkingTripDetailState(this.dID);
 
   //PermissionStatus _status;
@@ -85,8 +87,32 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 //////////------------------------------------------------------
 
   Widget build(BuildContext context) {
+
+    if(isFinish) {
+      return DriverMenu(dID: dID);
+    }
     if(!isInfoGot) {
       return LoadingState;
+    }
+    if(!isWorking) {
+      return Scaffold(
+        appBar: new AppBar(
+          elevation: 0.0,
+          title: new Center(child: Text("Thông tin hành trình") ,),
+        ),
+        body: Center(
+          child: Text(
+            'Hiện chưa bắt đầu hành trình nào',
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff00bc94)
+            ),
+            textAlign: TextAlign.center,
+          ),
+        )
+      );
+
     }
     return StreamBuilder(
       stream: FirebaseDatabase.instance.reference().child('trips')
@@ -176,6 +202,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
   var driverInfoStream;
   var isInfoGot = false;
+  var isWorking = false;
 
   void initState(){
     driverInfoStream = FirebaseDatabase.instance.reference()
@@ -185,6 +212,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         .onValue.listen((alcoholLogSnap){
           tID = alcoholLogSnap.snapshot.value;
           isInfoGot = true;
+          if(tID!=null) {
+            isWorking = true;
+          }
     });
 
 
@@ -392,8 +422,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
                   child: Text("HOÀN THÀNH", style: TextStyle(color: Colors.white),),
                   color: Color(0xff0a2463),
                   onPressed: () {
-
-                    print("XULYYYYYYYYyyy");
+                    confirmFinish(context);
                     //  heightOfJourneyInfo();
                     //   print(JourneyInfoHeight);
                     //
@@ -707,6 +736,55 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 //    return new Column(children: children);
 
     return Column(children: children);
+  }
+
+  void confirmFinish(BuildContext context) {
+    var confirmDialog = AlertDialog(
+      title: Text('Bạn muốn kết thúc hành trình?'),
+      content: null,
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
+        FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+            finishTrip(context);
+          },
+          child: Text(
+            'Kết thúc',
+            style: TextStyle(color: Colors.red),
+          ),
+        )
+      ],
+    );
+
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) => confirmDialog
+    );
+  }
+
+  void finishTrip(context) async {
+    FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child(tID)
+        .update({
+      'end' : DateTime.now().millisecondsSinceEpoch,
+      'status' : 'done'
+    });
+
+    await FirebaseDatabase.instance.reference()
+        .child('driver')
+        .child(dID)
+        .update({
+      'tripID' : null,
+    });
+    setState(() {
+      isFinish = true;
+    });
   }
 
 }
