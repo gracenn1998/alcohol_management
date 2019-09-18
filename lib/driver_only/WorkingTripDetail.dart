@@ -98,7 +98,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
       return Scaffold(
         appBar: new AppBar(
           elevation: 0.0,
-          title: new Center(child: Text("Thông tin hành trình") ,),
+          title: new Center(child: Text("Thông tin hành trình đang chạy") ,),
         ),
         body: Center(
           child: Text(
@@ -130,7 +130,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
-        title: new Center(child: Text("Thông tin hành trình") ,),
+        title: new Center(child: Text("Thông tin hành trình đang chạy") ,),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 5.0),
