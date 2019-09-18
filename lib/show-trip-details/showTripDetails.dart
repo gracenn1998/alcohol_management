@@ -20,21 +20,12 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
 
   ShowTripDetailsState(this.tID);
 
-  int _selectedIndex = 0;
-
-  /*if(_selectedIndex == -1) {
-      return ShowAllJourneys();
-    }
-    if(_selectedIndex == 1) {
-      return EditJourney(
-        jID: jID,
-      );
-    }*/
-
   List<AlcoholLog> alcoholLogData = [];
   var streamSub;
   double chartWidth = 350;
   int itemCnt = 0;
+  DateTime _time;
+  Map<String, num> _measures;
 
   @override
   initState() {
@@ -70,8 +61,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     super.dispose();
   }
 
-  DateTime _time;
-  Map<String, num> _measures;
+
 
   Widget build(BuildContext context) {
     return StreamBuilder(

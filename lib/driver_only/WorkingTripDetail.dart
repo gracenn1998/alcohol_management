@@ -28,7 +28,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   AnimationController _animationController;
   int _selectedIndex = 0;
 
-  static double JourneyInfoHeight = 190.0;
+  static double TripInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   //////////GET USER LOCATION
   Map<String, double> curLocation;
@@ -176,7 +176,12 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
                   height: constraints.biggest.height - 120
               ),
             ),
-            JourneyInfo(_trip),
+            Container(
+              height: 150,
+              child: SingleChildScrollView(
+                child: TripInfo(_trip),
+              ),
+            ),
 
             new PositionedTransition(
               rect: animation,
@@ -214,6 +219,28 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
           isInfoGot = true;
           if(tID!=null) {
             isWorking = true;
+
+            //for generating chart
+            alcoholLogStream = FirebaseDatabase.instance.reference()
+                .child('trips')
+                .child(tID) //need change
+                .child('alcoholLog')
+                .onChildAdded.listen((alcoholLogSnap){
+
+              var alcoVal = alcoholLogSnap.snapshot.value;
+              var alcoTime = alcoholLogSnap.snapshot.key.toString();
+              var yyyy, MM, dd, hh, mm;
+              yyyy = int.parse(alcoTime.substring(0, 4));
+              MM = int.parse(alcoTime.substring(4, 6));
+              dd = int.parse(alcoTime.substring(6, 8));
+              hh = int.parse(alcoTime.substring(8, 10));
+              mm = int.parse(alcoTime.substring(10, 12));
+              setState(() {
+                alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+                itemCnt=alcoholLogData.length;
+//        print(traceAlcoVal);
+              });
+            });
           }
     });
 
@@ -242,29 +269,6 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
     //PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
        // .then(_updateStatus);
-
-
-    //for generating chart
-    alcoholLogStream = FirebaseDatabase.instance.reference()
-        .child('trips')
-        .child('HT0003') //need change
-        .child('alcoholLog')
-        .onChildAdded.listen((alcoholLogSnap){
-
-      var alcoVal = alcoholLogSnap.snapshot.value;
-      var alcoTime = alcoholLogSnap.snapshot.key.toString();
-      var yyyy, MM, dd, hh, mm;
-      yyyy = int.parse(alcoTime.substring(0, 4));
-      MM = int.parse(alcoTime.substring(4, 6));
-      dd = int.parse(alcoTime.substring(6, 8));
-      hh = int.parse(alcoTime.substring(8, 10));
-      mm = int.parse(alcoTime.substring(10, 12));
-      setState(() {
-        alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
-        itemCnt=alcoholLogData.length;
-//        print(traceAlcoVal);
-      });
-    });
   }
 
   //ANIMATIONNNNNNNNNNNNNNNNN
@@ -286,8 +290,8 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     final double height = constraints.biggest.height - 200 ;
    // print(height);
    // print(JourneyInfoHeight);
-    final double top = height - JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
-    final double bottom =  -JourneyInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    final double top = height - TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
+    final double bottom =  -TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
       begin: new RelativeRect.fromLTRB(0.0, top, 0.0, bottom),
       end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
@@ -441,7 +445,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     );
   }
 
-  Widget JourneyInfo(_trip){
+  Widget TripInfo(_trip){
     return Container(
       color: Colors.white,
       child: Column(

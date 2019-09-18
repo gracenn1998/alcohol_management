@@ -54,7 +54,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   }
 
   List<AlcoholLog> alcoholLogData = [];
-  var streamSub;
+  var alcoholLogStream;
   double chartWidth = 350;
   int itemCnt = 0;
 
@@ -213,9 +213,9 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         .then(_updateStatus);*/
 
     //for generating chart
-    streamSub = FirebaseDatabase.instance.reference()
+    alcoholLogStream = FirebaseDatabase.instance.reference()
         .child('trips')
-        .child('HT0003') //need change
+        .child(tID) //need change
         .child('alcoholLog')
         .onChildAdded.listen((alcoholLogSnap){
 
@@ -246,7 +246,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   void dispose() {
     super.dispose();
     _animationController.dispose();
-    streamSub.cancel();
+    alcoholLogStream.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
