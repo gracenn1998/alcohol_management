@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class WorkingTripDetail_NV extends StatefulWidget{
@@ -361,8 +362,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                     child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
                     color: Color(0xffef3964),
                     onPressed: () {
-
-                      print("XULYYYYYYYYyyy");
+                      _drunkActions(context, driver['dID'], driver);
                       //  heightOfJourneyInfo();
                       //   print(JourneyInfoHeight);
                       //
@@ -688,6 +688,111 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     return Column(children: children);
   }
+
+  bool _isSolved;
+  void setTripStatus(id, driver, status) {
+    FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child(id)
+        .update({
+      'status': "aborted"
+    });
+
+    FirebaseDatabase.instance.reference()
+        .child('trips')
+        .child(id)
+        .update({
+      'status': "working"
+    });
+
+    FirebaseDatabase.instance.reference()
+        .child('bnotification')
+        .child(id)
+        .update({
+      'status': "aborted"
+    });
+
+  }
+
+  void _drunkActions(BuildContext context, id, driver) {
+    var drunkDialog = AlertDialog(
+      title: Text('Chọn phương án xử lí'),
+      content: Container(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            ListTile(
+              title: Text('Liên hệ tài xế'),
+              leading: Icon(Icons.contact_phone),
+              onTap: (){
+                var telNo = driver['basicInfo']['tel'];
+                String telPrefix = "tel://";
+                String telLink = telPrefix + telNo;
+                launch(telLink);
+                _tripStatusActions(context, id ,driver);
+              },
+            ),
+            ListTile(
+              title: Text('Mời CSGT'),
+              leading: Icon(Icons.add_call),
+              onTap: (){
+                launch('tel://0774887767');
+                _tripStatusActions(context, id ,driver);
+              },
+            )
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () => _tripStatusActions(context, id, driver),
+          child: Text('Đặt trạng thái hành trình'),
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Hủy'),
+        ),
+      ],
+    );
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) => drunkDialog
+    );
+  }
+
+  void _tripStatusActions(BuildContext context, id, driver){
+    var tripStatusDialog = AlertDialog(
+      title: Text("Đặt trạng thái hành trình"),
+      content: Container(
+        width: double.maxFinite,
+        child: ListView(
+          children: <Widget>[
+
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+            onPressed: null,
+            child: Text("Lưu")
+        ),
+        FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Hủy"),
+        )
+      ],
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => tripStatusDialog
+    );
+  }
+
+
 }
 
 class AlcoholLog {
