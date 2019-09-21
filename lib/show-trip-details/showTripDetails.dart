@@ -113,17 +113,9 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       body: Container(
           child: Column(
             children: <Widget>[
-              showTripID(trip['tID']),
-              Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        showDetails(trip, 'done'),
-                        alcoholLogChart(),
-                      ],
-                    ),
-                  )
-              )
+
+              buildDoneTripDetail(trip),
+
             ],
           )
 
@@ -132,15 +124,15 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     );
   }
 
-//  Widget buildDoneTripDetail(trip){
-//    return Column(
-//      crossAxisAlignment: CrossAxisAlignment.start,
-//      children: <Widget>[
-//        showTripID(trip['tID']),
-//        showDetails(trip, 'done')
-//      ],
-//    );
-//  }
+  Widget buildDoneTripDetail(trip){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        showTripID(trip['tID']),
+        showDetails(trip, 'done')
+      ],
+    );
+  }
 
 
   Widget showTripID(tID) {
@@ -312,7 +304,9 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   }
 
 
-  Widget assignDriverBtn() {
+
+  //--------------------------------------------------------
+  Widget assignDriverBtn(){
     return
       IconButton(
         icon: Icon(Icons.assignment_ind,),
@@ -552,7 +546,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
 //  }
   //--------------------------------------------------------
 
-  Widget NotStartedTripDetail(trip) {
+  Widget NotStartedTripDetail(trip){
+//>>>>>>> smartConfig
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
