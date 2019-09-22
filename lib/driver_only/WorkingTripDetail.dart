@@ -206,6 +206,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
   var driverInfoStream;
+  var locationStream;
   var isInfoGot = false;
   var isWorking = false;
 
@@ -246,7 +247,8 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
 
-    location.onLocationChanged().listen((value) {
+    locationStream = location.onLocationChanged();
+    locationStream.listen((value) {
       setState(() {
         curLocation = value;
 
@@ -283,6 +285,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     _animationController.dispose();
     driverInfoStream.cancel();
     alcoholLogStream.cancel();
+    locationStream.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {

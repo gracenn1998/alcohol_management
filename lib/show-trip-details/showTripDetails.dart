@@ -17,6 +17,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   final String tID;
   final _dIDControler = TextEditingController();
   final _vIDControler = TextEditingController();
+  String _dID, _vID;
 
   ShowTripDetailsState(this.tID);
 
@@ -74,7 +75,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
-        return directTripDetailScreen(snapshot.data.snapshot.value);
+        var tripSnap = snapshot.data.snapshot;
+        _dID = tripSnap.value['dID'];
+        _vID = tripSnap.value['vID'];
+        return directTripDetailScreen(tripSnap.value);
       },
     );
   }
@@ -427,7 +431,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     FirebaseDatabase.instance.reference().child('vehicles').child(
         _vIDControler.text).update(
         {
-          'tID': tID
+          'tID': tID,
+          'dID' : _dID,
         }
     );
   }
@@ -440,7 +445,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     );
 
     FirebaseDatabase.instance.reference().child('vehicles').child(
-        _vIDControler.text).update(
+        _vID).update(
         {
           'dID': _dIDControler.text,
           'tID': tID
@@ -532,18 +537,6 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     return Column(children: children);
   }
 
-//  Widget buildLogBtn(){
-//    return Container(
-//      color: Color(0xff0a2463) ,
-//      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-//      child: FlatButton(
-//        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-//        onPressed: (){
-//          print("LOG Button tapped");
-//        },
-//      ),
-//    );
-//  }
   //--------------------------------------------------------
 
   Widget NotStartedTripDetail(trip){
