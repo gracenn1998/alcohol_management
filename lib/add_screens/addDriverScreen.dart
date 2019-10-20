@@ -79,9 +79,7 @@ class _AddDriver extends State<AddDriver> {
                 if(confirmed == 1) {
                   addDataDTB();
                   Fluttertoast.showToast(msg: 'Đã thêm tài xế');
-                  setState(() {
-                    _selectedFunction--;
-                  });
+                  Navigator.pop(context);
 //                dispose();
                 }
 
