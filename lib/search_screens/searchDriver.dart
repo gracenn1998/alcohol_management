@@ -55,7 +55,7 @@ class _searchDriverState extends State<SearchDriver> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back,
+              Icons.arrow_back_ios,
               color: Color(0xff06e2b3),
             ),
             onPressed: () {
