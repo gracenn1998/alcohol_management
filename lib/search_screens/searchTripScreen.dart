@@ -89,7 +89,7 @@ class _searchTripState extends State<SearchTrip> {
           StreamBuilder(
             stream: FirebaseDatabase.instance.reference().child('trips')
                 .orderByChild('from')
-                .startAt(_controller.text).endAt(_controller.text+'\uf8ff')
+                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
                 .onValue,
             builder: (BuildContext context, AsyncSnapshot snapshots) {
               if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
@@ -115,7 +115,7 @@ class _searchTripState extends State<SearchTrip> {
             StreamBuilder(
               stream: FirebaseDatabase.instance.reference().child('trips')
                       .orderByChild('to')
-                      .startAt(_controller.text).endAt(_controller.text+'\uf8ff')
+                      .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
                       .onValue,
               builder: (BuildContext context, AsyncSnapshot snapshots) {
                 if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;

@@ -89,7 +89,7 @@ class _searchDriverState extends State<SearchDriver> {
           stream:
             FirebaseDatabase.instance.reference().child('driver')
                 .orderByChild('basicInfo/name')
-                .startAt(_controller.text).endAt(_controller.text + '\uf8ff')
+                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase() + '\uf8ff')
                 .onValue,
           builder: (BuildContext context, AsyncSnapshot snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
