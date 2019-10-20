@@ -5,6 +5,7 @@ import '../styles/styles.dart';
 import '../show_info_screens/showAllDrivers.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class AddDriver extends StatefulWidget {
   @override
@@ -174,8 +175,11 @@ class _AddDriver extends State<AddDriver> {
 
   }
   int genderRadioGroup = -1;
+  int dob = -1;
   Widget fillDetailInfo(title, line, controller) {
-
+    var formattedDOB = DateFormat('dd/MM/yyyy')
+        .format(DateTime.fromMillisecondsSinceEpoch(dob))
+        .toString();
 
     return Row(
       children: <Widget>[
@@ -225,13 +229,35 @@ class _AddDriver extends State<AddDriver> {
 
                     ],
                   ):
-                  TextFormField(
-                    controller: controller,
-                    style: driverInfoStyle(),
-                    decoration: title=='Ngày sinh'? InputDecoration(
-                      hintText: "dd/mm/yyyy",
-                    ):InputDecoration()
-                  ),
+              title == 'Ngày sinh'
+                  ? FlatButton(
+                  onPressed: () {
+                    DatePicker.showDatePicker(context,
+                        showTitleActions: true,
+                        minTime: DateTime(1950, 1, 1),
+                        maxTime: DateTime.now(),
+                        onConfirm: (date) {
+                          dob = date.millisecondsSinceEpoch;
+                          print('change $dob');
+                        }, currentTime: DateTime.now(), locale: LocaleType.vi);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        dob==-1?'Bấm để chọn ngày sinh': DateFormat('dd/MM/yyyy')
+                            .format(DateTime.fromMillisecondsSinceEpoch(dob))
+                            .toString(),
+                        style: driverInfoStyle(),
+                      ),
+                      IconButton(
+                          icon: Icon(Icons.calendar_today)
+                      )
+                    ],
+                  )):
+                TextFormField(
+                  controller: controller,
+                  style: driverInfoStyle(),
+                ),
 
 
           ),
@@ -242,7 +268,7 @@ class _AddDriver extends State<AddDriver> {
   }
 
   void addDataDTB () async {
-    var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
+//    var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
 
     FirebaseDatabase.instance.reference().child('driver').child(newID)
         .set({
@@ -257,7 +283,7 @@ class _AddDriver extends State<AddDriver> {
           'idCard' : _idCardController.text,
           'address' : _addressController.text,
           'gender' : genderRadioGroup == 0 ? 'M' : 'F',
-          'dob' : dobMilli,
+          'dob' : dob,
           'email' : newID.toLowerCase() + '@driver.potatoes.com',
       });
     });

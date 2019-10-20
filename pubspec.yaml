@@ -30,7 +30,7 @@ dependencies:
   location: 1.4.1
   geocoder: 0.1.2
   fluttertoast: 2.2.11
-
+  flutter_datetime_picker:
   firebase_database:
   firebase_messaging: 4.0.0+2
 
