@@ -152,7 +152,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       );
   }
 
-  Widget getDriverNameByID(dID) {
+  Widget getDriverNameByID(dID, Tstatus) {
     if (dID == null)
       return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
 
@@ -173,7 +173,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
               var t = snapshot.data.snapshot.value;
               if (t['dID'] == dID)
                 return showDetailItem(
-                    "Tài xế", t['basicInfo']['name'], 0, 'normal');
+                    "Tài xế", t['basicInfo']['name'], 0, Tstatus);
               else
                 return showDetailItem(
                     "Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
@@ -208,10 +208,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           children: <Widget>[
             showDetailItem('ID', id, 1, 'normal'),
             //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
-            getDriverNameByID(trip['dID']),
+            getDriverNameByID(trip['dID'], Tstatus),
             vID == null
                 ? showDetailItem(
-                'Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
+            'Phương tiện', 'Chưa chỉ định', 0, Tstatus)
                 : showDetailItem('Phương tiện', vID, 0, 'normal'),
             showDetailItem('TG dự kiến', schStart, 1, 'normal'),
             showDetailItem('TG bắt đầu', start, 0,
@@ -265,7 +265,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                     ),
                   ),
                 ),
-                assignDriverBtn()
+                status != 'done'? assignDriverBtn(): Container(),
               ],
             ) :
             (title == "Phương tiện") ?
@@ -284,7 +284,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                     ),
                   ),
                 ),
-                assignVehicleBtn()
+                status != 'done'? assignVehicleBtn(): Container()
               ],
             ) :
             Container(
