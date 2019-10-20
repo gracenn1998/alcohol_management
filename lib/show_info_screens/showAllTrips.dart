@@ -407,11 +407,13 @@ class _showAllTripsState extends State<ShowAllTrips> {
             ),
           ),
           onTap: () {
+            final page =  ShowTripDetails(
+                key: PageStorageKey('showInfo'),
+                tID: document[index]['tID']
+            );
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowTripDetails(
-                    key: PageStorageKey('showInfo'),
-                    tID: document[index]['tID']))
+                MaterialPageRoute(builder: (context) => page)
             );
           },
         );

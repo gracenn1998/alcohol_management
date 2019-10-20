@@ -344,6 +344,7 @@ class EditTripState extends State<EditTrip> {
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
+            Navigator.pop(context);
             editDataDTB();
             Fluttertoast.showToast(msg: 'Đã thay đổi thông tin hành trình');
           },

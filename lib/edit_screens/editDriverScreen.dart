@@ -74,11 +74,9 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 //confirm edit
                 var confirmed = 1;
                 if(confirmed == 1) {
+                  Navigator.of(context).pop();
                   editDataDTB();
                   Fluttertoast.showToast(msg: 'Đã thay đổi thông tin tài xế');
-                  setState(() {
-                    _selectedFunction--;
-                  });
 //                dispose();
                 }
 

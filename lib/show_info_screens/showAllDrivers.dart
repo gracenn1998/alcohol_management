@@ -206,11 +206,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //            setState(() {
 //              _selectedDriverID = dID;
 //            });
+            final page =  ShowDriverInfo(
+                key: PageStorageKey('showInfo'),
+                dID: dID
+            );
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowDriverInfo(
-                    key: PageStorageKey('showInfo'),
-                    dID: dID))
+                MaterialPageRoute(builder: (context) => page)
             );
           },
         );

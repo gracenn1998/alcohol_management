@@ -563,13 +563,13 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
               icon: Icon(Icons.edit),
               color: Color(0xff06E2B3),
               onPressed: () {
+                final page =  EditTrip(
+                    key: PageStorageKey('editTrip'),
+                    tID: tID
+                );
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>
-                        EditTrip(
-                            key: PageStorageKey('editTrip'),
-                            tID: tID)
-                    )
+                    MaterialPageRoute(builder: (context) => page)
                 );
               }, // EDITTTTTTTT
             ),
