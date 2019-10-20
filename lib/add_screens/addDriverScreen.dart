@@ -19,8 +19,6 @@ class _AddDriver extends State<AddDriver> {
   final _nameController = TextEditingController();
   final _idCardController = TextEditingController();
   final _addressController = TextEditingController();
-  final _genderController = TextEditingController();
-  final _dobController = TextEditingController();
 
   DocumentSnapshot driver;
 
@@ -47,8 +45,6 @@ class _AddDriver extends State<AddDriver> {
     _nameController.dispose();
     _idCardController.dispose();
     _addressController.dispose();
-    _genderController.dispose();
-    _dobController.dispose();
     super.dispose();
   }
 
@@ -67,9 +63,7 @@ class _AddDriver extends State<AddDriver> {
           color: Color(0xff06E2B3),
           onPressed: () {
             //backkkk
-            setState(() {
-              _selectedFunction--;
-            });
+            Navigator.pop(context);
           },
         ),
         title:  Center(child: Text('Thêm tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -166,8 +160,8 @@ class _AddDriver extends State<AddDriver> {
               children: <Widget>[
                 fillDetailInfo('CMND', 1, _idCardController),
                 fillDetailInfo('Địa chỉ', 0, _addressController),
-                fillDetailInfo('Giới tính', 1, _genderController),
-                fillDetailInfo('Ngày sinh', 0, _dobController),
+                fillDetailInfo('Giới tính', 1, null),
+                fillDetailInfo('Ngày sinh', 0, null),
               ],
             )
         )
@@ -237,8 +231,9 @@ class _AddDriver extends State<AddDriver> {
                         minTime: DateTime(1950, 1, 1),
                         maxTime: DateTime.now(),
                         onConfirm: (date) {
-                          dob = date.millisecondsSinceEpoch;
-                          print('change $dob');
+                          setState(() {
+                            dob = date.millisecondsSinceEpoch;
+                          });
                         }, currentTime: DateTime.now(), locale: LocaleType.vi);
                   },
                   child: Row(
