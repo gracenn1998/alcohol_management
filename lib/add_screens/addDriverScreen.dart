@@ -173,8 +173,10 @@ class _AddDriver extends State<AddDriver> {
     );
 
   }
-
+  int genderRadioGroup = -1;
   Widget fillDetailInfo(title, line, controller) {
+
+
     return Row(
       children: <Widget>[
         Expanded(
@@ -193,6 +195,7 @@ class _AddDriver extends State<AddDriver> {
               )
           ),
         ),
+
         Expanded(
           flex: 5,
           child: Container(
@@ -201,10 +204,34 @@ class _AddDriver extends State<AddDriver> {
             padding: const EdgeInsets.all(5.0),
 
             decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-            child: TextFormField(
-              controller: controller,
-              style: driverInfoStyle(),
-            ),
+            child:
+              title=='Giới tính'
+                  ? Row(
+                    children: <Widget>[
+                      Radio(
+                          value: 0,
+                          groupValue: genderRadioGroup,
+                          onChanged: (val) => setState((){
+                            genderRadioGroup = val;
+                          })),
+                      Text('Nam', style: driverInfoStyle()),
+                      Radio(
+                          value: 1,
+                          groupValue: genderRadioGroup,
+                          onChanged: (val) => setState((){
+                            genderRadioGroup = val;
+                          })),
+                      Text('Nữ', style: driverInfoStyle())
+
+                    ],
+                  ):
+                  TextFormField(
+                    controller: controller,
+                    style: driverInfoStyle(),
+                    decoration: title=='Ngày sinh'? InputDecoration(
+                      hintText: "dd/mm/yyyy",
+                    ):InputDecoration()
+                  ),
 
 
           ),
@@ -229,7 +256,7 @@ class _AddDriver extends State<AddDriver> {
           'name' : _nameController.text,
           'idCard' : _idCardController.text,
           'address' : _addressController.text,
-          'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
+          'gender' : genderRadioGroup == 0 ? 'M' : 'F',
           'dob' : dobMilli,
           'email' : newID.toLowerCase() + '@driver.potatoes.com',
       });
