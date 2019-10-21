@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
-import '../show_info_screens/showAllTrips.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
@@ -144,15 +143,6 @@ class _AddTripState extends State<AddTrip> {
               title=='Thời gian bắt đầu dự kiến'
                   ? FlatButton(
                   onPressed: () {
-//                    DatePicker.showDatePicker(context,
-//                        showTitleActions: true,
-//                        minTime: DateTime(1950, 1, 1),
-//                        maxTime: DateTime.now(),
-//                        onConfirm: (date) {
-//                          setState(() {
-//                            dob = date.millisecondsSinceEpoch;
-//                          });
-//                        }, currentTime: DateTime.now(), locale: LocaleType.vi);
                     DatePicker.showDateTimePicker(context,
                         showTitleActions: true,
                         currentTime: DateTime.now(),
