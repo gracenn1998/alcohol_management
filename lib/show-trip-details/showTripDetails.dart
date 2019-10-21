@@ -171,9 +171,13 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
             if (snapshot.hasData) {
 //              print(snapshot.data.toString());
               var t = snapshot.data.snapshot.value;
-              if (t['dID'] == dID)
+              if(Tstatus == 'done') {
                 return showDetailItem(
-                    "Tài xế", t['basicInfo']['name'], 0, Tstatus);
+                    "Tài xế", t['basicInfo']['name'], 0, 'done');
+              }
+              else if (t['dID'] == dID)
+                return showDetailItem(
+                    "Tài xế", t['basicInfo']['name'], 0, 'normal');
               else
                 return showDetailItem(
                     "Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
