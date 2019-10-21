@@ -32,16 +32,7 @@ class _searchDriverState extends State<SearchDriver> {
 
   _searchDriverState() {
     _controller.addListener(() {
-      if (_controller.text.isEmpty) {
-        setState(() {
-          _searchText = '';
-          // do something ?
-        });
-      } else {
-        setState(() {
-          _searchText = _controller.text;
-        });
-      }
+      setState(() {});
     });
   }
 
