@@ -99,6 +99,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         appBar: new AppBar(
           elevation: 0.0,
           title: new Center(child: Text("Thông tin hành trình đang chạy") ,),
+          leading: IconButton(
+              icon: Icon(null)
+          ),
         ),
         body: Center(
           child: Text(

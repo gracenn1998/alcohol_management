@@ -34,6 +34,9 @@ class _NotiScreenState extends State<NotiScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(null)
+        ),
         title: Center(child: Text(
           'Thông báo', style: appBarTxTStyle, textAlign: TextAlign.center,)),
       ),

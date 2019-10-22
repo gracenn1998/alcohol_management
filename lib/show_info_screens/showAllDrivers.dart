@@ -45,11 +45,10 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
     return Scaffold(
         appBar: AppBar(
-//        leading: Icon(
-//          Icons.dehaze,
-//          color: Color(0xff06E2B3),
-//        ),
-            title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),),
+          leading: IconButton(
+              icon: Icon(null)
+          ),
+          title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.search, color: Color(0xff06e2b3),),

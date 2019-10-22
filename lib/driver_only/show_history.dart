@@ -33,6 +33,9 @@ class _showHistoryState extends State<ShowHistory> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
+          leading: IconButton(
+              icon: Icon(null)
+          ),
           centerTitle: true,
           actions: <Widget>[
             IconButton(

@@ -50,15 +50,8 @@ class _showAllTripsState extends State<ShowAllTrips> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              icon: Icon(Icons.arrow_back), 
-              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
-              onPressed: () {
-                debugPrint('back');
-//                if (filterState > 0) Navigator.pop(context);
-                if (filterState > 0) setState(() {
-                  filterState = 0;
-                });
-          }),
+              icon: Icon(null)
+          ),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[

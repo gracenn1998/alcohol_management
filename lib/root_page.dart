@@ -66,6 +66,8 @@ class RootPageState extends State<RootPage> {
   }
 
   Widget build(BuildContext context){
+//    FirebaseAuth.instance.signOut();
+//    _authStatus = AuthStatus.notSignedIn;
     switch (_authStatus){
 //      case AuthStatus.notDetermined:
 //        return _buildWaitingScreen();
