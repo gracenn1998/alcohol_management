@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth.dart';
 import 'auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget{
   const LoginPage({this.onSignedIn});
@@ -77,9 +78,10 @@ class _LoginPageState extends State<LoginPage> {
     if (validateAndSave()) {
       //ketnoiFirebase kt tk
       try {
-        final BaseAuth auth = AuthProvider.of(context).auth;
-        final String _userID = await auth.signInWithEmailAndPassword(_email,_password);
-        print('Da dang nhap duoc: ${_userID}');
+//        final BaseAuth auth = AuthProvider.of(context).auth;
+//        final String _userID = await auth.signInWithEmailAndPassword(_email,_password);
+        final FirebaseAuth _auth = FirebaseAuth.instance;
+        FirebaseUser user = await _auth.signInWithEmailAndPassword(email: _email, password: _password);
         widget.onSignedIn();
       }
       catch (e) {

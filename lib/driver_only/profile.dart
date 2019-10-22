@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:alcohol_management/root_page.dart';
+
+//enum AuthStatus {
+//  notDetermined,
+//  notSignedIn,
+//  signedIn
+//}
 
 class ShowDriverInfo extends StatefulWidget {
   final String dID;
-  const ShowDriverInfo({Key key, @required this.dID}) : super(key: key);
+  const ShowDriverInfo({Key key, @required this.dID,}) : super(key: key);
   @override
   _ShowDriverInfoState createState() => _ShowDriverInfoState(dID);
 }
@@ -19,7 +27,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -52,7 +59,15 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 driver['basicInfo']['address'], driver['basicInfo']['email'],
                 driver['basicInfo']['gender'], driver['basicInfo']['dob'])
         ),
-        generatePasswordButton(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            signoutButton(context),
+            Container(width: 50,),
+            generatePasswordButton(),
+          ],
+        ),
+
 
       ],
     );
@@ -163,6 +178,39 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
         onPressed: () {
           //action
           debugPrint("New pw generated");
+        },
+      ),
+    );
+  }
+  Widget signoutButton(context) {
+    return Container(
+      height: 45.0,
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: 15.0),
+//    padding: const EdgeInsets.all(5.0),
+      child: RaisedButton(
+        color: Color(0xff0a2463),
+        child: Text(
+          "Đăng xuất",
+          style: TextStyle(color: Colors.white, fontSize: 17),
+          textAlign: TextAlign.center,
+        ),
+        elevation: 6.0,
+        onPressed: () {
+          //action
+          try{
+//            final FirebaseAuth auth = AuthProvider.of(context).auth;
+//            await auth.signOut();
+//            onSignedOut();
+            FirebaseAuth.instance.signOut();
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RootPage())
+            );
+          } catch (e){
+            print(e);
+          }
         },
       ),
     );
