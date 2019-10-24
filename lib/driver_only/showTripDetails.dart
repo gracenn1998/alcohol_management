@@ -148,11 +148,15 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
             children: <Widget>[
               showTripID(trip['tID']),
               Expanded(
-                child: SingleChildScrollView(
-                  child: showDetails(trip, 'done'),
-                ),
-              ),
-
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        showDetails(trip, 'done'),
+                        alcoholLogChart(),
+                      ],
+                    ),
+                  )
+              )
             ],
           )
       ),
