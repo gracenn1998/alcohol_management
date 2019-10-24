@@ -227,14 +227,14 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                 //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
                 getDriverNameByID(trip['dID']),
                 vID==null
-                    ?showDetailItem('Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
-                    :showDetailItem('Phương tiện', vID, 0, 'normal'),
-                showDetailItem('TG dự kiến', schStart, 1, 'normal'),
-                showDetailItem('TG bắt đầu', start, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('TG kết thúc', finish, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
-                showDetailItem('Từ', from, 0, 'normal'),
-                showDetailItem('Đến', to, 1, 'normal'),
-                showDetailItem('Trạng Thái', status, 0, Tstatus),
+                    ?showDetailItem('Phương tiện', 'Chưa chỉ định', 1, 'notStarted')
+                    :showDetailItem('Phương tiện', vID, 1, 'normal'),
+                showDetailItem('TG dự kiến', schStart, 0, 'normal'),
+                showDetailItem('TG bắt đầu', start, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
+                showDetailItem('TG kết thúc', finish, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
+                showDetailItem('Từ', from, 1, 'normal'),
+                showDetailItem('Đến', to, 0, 'normal'),
+                showDetailItem('Trạng Thái', status, 1, Tstatus),
               ],
             )
         )
@@ -265,40 +265,32 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         Expanded(
             flex: 5,
             child: (title == "Tài xế")?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "$data",
-                      style: tripDetailsStyle(status),
-                    ),
-                  ),
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "$data",
+                  style: tripDetailsStyle(status),
                 ),
-              ],
+              ),
             ):
             (title == "Phương tiện")?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "$data",
-                      style: tripDetailsStyle(status),
-                    ),
-                  ),
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "$data",
+                  style: tripDetailsStyle(status),
                 ),
-              ],
+              ),
             ):
             Container(
 
@@ -456,7 +448,9 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
                   child: showDetails(trip, 'notStarted'),
                 ),
               ),
-              buildStartBtn()
+              SizedBox(height: 5),
+              buildStartBtn(),
+              SizedBox(height: 5),
             ],
           )
 
