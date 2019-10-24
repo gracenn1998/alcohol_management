@@ -99,7 +99,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 driver['basicInfo']['address'], driver['basicInfo']['email'],
                 driver['basicInfo']['gender'], driver['basicInfo']['dob'])
         ),
-        generatePasswordButton(),
 
       ],
     );

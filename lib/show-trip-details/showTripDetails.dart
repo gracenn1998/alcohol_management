@@ -132,7 +132,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         showTripID(trip['tID']),
-        showDetails(trip, 'done')
+        showDetails(trip, 'done'),
+//        alcoholLogChart(),
       ],
     );
   }
@@ -214,16 +215,16 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
             getDriverNameByID(trip['dID'], Tstatus),
             vID == null
                 ? showDetailItem(
-            'Phương tiện', 'Chưa chỉ định', 0, Tstatus)
-                : showDetailItem('Phương tiện', vID, 0, 'normal'),
-            showDetailItem('TG dự kiến', schStart, 1, 'normal'),
-            showDetailItem('TG bắt đầu', start, 0,
+            'Phương tiện', 'Chưa chỉ định', 1, Tstatus)
+                : showDetailItem('Phương tiện', vID, 1, 'normal'),
+            showDetailItem('TG dự kiến', schStart, 0, 'normal'),
+            showDetailItem('TG bắt đầu', start, 1,
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
-            showDetailItem('TG kết thúc', finish, 1,
+            showDetailItem('TG kết thúc', finish, 0,
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
-            showDetailItem('Từ', from, 0, 'normal'),
-            showDetailItem('Đến', to, 1, 'normal'),
-            showDetailItem('Trạng Thái', status, 0, Tstatus),
+            showDetailItem('Từ', from, 1, 'normal'),
+            showDetailItem('Đến', to, 0, 'normal'),
+            showDetailItem('Trạng Thái', status, 1, Tstatus),
           ],
         )
     );
@@ -253,42 +254,43 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         Expanded(
             flex: 5,
             child: (title == "Tài xế") ?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Row(
+                children: <Widget>[
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "$data",
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                ),
-                status != 'done'? assignDriverBtn(): Container(),
-              ],
+                  status != 'done'? assignDriverBtn(): Container(),
+                ],
+              ),
             ) :
             (title == "Phương tiện") ?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Row(
+                children: <Widget>[
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "$data",
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                ),
-                status != 'done'? assignVehicleBtn(): Container()
-              ],
+                  status != 'done'? assignVehicleBtn(): Container()
+                ],
+              ),
             ) :
             Container(
               height: 55.0,
