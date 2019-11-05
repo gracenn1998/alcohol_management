@@ -350,8 +350,24 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
 
 
   void assignDriverDialog() {
+    List<dynamic> driverList;
     selectedDID = null;
-    final _dIDControler = TextEditingController();
+    final _controller = TextEditingController();
+    List<dynamic> searchWithKeyWord(String keyword) {
+      List<dynamic> searchResult = new List<dynamic>();
+      keyword = keyword.toLowerCase();
+      String name, did;
+      for(int i = 0; i < driverList.length; i++) {
+        name = driverList[i]['basicInfo']['name'].toString().toLowerCase();
+        did = driverList[i]['dID'].toString().toLowerCase();
+
+        if(name.contains(keyword) || did.contains(keyword)) {
+          searchResult.add(driverList[i]);
+        }
+      }
+      return searchResult;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -361,7 +377,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
 
-              _dIDControler.addListener(() {
+              _controller.addListener(() {
                 setState(() {});
               });
 
@@ -418,7 +434,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      controller: _dIDControler,
+                      controller: _controller,
                       decoration: InputDecoration(
                         enabledBorder: new UnderlineInputBorder(
                             borderSide: BorderSide(color: Color(0xff00BC94))
@@ -426,8 +442,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                         focusedBorder: new UnderlineInputBorder(
                             borderSide: BorderSide(color: Color(0xff00BC94))
                         ),
-                        hintText: "tên tài xế",
-                        labelText: "Nhập tên tài xế để tìm kiếm",
+                        hintText: "Tên hoặc mã tài xế",
+                        labelText: "Nhập tên hoặc mã tài xế để tìm kiếm",
                       ),
                     ),
                     Expanded(
@@ -437,12 +453,11 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                         child: StreamBuilder(
                           stream: FirebaseDatabase.instance.reference().child('driver')
                               .orderByChild('basicInfo/name')
-                              .startAt(_dIDControler.text.toUpperCase()).endAt(_dIDControler.text.toLowerCase() + '\uf8ff')
                               .onValue,
                           builder: (BuildContext context, AsyncSnapshot snapshots) {
                             if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
                             else {
-                              List<dynamic> driverList;
+
                               DataSnapshot driverSnaps = snapshots.data.snapshot;
                               Map<dynamic, dynamic> map = driverSnaps.value;
                               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
@@ -454,7 +469,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                                 }
                               }
                               //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-                              return getListSearchView(driverList);
+                              return getListSearchView(searchWithKeyWord(_controller.text));
                             }
                           },
                         ),
@@ -485,12 +500,29 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         );
       },
     );
+
   }
 
 
   void assignVehicleDialog() {
     selectedVID = null; //sau chuyen thanh bien so xe???
-    final _vIDControler = TextEditingController();
+
+    List<dynamic> vehicleList;
+    List<dynamic> searchWithKeyWord(String keyword) {
+      List<dynamic> searchResult = new List<dynamic>();
+      keyword = keyword.toLowerCase();
+      String plateNo, vid;
+      for(int i = 0; i < vehicleList.length; i++) {
+        plateNo = vehicleList[i]['plateNumber'].toString().toLowerCase();
+        vid = vehicleList[i]['vID'].toString().toLowerCase();
+
+        if(plateNo.contains(keyword) || vid.contains(keyword)) {
+          searchResult.add(vehicleList[i]);
+        }
+      }
+      return searchResult;
+    }
+    final _controller = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -500,7 +532,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
 
-              _vIDControler.addListener(() {
+              _controller.addListener(() {
                 setState(() {});
               });
 
@@ -517,6 +549,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                   itemBuilder: (BuildContext context, int index) {
 //                    String name = documents[index]['basicInfo']['name'].toString();
                     String vID = documents[index]['vID'].toString();
+                    String plateNo = documents[index]['plateNumber'].toString();
                     return InkWell(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -528,7 +561,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                             child: Row(
                               children: <Widget>[
                                 Text(
-                                  "<Biển số xe>",
+                                  "<$plateNo>",
                                   style: driverInfoStyle(),
                                 ),
                                 Text(
@@ -557,7 +590,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      controller: _vIDControler,
+                      controller: _controller,
                       decoration: InputDecoration(
                         enabledBorder: new UnderlineInputBorder(
                             borderSide: BorderSide(color: Color(0xff00BC94))
@@ -565,8 +598,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                         focusedBorder: new UnderlineInputBorder(
                             borderSide: BorderSide(color: Color(0xff00BC94))
                         ),
-                        hintText: "mã phương tiện",
-                        labelText: "Nhập mã phương tiện để tìm kiếm",
+                        hintText: "mã phương tiện/ biển số xe",
+                        labelText: "Nhập mã phương tiện hoặc biển số xe để tìm kiếm",
                       ),
                     ),
                     Expanded(
@@ -576,12 +609,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                         child: StreamBuilder(
                           stream: FirebaseDatabase.instance.reference().child('vehicles')
                               .orderByChild('vID')
-                              .startAt(_vIDControler.text.toUpperCase()).endAt(_vIDControler.text.toLowerCase() + '\uf8ff')
                               .onValue,
                           builder: (BuildContext context, AsyncSnapshot snapshots) {
                             if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
                             else {
-                              List<dynamic> vehicleList;
                               DataSnapshot vehicleSnaps = snapshots.data.snapshot;
                               Map<dynamic, dynamic> map = vehicleSnaps.value;
                               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
@@ -593,7 +624,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                                 }
                               }
                               //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-                              return getListSearchView(vehicleList);
+                              return getListSearchView(searchWithKeyWord(_controller.text));
                             }
                           },
                         ),
