@@ -44,7 +44,9 @@ class _showAllTripsState extends State<ShowAllTrips> {
   Widget build(BuildContext context) {
     if (_searching) {
       _searching = false;
-      return SearchTrip(searchBy: 'Điểm xuất phát',);
+      return SearchTrip(
+        filter: filterState,
+      );
     }
 
     return Scaffold(
@@ -121,11 +123,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
           switch (filter) {
             case 0:
-//              for(var tripItem in map.values) {
-//                if(!tripItem['isDeleted']) {
-//                  tripList.add(tripItem);
-//                }
-//              }
               tripList = map.values.toList();
               break;
             case 1: //done
@@ -275,22 +272,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                     ),
                                   );
                                 }
-//                                else if (snapshots.data.documents.isEmpty) {
-//                                  return Container(
-////                                    constraints: BoxConstraints.tight(100.0),
-//                                    padding: EdgeInsets.only(left: 5.0),
-//                                    child: Text(
-//                                      'Không có tài xế',
-//                                      style: TextStyle(
-//                                          color: Colors.black,
-//                                          fontWeight: FontWeight.w700,
-//                                          fontFamily: "Roboto",
-//                                          fontStyle: FontStyle.normal,
-//                                          fontSize: 20.0),
-//                                      overflow: TextOverflow.ellipsis,
-//                                    ),
-//                                  );
-//                                }
                                 else {
                                   var dID = document[index]['dID'];
                                   var name = snapshots.data.snapshot.value[dID]['basicInfo']['name'];
@@ -492,7 +473,7 @@ class filterDialog extends StatefulWidget {
 
 class _filterDialogState extends State<filterDialog> {
   _filterDialogState();
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -504,6 +485,11 @@ class _filterDialogState extends State<filterDialog> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text("Trạng thái"),
+          RadioListTile(
+              title: Text('Tất cả'),
+              value: 0,
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
           RadioListTile(
               title: Text('Đã hoàn thành'),
               value: 1,

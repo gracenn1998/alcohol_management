@@ -27,7 +27,7 @@ class _showHistoryState extends State<ShowHistory> {
   Widget build(BuildContext context) {
     if (_searching) {
       _searching = false;
-      return SearchTrip(searchBy: 'Điểm xuất phát',);
+      return SearchTrip();
     }
 
     return Scaffold(

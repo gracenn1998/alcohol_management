@@ -5,38 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SearchTrip extends StatefulWidget {
-  final searchBy;
-  const SearchTrip({Key key, @required this.searchBy}) : super(key: key);
+  final filter;
+  const SearchTrip({Key key, @required this.filter}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _searchTripState(searchBy);
+    return _searchTripState(filter);
   }
 }
 
 class _searchTripState extends State<SearchTrip> {
-  String searchBy;
+  int filter;
   Icon icon = Icon(Icons.search);
   Widget appBarTittle = Text('Tìm kiếm Hành Trình', style: appBarTxTStyle);
   TextEditingController _controller = new TextEditingController();
-  String _searchText = '';
   bool _searching = true;
-  List<dynamic> _testList;
   List searchResults = new List();
   var queryResultSet = [];
   var tmpSearchStore = [];
 
-  _searchTripState(this.searchBy) {
+  _searchTripState(this.filter) {
     _controller.addListener(() {
-      if (_controller.text.isEmpty) {
-        setState(() {
-          _searchText = '';
-        });
-      } else {
-        setState(() {
-          _searchText = _controller.text;
-        });
-      }
+      setState(() {});
     });
   }
 
@@ -45,27 +35,43 @@ class _searchTripState extends State<SearchTrip> {
     if (!_searching) {
       return ShowAllTrips(filterState: 0);
     }
-//    debugPrint('Tìm bằng: ${searchBy}');
+
     List<dynamic> tripList;
 
     List<dynamic> searchWithKeyWord(String keyword) {
       List<dynamic> searchResult = new List<dynamic>();
       keyword = keyword.toLowerCase();
-      String from, to, did, driverName;
+      String from, to, did, driverName, vid;
       for(int i = 0; i < tripList.length; i++) {
 //        driverName = tripList[i]['basicInfo']['name'].toString().toLowerCase();
         did = tripList[i]['dID'].toString().toLowerCase();
+        vid = tripList[i]['vID'].toString().toLowerCase();
         from = tripList[i]['from'].toString().toLowerCase();
         to = tripList[i]['to'].toString().toLowerCase();
 
         if(from.contains(keyword)
             || to.contains(keyword)
-            || did.contains(keyword)) {
+            || did.contains(keyword)
+            || vid.contains(keyword)) {
           searchResult.add(tripList[i]);
         }
       }
       return searchResult;
     }
+
+    String status = "all";
+    switch (filter) {
+      case 1:
+        status = "done";
+        break;
+      case 2:
+        status = "working";
+        break;
+      case 3:
+        status = "notStarted";
+        break;
+    }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -94,10 +100,13 @@ class _searchTripState extends State<SearchTrip> {
       body: _controller.text.isNotEmpty
             ?
           StreamBuilder(
-            stream: FirebaseDatabase.instance.reference().child('trips')
-//                .orderByChild('from')
-//                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
-                .onValue,
+            stream: status=="all"?
+              FirebaseDatabase.instance.reference().child('trips')
+                  .onValue
+            :
+              FirebaseDatabase.instance.reference().child('trips')
+                  .orderByChild('status').equalTo(status)
+                  .onValue,
             builder: (BuildContext context, AsyncSnapshot snapshots) {
               if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
               else {
@@ -116,9 +125,13 @@ class _searchTripState extends State<SearchTrip> {
           )
           :
       StreamBuilder(
-        stream: FirebaseDatabase.instance.reference().child('trips')
-                .orderByChild('isDeleted').equalTo(false)
-                .onValue,
+        stream: status=="all"?
+              FirebaseDatabase.instance.reference().child('trips')
+                  .onValue
+            :
+              FirebaseDatabase.instance.reference().child('trips')
+                  .orderByChild('status').equalTo(status)
+                  .onValue,
         builder: (BuildContext context, AsyncSnapshot snapshots) {
           if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
           else {

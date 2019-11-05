@@ -27,7 +27,7 @@ class _showTasksState extends State<ShowTasks> {
   Widget build(BuildContext context) {
     if (_searching) {
       _searching = false;
-      return SearchTrip(searchBy: 'Điểm xuất phát',);
+      return SearchTrip();
     }
 
     return Scaffold(
