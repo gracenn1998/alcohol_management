@@ -46,6 +46,26 @@ class _searchTripState extends State<SearchTrip> {
       return ShowAllTrips(filterState: 0);
     }
 //    debugPrint('Tìm bằng: ${searchBy}');
+    List<dynamic> tripList;
+
+    List<dynamic> searchWithKeyWord(String keyword) {
+      List<dynamic> searchResult = new List<dynamic>();
+      keyword = keyword.toLowerCase();
+      String from, to, did, driverName;
+      for(int i = 0; i < tripList.length; i++) {
+//        driverName = tripList[i]['basicInfo']['name'].toString().toLowerCase();
+        did = tripList[i]['dID'].toString().toLowerCase();
+        from = tripList[i]['from'].toString().toLowerCase();
+        to = tripList[i]['to'].toString().toLowerCase();
+
+        if(from.contains(keyword)
+            || to.contains(keyword)
+            || did.contains(keyword)) {
+          searchResult.add(tripList[i]);
+        }
+      }
+      return searchResult;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -69,32 +89,18 @@ class _searchTripState extends State<SearchTrip> {
           ),
 //          onChanged: null,
         ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(
-                Icons.close,
-                color: Color(0xff06e2b3),
-              ),
-              onPressed: () => _controller.clear()
-          ),
-          SearchByButton(),
-        ],
       ),
 //      buildBar(context),
       body: _controller.text.isNotEmpty
             ?
-      (
-          (searchBy == 'Điểm xuất phát')
-          ?
           StreamBuilder(
             stream: FirebaseDatabase.instance.reference().child('trips')
-                .orderByChild('from')
-                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
+//                .orderByChild('from')
+//                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
                 .onValue,
             builder: (BuildContext context, AsyncSnapshot snapshots) {
               if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
               else {
-                List<dynamic> tripList;
                 DataSnapshot tripSnaps = snapshots.data.snapshot;
                 Map<dynamic, dynamic> map = tripSnaps.value;
                 if (map != null) {
@@ -104,40 +110,10 @@ class _searchTripState extends State<SearchTrip> {
                       tripList.removeAt(i);
                   }
                 }
-                return getListSearchView(tripList);
+                return getListSearchView(searchWithKeyWord(_controller.text));
               }
             },
           )
-          :
-//          (
-//            (searchBy == 'Điểm đến')
-//                ?
-            StreamBuilder(
-              stream: FirebaseDatabase.instance.reference().child('trips')
-                      .orderByChild('to')
-                      .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase()+'\uf8ff')
-                      .onValue,
-              builder: (BuildContext context, AsyncSnapshot snapshots) {
-                if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
-                else {
-                  List<dynamic> tripList;
-                  DataSnapshot tripSnaps = snapshots.data.snapshot;
-                  Map<dynamic, dynamic> map = tripSnaps.value;
-                  if (map != null) {
-                    tripList = map.values.toList();
-                    for (int i=0; i<tripList.length; ++i) {
-                      if (tripList[i]['isDeleted'])
-                        tripList.removeAt(i);
-                    }
-                  }
-                  return getListSearchView(tripList);
-                }
-              },
-            )
-//                : //searchBy == 'Tài xế'
-//            StreamBuilder()
-//          )
-      )
           :
       StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('trips')
@@ -236,27 +212,5 @@ class _searchTripState extends State<SearchTrip> {
     );
   }
 
-  Widget SearchByButton() {
-    final List<String> _searchBy = [
-      'Điểm xuất phát',
-      'Điểm đến',
-//      'Tài xế',
-    ];
-
-    return PopupMenuButton(
-      itemBuilder: (context) => _searchBy.map((option) => PopupMenuItem(
-        value: option,
-        child: Text(option),
-      )).toList(),
-      initialValue: _searchBy.first,
-      onSelected: (value) {
-        debugPrint('search by ${value}');
-        setState(() {
-          searchBy = value;
-        });
-      },
-      icon: Icon(Icons.arrow_drop_down_circle, color: Color(0xff06e2b3),),
-    );
-  }
 }
 

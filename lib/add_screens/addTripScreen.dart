@@ -162,9 +162,7 @@ class _AddTripState extends State<AddTrip> {
                             .toString(),
                         style: driverInfoStyle(),
                       ),
-                      IconButton(
-                          icon: Icon(Icons.calendar_today)
-                      )
+                      Icon(Icons.calendar_today)
                     ],
                   ))
                   :

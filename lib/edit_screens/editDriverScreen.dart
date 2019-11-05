@@ -264,9 +264,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                           .toString(),
                       style: driverInfoStyle(),
                     ),
-                    IconButton(
-                        icon: Icon(Icons.calendar_today)
-                    )
+                    Icon(Icons.calendar_today)
                   ],
                 )):
             TextFormField(

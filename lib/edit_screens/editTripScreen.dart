@@ -192,9 +192,7 @@ class EditTripState extends State<EditTrip> {
                               .toString(),
                           style: driverInfoStyle(),
                         ),
-                        IconButton(
-                            icon: Icon(Icons.calendar_today)
-                        )
+                        Icon(Icons.calendar_today)
                       ],
                     ))
                     :
