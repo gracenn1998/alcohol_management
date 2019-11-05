@@ -25,15 +25,32 @@ class _searchDriverState extends State<SearchDriver> {
   TextEditingController _controller = new TextEditingController();
   String _searchText = '';
   bool _searching = true;
-  List<dynamic> _testList;
-  List searchResults = new List();
+  List<dynamic> driverList;
+//  List<dynamic> searchResults;
   var queryResultSet = [];
   var tmpSearchStore = [];
 
   _searchDriverState() {
     _controller.addListener(() {
-      setState(() {});
+      setState(() {
+//        searchWithKeyWord(_controller.text);
+      });
     });
+  }
+
+  List<dynamic> searchWithKeyWord(String keyword) {
+    List<dynamic> searchResult = new List<dynamic>();
+    keyword = keyword.toLowerCase();
+    String name, did;
+    for(int i = 0; i < driverList.length; i++) {
+      name = driverList[i]['basicInfo']['name'].toString().toLowerCase();
+      did = driverList[i]['dID'].toString().toLowerCase();
+
+      if(name.contains(keyword) || did.contains(keyword)) {
+        searchResult.add(driverList[i]);
+      }
+    }
+    return searchResult;
   }
 
   @override
@@ -80,7 +97,7 @@ class _searchDriverState extends State<SearchDriver> {
           stream:
             FirebaseDatabase.instance.reference().child('driver')
                 .orderByChild('basicInfo/name')
-                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase() + '\uf8ff')
+//                .startAt(_controller.text.toUpperCase()).endAt(_controller.text.toLowerCase() + '\uf8ff')
                 .onValue,
           builder: (BuildContext context, AsyncSnapshot snapshots) {
             if (snapshots.connectionState == ConnectionState.waiting) {
@@ -89,7 +106,6 @@ class _searchDriverState extends State<SearchDriver> {
                       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
             }
             else {
-              List<dynamic> driverList;
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
@@ -101,7 +117,7 @@ class _searchDriverState extends State<SearchDriver> {
                 }
               }
               //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-              return getListSearchView(driverList);
+              return getListSearchView(searchWithKeyWord(_controller.text));
             }
           },
         )
