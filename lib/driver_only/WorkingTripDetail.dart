@@ -8,6 +8,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:alcohol_management/menu/menu_driver.dart';
+import 'package:alcohol_management/driver_only/show_tasks.dart';
 
 class D_WorkingTripDetail extends StatefulWidget{
   final dID;
@@ -21,7 +22,6 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   var _trip;
   var tID;
   var mapCreated = 0;
-  var isFinish = false;
   D_WorkingTripDetailState(this.dID);
 
   //PermissionStatus _status;
@@ -44,6 +44,12 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   var alcoholLogStream;
   double chartWidth = 350;
   int itemCnt = 0;
+
+  var locationReference;
+  var driverInfoStream;
+  var locationStream;
+  var isInfoGot = false;
+  var isWorking = false;
 
 
   DateTime _time;
@@ -87,36 +93,34 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 //////////------------------------------------------------------
 
   Widget build(BuildContext context) {
-
-    if(isFinish) {
-      return DriverMenu(dID: dID);
-    }
-    if(!isInfoGot) {
+    if(isWorking && !isInfoGot) {
       return LoadingState;
     }
+
     if(!isWorking) {
       return Scaffold(
-        appBar: new AppBar(
-          elevation: 0.0,
-          title: new Center(child: Text("Thông tin hành trình đang chạy") ,),
-          leading: IconButton(
-              icon: Icon(null)
-          ),
-        ),
-        body: Center(
-          child: Text(
-            'Hiện chưa bắt đầu hành trình nào',
-            style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff00bc94)
+          appBar: new AppBar(
+            elevation: 0.0,
+            title: new Center(child: Text("Hành trình đang chạy") ,),
+            leading: IconButton(
+              icon: Icon(null),
             ),
-            textAlign: TextAlign.center,
           ),
-        )
+          body: Center(
+            child: Text(
+              'Hiện chưa bắt đầu hành trình nào',
+              style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff00bc94)
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
       );
 
     }
+
     return StreamBuilder(
       stream: FirebaseDatabase.instance.reference().child('trips')
           .child(tID).onValue, //Firestore.instance.collection('journeys').where('jID', isEqualTo: jID).snapshots(),
@@ -133,7 +137,10 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     return new Scaffold(
       appBar: new AppBar(
         elevation: 0.0,
-        title: new Center(child: Text("Thông tin hành trình đang chạy") ,),
+        title: new Center(child: Text("Hành trình đang chạy") ,),
+        leading: IconButton(
+          icon: Icon(null),
+        ),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 5.0),
@@ -208,12 +215,8 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   }
 
 
-  var driverInfoStream;
-  var locationStream;
-  var isInfoGot = false;
-  var isWorking = false;
-
   void initState(){
+//    tID = null;
     driverInfoStream = FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID)
@@ -221,8 +224,29 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         .onValue.listen((alcoholLogSnap){
           tID = alcoholLogSnap.snapshot.value;
           isInfoGot = true;
-          if(tID!=null) {
+          if(tID==null) {
+            isWorking = false;
+          }
+          else {
             isWorking = true;
+
+            locationStream = location.onLocationChanged();
+            locationStream.listen((value) {
+              setState(() {
+                curLocation = value;
+
+                locationReference = FirebaseDatabase.instance.reference()
+                    .child('trips').child(tID).child('location');
+                locationReference.update({
+                  'lat': curLocation["latitude"],
+                  'lng': curLocation["longitude"],
+                  //'time': DateTime.now()
+                }).then((_) {
+                  // print("location updated DRIVER - ${_trip['dID']}");
+                });
+
+              });
+            });
 
             //for generating chart
             alcoholLogStream = FirebaseDatabase.instance.reference()
@@ -250,23 +274,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
 
-    locationStream = location.onLocationChanged();
-    locationStream.listen((value) {
-      setState(() {
-        curLocation = value;
 
-        var locationReference = FirebaseDatabase.instance.reference()
-            .child('trips').child(tID).child('location');
-        locationReference.update({
-          'lat': curLocation["latitude"],
-          'lng': curLocation["longitude"],
-          //'time': DateTime.now()
-        }).then((_) {
-         // print("location updated DRIVER - ${_trip['dID']}");
-        });
-
-      });
-    });
 
     super.initState();
     _animationController = new AnimationController(
@@ -287,8 +295,13 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     super.dispose();
     _animationController.dispose();
     driverInfoStream.cancel();
-    alcoholLogStream.cancel();
-    locationStream.cancel();
+    if(alcoholLogStream!=null) {
+      alcoholLogStream.cancel();
+    }
+    locationStream.close();
+    if(locationReference!=null) {
+      locationReference.cancel();
+    }
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
@@ -797,9 +810,17 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         .update({
       'tripID' : null,
     });
-    setState(() {
-      isFinish = true;
-    });
+//    setState(() {
+//      isFinish = true;
+//    });
+    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>
+            DriverMenu(dID: dID)
+        )
+    );
+    locationStream = null;
   }
 
 }
