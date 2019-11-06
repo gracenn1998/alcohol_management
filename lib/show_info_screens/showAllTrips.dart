@@ -21,33 +21,8 @@ class ShowAllTrips extends StatefulWidget {
 class _showAllTripsState extends State<ShowAllTrips> {
   int filterState;
   _showAllTripsState(this.filterState);
-
-  String _selectedTripID = null;
-  int _selectedFuction = 0;
-  bool _searching = false;
-
-//  if (_selectedTripID != null)
-//  {
-//    String id = _selectedTripID;
-//    _selectedTripID = null;
-//    return showInfoTrip(
-//      jID = id,
-//    );
-//  }
-
-//  if (_selectedFuction == 1)
-//  {
-//    return AddTrip();
-//  }
-
   @override
   Widget build(BuildContext context) {
-    if (_searching) {
-      _searching = false;
-      return SearchTrip(
-        filter: filterState,
-      );
-    }
 
     return Scaffold(
         appBar: AppBar(
@@ -62,10 +37,12 @@ class _showAllTripsState extends State<ShowAllTrips> {
               icon: Icon(Icons.search),
               color: Color(0xff06e2b3),
               onPressed: () {
-                debugPrint('Tim kiem hanh trinh');
-                  setState(() {
-                    _searching = true;
-                  });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchTrip(
+                      filter: filterState,
+                    ))
+                );
               },
             )
           ],

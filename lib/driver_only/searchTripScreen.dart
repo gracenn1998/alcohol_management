@@ -1,4 +1,5 @@
-import 'package:alcohol_management/show_info_screens/showAllTrips.dart';
+import 'package:alcohol_management/driver_only/show_tasks.dart';
+import 'package:alcohol_management/driver_only/show_history.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,6 @@ class _searchTripState extends State<SearchTrip> {
 
   @override
   Widget build(BuildContext context) {
-
     List<dynamic> tripList;
 
     List<dynamic> searchWithKeyWord(String keyword) {

@@ -18,30 +18,11 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
-  String _selectedDriverID = null;
-  int _selectedFuntion = 0;
-  bool _searching = false;
+
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    if (_selectedDriverID != null) {
-      String id = _selectedDriverID;
-      _selectedDriverID = null;
-      return ShowDriverInfo(
-        key: PageStorageKey("showInfo"),
-        dID: id,
-      );
-    }
-
-    if (_selectedFuntion == 1) {
-      return AddDriver();
-    }
-
-    if (_searching) {
-      _searching = false;
-      return SearchDriver();
-    }
 
     return Scaffold(
         appBar: AppBar(
@@ -53,9 +34,10 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             IconButton(
               icon: Icon(Icons.search, color: Color(0xff06e2b3),),
               onPressed: () {
-                setState(() {
-                  _searching = true;
-                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchDriver())
+                );
               },
             )
           ],
@@ -201,10 +183,6 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                 ],
               )),
           onTap: () {
-            //go to detail info
-//            setState(() {
-//              _selectedDriverID = dID;
-//            });
             final page =  ShowDriverInfo(
                 key: PageStorageKey('showInfo'),
                 dID: dID

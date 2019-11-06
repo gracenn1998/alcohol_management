@@ -24,7 +24,6 @@ class _searchDriverState extends State<SearchDriver> {
   );
   TextEditingController _controller = new TextEditingController();
   String _searchText = '';
-  bool _searching = true;
   List<dynamic> driverList;
 //  List<dynamic> searchResults;
   var queryResultSet = [];
@@ -55,9 +54,6 @@ class _searchDriverState extends State<SearchDriver> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_searching) {
-      return ShowAllDrivers();
-    }
 
     return Scaffold(
         appBar: AppBar(
@@ -67,9 +63,7 @@ class _searchDriverState extends State<SearchDriver> {
               color: Color(0xff06e2b3),
             ),
             onPressed: () {
-              setState(() {
-                _searching = false;
-              });
+              Navigator.of(context).pop();
             },
           ),
           title: TextField(

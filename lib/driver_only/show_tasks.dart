@@ -1,4 +1,4 @@
-import 'package:alcohol_management/search_screens/searchTripScreen.dart';
+import 'package:alcohol_management/driver_only/searchTripScreen.dart';
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -25,10 +25,10 @@ class _showTasksState extends State<ShowTasks> {
 
   @override
   Widget build(BuildContext context) {
-    if (_searching) {
-      _searching = false;
-      return SearchTrip();
-    }
+//    if (_searching) {
+//      _searching = false;
+//      return SearchTrip();
+//    }
 
     return Scaffold(
         appBar: AppBar(
@@ -43,10 +43,12 @@ class _showTasksState extends State<ShowTasks> {
               icon: Icon(Icons.search),
               color: Color(0xff06e2b3),
               onPressed: () {
-                debugPrint('Tim kiem hanh trinh');
-                setState(() {
-                  _searching = true;
-                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchTrip(
+                      filter: 2,
+                    ))
+                );
               },
             )
           ],
