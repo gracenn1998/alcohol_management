@@ -654,7 +654,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       child: FlatButton(
         child: Text('BẮT ĐẦU HÀNH TRÌNH', style: TextStyle(color: Colors.white, fontSize: 18),),
         onPressed: (){
-          print("Start button tapped");
           confirmStart(context);
         },
       ),
@@ -692,27 +691,55 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
   void startTrip(context) async {
-    FirebaseDatabase.instance.reference()
-        .child('trips')
-        .child(tID)
-        .update({
-      'start' : DateTime.now().millisecondsSinceEpoch,
-      'status' : 'working'
-    });
-
-    await FirebaseDatabase.instance.reference()
+    bool isWorking = false;
+    await FirebaseDatabase.instance
+        .reference()
         .child('driver')
         .child(_dID)
-        .update({
-      'tripID' : tID,
+        .child('tripID').once().then((data) {
+          var tid = data.value;
+          if(data.value!=null) {
+            showDialog(context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Không thể bắt đầu hành trình này'),
+                  content: Text('Bạn đang thực hiện hành trình $tid'),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('OK'),
+                    ),
+                  ],
+                );
+              }
+            );
+            isWorking = true;
+          }
     });
-    Navigator.of(context).pop();
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) =>
-            D_WorkingTripDetail(dID: _dID)
-        )
-    );
+    if(!isWorking) {
+      await FirebaseDatabase.instance.reference()
+          .child('driver')
+          .child(_dID)
+          .update({
+        'tripID' : tID,
+      });
+      print('???');
+      Navigator.of(context).pop();
+      await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>
+              D_WorkingTripDetail(dID: _dID)
+          )
+      );
+
+      FirebaseDatabase.instance.reference()
+          .child('trips')
+          .child(tID)
+          .update({
+        'start' : DateTime.now().millisecondsSinceEpoch,
+        'status' : 'working'
+      });
+    }
   }
 
 }
