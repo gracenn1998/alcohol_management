@@ -544,7 +544,10 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Xác nhận"), //????????? chữ gì
+              child: new Text(
+                "Xác nhận",
+                style: TextStyle(color: Colors.red),
+              ), //????????? chữ gì
               onPressed: () {
                 void smartConfig() async {
                   Smartconfig.start(
@@ -667,10 +670,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
       content: null,
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
-        FlatButton(
           onPressed: () {
             Navigator.pop(context);
             startTrip(context);
@@ -679,7 +678,11 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
             'Bắt đầu',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 

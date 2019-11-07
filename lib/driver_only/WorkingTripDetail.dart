@@ -770,10 +770,6 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
       content: null,
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
-        FlatButton(
           onPressed: () {
             Navigator.pop(context);
             finishTrip(context);
@@ -782,7 +778,11 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
             'Kết thúc',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 
