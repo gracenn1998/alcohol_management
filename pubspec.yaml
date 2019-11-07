@@ -27,7 +27,7 @@ dependencies:
   smartconfig:
   google_maps_flutter: 0.5.17
   #permission_handler: 2.1.0
-  location: 1.4.1
+  location: 2.3.5
   geocoder: 0.1.2
   fluttertoast: 2.2.11
   flutter_datetime_picker:
