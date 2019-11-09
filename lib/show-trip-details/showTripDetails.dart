@@ -88,6 +88,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         return NotStartedTripDetail(trip);
       case 'working':
         return WorkingTripDetail_NV(tID: tID);
+      case 'aborted':
+        return DoneTripDetail(trip);
     }
   }
 

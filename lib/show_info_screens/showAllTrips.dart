@@ -156,6 +156,13 @@ class _showAllTripsState extends State<ShowAllTrips> {
                 }
               }
               break;
+            case 4: //aborted
+              for(var tripItem in map.values) {
+                if(tripItem['status'] == 'aborted') {
+                  tripList.add(tripItem);
+                }
+              }
+              break;
           }
           //sort by tID
           tripList.sort((a, b) => b['tID'].compareTo(a['tID']));
@@ -478,6 +485,11 @@ class _showAllTripsState extends State<ShowAllTrips> {
         'Đang làm việc',
         style: tripStatusStyle(2),
       );
+    else if (data == 'aborted')
+      return Text(
+        'Đã bị hủy',
+        style: tripStatusStyle(3)
+      );
     else
       return Text(
         'Đã hoàn thành',
@@ -522,6 +534,11 @@ class _filterDialogState extends State<filterDialog> {
           RadioListTile(
               title: Text('Chưa bắt đầu'),
               value: 3,
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
+          RadioListTile(
+              title: Text('Đã bị hủy'),
+              value: 4,
               groupValue: _currentIndex,
               onChanged: (int val) => setState(() => _currentIndex = val)),
         ],

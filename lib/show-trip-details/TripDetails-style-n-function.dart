@@ -77,13 +77,19 @@ TextStyle tripDetailsStyle(status){
       return TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w400,
-        color: Color(0xffef3964),
+        color: Color(0xff8391b3),
       );
     case 'working': //chuabatdau
       return TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: Color(0xfff9aa33),
+      ) ;
+    case 'aborted': //chuabatdau
+      return TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: Color(0xffef3964),
       ) ;
   }
 }

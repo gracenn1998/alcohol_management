@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:alcohol_management/show-trip-details/tripStatusChoiceFinal.dart';
 
 class WorkingTripDetail_NV extends StatefulWidget{
   final tID;
@@ -14,7 +15,6 @@ class WorkingTripDetail_NV extends StatefulWidget{
   State<WorkingTripDetail_NV> createState() => WorkingTripDetail_NVState(tID);
 
 }
-
 
 class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleTickerProviderStateMixin{
   final tID;
@@ -234,7 +234,6 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 //        print(traceAlcoVal);
       });
     });
-
   }
 
   //ANIMATIONNNNNNNNNNNNNNNNN
@@ -296,7 +295,6 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     });
   }
-
 
   Widget DriverInfo(driver){
     return InkWell(
@@ -362,7 +360,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                     child: Text("XỬ LÝ", style: TextStyle(color: Colors.white),),
                     color: Color(0xffef3964),
                     onPressed: () {
-                      _drunkActions(context, driver['dID'], driver);
+                      _drunkActions(context, tID, driver);
                       //  heightOfJourneyInfo();
                       //   print(JourneyInfoHeight);
                       //
@@ -689,29 +687,29 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
     return Column(children: children);
   }
 
-  bool _isSolved;
   void setTripStatus(id, driver, status) {
-    FirebaseDatabase.instance.reference()
-        .child('trips')
-        .child(id)
-        .update({
-      'status': "aborted"
-    });
-
-    FirebaseDatabase.instance.reference()
-        .child('trips')
-        .child(id)
-        .update({
-      'status': "working"
-    });
-
-    FirebaseDatabase.instance.reference()
-        .child('bnotification')
-        .child(id)
-        .update({
-      'status': "aborted"
-    });
-
+    if (status == 0){
+      FirebaseDatabase.instance.reference()
+          .child('trips')
+          .child(id)
+          .update({
+        'status': "aborted"
+      });
+    } else if(status == 1) {
+      FirebaseDatabase.instance.reference()
+          .child('trips')
+          .child(id)
+          .update({
+        'status': "working"
+      });
+    } else {
+      FirebaseDatabase.instance.reference()
+          .child('trips')
+          .child(id)
+          .update({
+        'status': "done"
+      });
+    }
   }
 
   void _drunkActions(BuildContext context, id, driver) {
@@ -730,7 +728,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                 String telPrefix = "tel://";
                 String telLink = telPrefix + telNo;
                 launch(telLink);
-                _tripStatusActions(context, id ,driver);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => TripStatus(tID: id, driver: driver)));
               },
             ),
             ListTile(
@@ -738,7 +737,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
               leading: Icon(Icons.add_call),
               onTap: (){
                 launch('tel://0774887767');
-                _tripStatusActions(context, id ,driver);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => TripStatus(tID: id, driver: driver)));
               },
             )
           ],
@@ -746,12 +746,13 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       ),
       actions: <Widget>[
         FlatButton(
-          onPressed: () => _tripStatusActions(context, id, driver),
+          onPressed: () => Navigator.push(context,
+              MaterialPageRoute(builder: (context) => TripStatus(tID: id, driver: driver))),
           child: Text('Đặt trạng thái hành trình'),
         ),
         FlatButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Hủy'),
+          child: Text('Đóng'),
         ),
       ],
     );
@@ -759,36 +760,6 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) => drunkDialog
-    );
-  }
-
-  void _tripStatusActions(BuildContext context, id, driver){
-    var tripStatusDialog = AlertDialog(
-      title: Text("Đặt trạng thái hành trình"),
-      content: Container(
-        width: double.maxFinite,
-        child: ListView(
-          children: <Widget>[
-
-          ],
-        ),
-      ),
-      actions: <Widget>[
-        FlatButton(
-            onPressed: null,
-            child: Text("Lưu")
-        ),
-        FlatButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Hủy"),
-        )
-      ],
-    );
-
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) => tripStatusDialog
     );
   }
 

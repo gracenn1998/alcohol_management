@@ -340,6 +340,11 @@ class _showHistoryState extends State<ShowHistory> {
         'Đang làm việc',
         style: tripStatusStyle(2),
       );
+    else if (data == 'aborted')
+      return Text(
+        'Đang làm việc',
+        style: tripStatusStyle(3),
+      );
     else
       return Text(
         'Đã hoàn thành',

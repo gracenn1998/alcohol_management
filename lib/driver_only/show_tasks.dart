@@ -338,6 +338,11 @@ class _showTasksState extends State<ShowTasks> {
         'Đang làm việc',
         style: tripStatusStyle(2),
       );
+    else if (data == 'aborted')
+      return Text(
+        'Đang làm việc',
+        style: tripStatusStyle(3),
+      );
     else
       return Text(
         'Đã hoàn thành',
