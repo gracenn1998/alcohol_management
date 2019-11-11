@@ -77,6 +77,19 @@ class _showTasksState extends State<ShowTasks> {
               }
               //sort by tID
               tripList..sort((a, b) => a['schStart'].compareTo(b['schStart']));
+              if(tripList.length == 0) {
+                return Center(
+                  child: Text(
+                    'Hiện chưa được phân công hành trình nào',
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff00bc94)
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
               return getListTripView(tripList);
             }
 

@@ -811,14 +811,12 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 //    setState(() {
 //      isFinish = true;
 //    });
-    Navigator.of(context).pop();
-    Navigator.push(
+    Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) =>
             DriverMenu(dID: dID)
         )
     );
-    locationStream = null;
   }
 
 }

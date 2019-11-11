@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import 'TripDetails-style-n-function.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../edit_screens/editTripScreen.dart';
+import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 
@@ -180,13 +181,21 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
             if (snapshot.hasData) {
 //              print(snapshot.data.toString());
               var t = snapshot.data.snapshot.value;
-              if(Tstatus == 'done') {
-                return showDetailItem(
-                    "Tài xế", t['basicInfo']['name'], 0, 'done');
-              }
-              else if (t['dID'] == dID)
-                return showDetailItem(
-                    "Tài xế", t['basicInfo']['name'], 0, 'normal');
+              if (t['dID'] == dID)
+                return InkWell(
+                  child: showDetailItem(
+                      "Tài xế", t['basicInfo']['name'], 0, Tstatus),
+                  onTap: () {
+                    final page =  ShowDriverInfo(
+                        key: PageStorageKey('showInfo'),
+                        dID: dID
+                    );
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => page)
+                    );
+                  },
+                );
               else
                 return showDetailItem(
                     "Tài xế", "Không tìm thấy tài xế", 0, 'notStarted');
@@ -225,7 +234,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
             vID == null
                 ? showDetailItem(
             'Phương tiện', 'Chưa chỉ định', 1, Tstatus)
-                : showDetailItem('Phương tiện', vID, 1, 'normal'),
+                : showDetailItem('Phương tiện', vID, 1, Tstatus),
             showDetailItem('TG dự kiến', schStart, 0, 'normal'),
             showDetailItem('TG bắt đầu', start, 1,
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
@@ -233,7 +242,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
             showDetailItem('Từ', from, 1, 'normal'),
             showDetailItem('Đến', to, 0, 'normal'),
-            showDetailItem('Trạng Thái', status, 1, Tstatus),
+            showDetailItem('Trạng Thái', status, 1, trip['status']),
           ],
         )
     );
@@ -281,8 +290,8 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                 ],
               ),
             ) :
-            (title == "Phương tiện") ?
 
+            (title == "Phương tiện") ?
             Container(
               height: 55.0,
 //          margin: const EdgeInsets.all(5.0),

@@ -728,8 +728,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           .update({
         'tripID' : tID,
       });
-      Navigator.of(context).pop();
-      await Navigator.push(
+      await Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) =>
               D_WorkingTripDetail(dID: _dID)

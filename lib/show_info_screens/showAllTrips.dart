@@ -26,9 +26,9 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              icon: Icon(null)
-          ),
+//          leading: IconButton(
+//              icon: Icon(null)
+//          ),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[

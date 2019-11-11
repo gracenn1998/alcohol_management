@@ -36,8 +36,8 @@ String toStatusInVN(String x) {
       return "Đã hoàn thành";
     case 'notStarted':
       return "Chưa bắt đầu";
-    case 'working':
-      return "Đang đi???";
+    case 'aborted':
+      return "Đã bị hủy";
   }
   return null;
 }

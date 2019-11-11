@@ -38,14 +38,16 @@ class _TripStatusState extends State<TripStatus> {
           .child('trips')
           .child(id)
           .update({
-        'status': "done"
+        'status': "done",
+        'finish': DateTime.now().millisecondsSinceEpoch
       });
     } else {
       FirebaseDatabase.instance.reference()
           .child('trips')
           .child(id)
           .update({
-        'status': "aborted"
+        'status': "aborted",
+        'finish': DateTime.now().millisecondsSinceEpoch
       });
     }
   }
