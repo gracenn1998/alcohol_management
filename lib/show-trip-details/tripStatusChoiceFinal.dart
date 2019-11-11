@@ -106,6 +106,7 @@ class _TripStatusState extends State<TripStatus> {
                         msg: "Đã lưu trạng thái hành trình",
                         gravity: ToastGravity.TOP,
                         fontSize: 16.0);
+                    Navigator.pop(context);
                   },
                   child: Text("Lưu", style: TextStyle(fontSize: 15)),
                 ),

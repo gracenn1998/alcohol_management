@@ -629,7 +629,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       final measures = <String, num>{};
 
       // We get the model that updated with a list of [SeriesDatum] which is
-      // simply a pair of series & datum.
+      // simply a pair  series & datum.
       //
       // Walk the selection updating the measures map, storing off the sales and
       // series name for each selection point.
