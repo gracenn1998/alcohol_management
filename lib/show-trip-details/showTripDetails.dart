@@ -286,7 +286,14 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                  status != 'done'? assignDriverBtn(): Container(),
+                  status != 'done'?
+                      Row(
+                        children: <Widget>[
+                          assignDriverBtn(),
+                          unAssignDriverBtn()
+                        ],
+                      )
+                      : Container(),
                 ],
               ),
             ) :
@@ -306,7 +313,14 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                  status != 'done'? assignVehicleBtn(): Container()
+                  status != 'done'?
+                  Row(
+                    children: <Widget>[
+                      assignVehicleBtn(),
+                      unAssignVehicleBtn()
+                    ],
+                  )
+                      : Container(),
                 ],
               ),
             ) :
@@ -351,6 +365,28 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         color: Color(0xffef3964),
         onPressed: () {
           assignVehicleDialog();
+        },
+      );
+  }
+
+  Widget unAssignDriverBtn(){
+    return
+      IconButton(
+        icon: Icon(Icons.cancel,),
+        color: Color(0xff8391b3),
+        onPressed: () {
+          unAssignDriver();
+        },
+      );
+  }
+
+  Widget unAssignVehicleBtn(){
+    return
+      IconButton(
+        icon: Icon(Icons.cancel,),
+        color: Color(0xff8391b3),
+        onPressed: () {
+          unAssignVehicle();
         },
       );
   }
@@ -688,6 +724,16 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           'dID' : _dID,
         }
     );
+    if(_vID!=null && selectedVID != _vID) {
+      FirebaseDatabase.instance.reference().child('vehicles').child(
+          _vID).update(
+          {
+            'tID': null,
+            'dID' : null,
+          }
+      );
+    }
+
   }
 
   void updateDriver() {
@@ -697,11 +743,45 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         }
     );
 
+    if(_vID!=null) {
+      FirebaseDatabase.instance.reference().child('vehicles').child(
+          _vID).update(
+          {
+            'dID': selectedDID,
+            'tID': tID
+          }
+      );
+    }
+  }
+
+  void unAssignDriver() {
+    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
+        {
+          'dID': null,
+        }
+    );
+
     FirebaseDatabase.instance.reference().child('vehicles').child(
         _vID).update(
         {
-          'dID': selectedDID,
+          'dID': null,
           'tID': tID
+        }
+    );
+  }
+
+  void unAssignVehicle() {
+    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
+        {
+          'vID':null,
+        }
+    );
+
+    FirebaseDatabase.instance.reference().child('vehicles').child(
+        _vID).update(
+        {
+          'tID': null,
+          'dID' : null,
         }
     );
   }
