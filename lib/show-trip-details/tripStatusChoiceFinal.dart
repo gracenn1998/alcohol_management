@@ -41,6 +41,8 @@ class _TripStatusState extends State<TripStatus> {
         'status': "done",
         'finish': DateTime.now().millisecondsSinceEpoch
       });
+      print('finish');
+      print(DateTime.now().millisecondsSinceEpoch);
     } else {
       FirebaseDatabase.instance.reference()
           .child('trips')
@@ -49,6 +51,8 @@ class _TripStatusState extends State<TripStatus> {
         'status': "aborted",
         'finish': DateTime.now().millisecondsSinceEpoch
       });
+      print('abort');
+      print(DateTime.now().millisecondsSinceEpoch);
     }
   }
 
