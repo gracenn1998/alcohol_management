@@ -5,6 +5,7 @@ import '../styles/styles.dart';
 import '../show_info_screens/showAllDrivers.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class AddDriver extends StatefulWidget {
   @override
@@ -18,8 +19,6 @@ class _AddDriver extends State<AddDriver> {
   final _nameController = TextEditingController();
   final _idCardController = TextEditingController();
   final _addressController = TextEditingController();
-  final _genderController = TextEditingController();
-  final _dobController = TextEditingController();
 
   DocumentSnapshot driver;
 
@@ -46,8 +45,6 @@ class _AddDriver extends State<AddDriver> {
     _nameController.dispose();
     _idCardController.dispose();
     _addressController.dispose();
-    _genderController.dispose();
-    _dobController.dispose();
     super.dispose();
   }
 
@@ -66,9 +63,7 @@ class _AddDriver extends State<AddDriver> {
           color: Color(0xff06E2B3),
           onPressed: () {
             //backkkk
-            setState(() {
-              _selectedFunction--;
-            });
+            Navigator.pop(context);
           },
         ),
         title:  Center(child: Text('Thêm tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -84,9 +79,7 @@ class _AddDriver extends State<AddDriver> {
                 if(confirmed == 1) {
                   addDataDTB();
                   Fluttertoast.showToast(msg: 'Đã thêm tài xế');
-                  setState(() {
-                    _selectedFunction--;
-                  });
+                  Navigator.pop(context);
 //                dispose();
                 }
 
@@ -165,16 +158,21 @@ class _AddDriver extends State<AddDriver> {
               children: <Widget>[
                 fillDetailInfo('CMND', 1, _idCardController),
                 fillDetailInfo('Địa chỉ', 0, _addressController),
-                fillDetailInfo('Giới tính', 1, _genderController),
-                fillDetailInfo('Ngày sinh', 0, _dobController),
+                fillDetailInfo('Giới tính', 1, null),
+                fillDetailInfo('Ngày sinh', 0, null),
               ],
             )
         )
     );
 
   }
-
+  int genderRadioGroup = 0;
+  int dob = -1;
   Widget fillDetailInfo(title, line, controller) {
+    var formattedDOB = DateFormat('dd/MM/yyyy')
+        .format(DateTime.fromMillisecondsSinceEpoch(dob))
+        .toString();
+
     return Row(
       children: <Widget>[
         Expanded(
@@ -193,6 +191,7 @@ class _AddDriver extends State<AddDriver> {
               )
           ),
         ),
+
         Expanded(
           flex: 5,
           child: Container(
@@ -201,10 +200,55 @@ class _AddDriver extends State<AddDriver> {
             padding: const EdgeInsets.all(5.0),
 
             decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-            child: TextFormField(
-              controller: controller,
-              style: driverInfoStyle(),
-            ),
+            child:
+              title=='Giới tính'
+                  ? Row(
+                    children: <Widget>[
+                      Radio(
+                          value: 0,
+                          groupValue: genderRadioGroup,
+                          onChanged: (val) => setState((){
+                            genderRadioGroup = val;
+                          })),
+                      Text('Nam', style: driverInfoStyle()),
+                      Radio(
+                          value: 1,
+                          groupValue: genderRadioGroup,
+                          onChanged: (val) => setState((){
+                            genderRadioGroup = val;
+                          })),
+                      Text('Nữ', style: driverInfoStyle())
+
+                    ],
+                  ):
+              title == 'Ngày sinh'
+                  ? FlatButton(
+                  onPressed: () {
+                    DatePicker.showDatePicker(context,
+                        showTitleActions: true,
+                        minTime: DateTime(1950, 1, 1),
+                        maxTime: DateTime.now(),
+                        onConfirm: (date) {
+                          setState(() {
+                            dob = date.millisecondsSinceEpoch;
+                          });
+                        }, currentTime: DateTime.now(), locale: LocaleType.vi);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        dob==-1?'Bấm để chọn ngày sinh': DateFormat('dd/MM/yyyy')
+                            .format(DateTime.fromMillisecondsSinceEpoch(dob))
+                            .toString(),
+                        style: driverInfoStyle(),
+                      ),
+                      Icon(Icons.calendar_today)
+                    ],
+                  )):
+                TextFormField(
+                  controller: controller,
+                  style: driverInfoStyle(),
+                ),
 
 
           ),
@@ -215,7 +259,7 @@ class _AddDriver extends State<AddDriver> {
   }
 
   void addDataDTB () async {
-    var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
+//    var dobMilli = DateFormat('dd/MM/yyyy').parse(_dobController.text).millisecondsSinceEpoch;
 
     FirebaseDatabase.instance.reference().child('driver').child(newID)
         .set({
@@ -229,8 +273,8 @@ class _AddDriver extends State<AddDriver> {
           'name' : _nameController.text,
           'idCard' : _idCardController.text,
           'address' : _addressController.text,
-          'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
-          'dob' : dobMilli,
+          'gender' : genderRadioGroup == 0 ? 'M' : 'F',
+          'dob' : dob,
           'email' : newID.toLowerCase() + '@driver.potatoes.com',
       });
     });

@@ -15,8 +15,8 @@ class ShowTripDetails extends StatefulWidget{
 
 class ShowTripDetailsState extends State<ShowTripDetails> {
   final String tID;
-  final _dIDControler = TextEditingController();
-  final _vIDControler = TextEditingController();
+  String _dID, _vID;
+
 
   ShowTripDetailsState(this.tID);
 
@@ -74,7 +74,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return Center(child: CircularProgressIndicator());
-        return directTripDetailScreen(snapshot.data.snapshot.value);
+        var tripSnap = snapshot.data.snapshot;
+        _dID = tripSnap.value['dID'];
+        _vID = tripSnap.value['vID'];
+        return directTripDetailScreen(tripSnap.value);
       },
     );
   }
@@ -134,15 +137,15 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     );
   }
 
-//  Widget buildDoneTripDetail(trip){
-//    return Column(
-//      crossAxisAlignment: CrossAxisAlignment.start,
-//      children: <Widget>[
-//        showTripID(trip['tID']),
-//        showDetails(trip, 'done')
-//      ],
-//    );
-//  }
+  Widget buildDoneTripDetail(trip){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        showTripID(trip['tID']),
+        showDetails(trip, 'done'),
+      ],
+    );
+  }
 
 
   Widget showTripID(tID) {
@@ -158,7 +161,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
       );
   }
 
-  Widget getDriverNameByID(dID) {
+  Widget getDriverNameByID(dID, Tstatus) {
     if (dID == null)
       return showDetailItem("Tài xế", "Chưa chỉ định", 0, 'notStarted');
 
@@ -177,7 +180,11 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
             if (snapshot.hasData) {
 //              print(snapshot.data.toString());
               var t = snapshot.data.snapshot.value;
-              if (t['dID'] == dID)
+              if(Tstatus == 'done') {
+                return showDetailItem(
+                    "Tài xế", t['basicInfo']['name'], 0, 'done');
+              }
+              else if (t['dID'] == dID)
                 return showDetailItem(
                     "Tài xế", t['basicInfo']['name'], 0, 'normal');
               else
@@ -214,19 +221,19 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           children: <Widget>[
             showDetailItem('ID', id, 1, 'normal'),
             //           showDetailItem('Tài xế', driver, 0, (Tstatus == 'notStarted' && driver == null)?'notStarted':'normal'),
-            getDriverNameByID(trip['dID']),
+            getDriverNameByID(trip['dID'], Tstatus),
             vID == null
                 ? showDetailItem(
-                'Phương tiện', 'Chưa chỉ định', 0, 'notStarted')
-                : showDetailItem('Phương tiện', vID, 0, 'normal'),
-            showDetailItem('TG dự kiến', schStart, 1, 'normal'),
-            showDetailItem('TG bắt đầu', start, 0,
+            'Phương tiện', 'Chưa chỉ định', 1, Tstatus)
+                : showDetailItem('Phương tiện', vID, 1, 'normal'),
+            showDetailItem('TG dự kiến', schStart, 0, 'normal'),
+            showDetailItem('TG bắt đầu', start, 1,
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
-            showDetailItem('TG kết thúc', finish, 1,
+            showDetailItem('TG kết thúc', finish, 0,
                 (Tstatus == 'notStarted') ? 'notStarted' : 'normal'),
-            showDetailItem('Từ', from, 0, 'normal'),
-            showDetailItem('Đến', to, 1, 'normal'),
-            showDetailItem('Trạng Thái', status, 0, Tstatus),
+            showDetailItem('Từ', from, 1, 'normal'),
+            showDetailItem('Đến', to, 0, 'normal'),
+            showDetailItem('Trạng Thái', status, 1, Tstatus),
           ],
         )
     );
@@ -256,42 +263,43 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         Expanded(
             flex: 5,
             child: (title == "Tài xế") ?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Row(
+                children: <Widget>[
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "$data",
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                ),
-                assignDriverBtn()
-              ],
+                  status != 'done'? assignDriverBtn(): Container(),
+                ],
+              ),
             ) :
             (title == "Phương tiện") ?
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 55.0,
+
+            Container(
+              height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-                  child: Align(
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
+              child: Row(
+                children: <Widget>[
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "$data",
                       style: tripDetailsStyle(status),
                     ),
                   ),
-                ),
-                assignVehicleBtn()
-              ],
+                  status != 'done'? assignVehicleBtn(): Container()
+                ],
+              ),
             ) :
             Container(
               height: 55.0,
@@ -314,7 +322,9 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   }
 
 
-  Widget assignDriverBtn() {
+
+  //--------------------------------------------------------
+  Widget assignDriverBtn(){
     return
       IconButton(
         icon: Icon(Icons.assignment_ind,),
@@ -335,39 +345,156 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         },
       );
   }
+  String selectedDID = null;
+  String selectedVID = null;
+
+
+
 
   void assignDriverDialog() {
+    List<dynamic> driverList;
+    selectedDID = null;
+    final _controller = TextEditingController();
+    List<dynamic> searchWithKeyWord(String keyword) {
+      List<dynamic> searchResult = new List<dynamic>();
+      keyword = keyword.toLowerCase();
+      String name, did;
+      for(int i = 0; i < driverList.length; i++) {
+        name = driverList[i]['basicInfo']['name'].toString().toLowerCase();
+        did = driverList[i]['dID'].toString().toLowerCase();
+
+        if(name.contains(keyword) || did.contains(keyword)) {
+          searchResult.add(driverList[i]);
+        }
+      }
+      return searchResult;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Chỉ định"),
-          content: Container(
-            child: TextFormField(
-              controller: _dIDControler,
-              decoration: InputDecoration(
-                enabledBorder: new UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff00BC94))
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+
+              _controller.addListener(() {
+                setState(() {});
+              });
+
+              Widget getListSearchView(documents) {
+                if(documents == null || documents.length == 0)
+                  return ListView.separated(
+                      itemBuilder: (BuildContext context, int index) {},
+                      separatorBuilder: (context, index) {},
+                      itemCount: 0
+                  );
+
+                return ListView.separated(
+                  itemCount: documents.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    String name = documents[index]['basicInfo']['name'].toString();
+                    String dID = documents[index]['dID'].toString();
+                    return InkWell(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+//                padding: EdgeInsets.only(left: 15.0, top: 5.0, right: 10.0),
+                            color: selectedDID==dID? Colors.blueAccent : Colors.white,
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  name,
+                                  style: driverInfoStyle(),
+                                ),
+                                Text(
+                                  " {$dID}",
+                                  style: driverInfoStyle(),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        setState((){
+                          selectedDID = dID;
+                        });
+                      },
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                );
+              }
+              return Container(
+                height: 300,
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        enabledBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        focusedBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        hintText: "Tên hoặc mã tài xế",
+                        labelText: "Nhập tên hoặc mã tài xế để tìm kiếm",
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        width: 500,
+                        height: 500,
+                        child: StreamBuilder(
+                          stream: FirebaseDatabase.instance.reference().child('driver')
+                              .orderByChild('basicInfo/name')
+                              .onValue,
+                          builder: (BuildContext context, AsyncSnapshot snapshots) {
+                            if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
+                            else {
+
+                              DataSnapshot driverSnaps = snapshots.data.snapshot;
+                              Map<dynamic, dynamic> map = driverSnaps.value;
+                              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+                              if (map != null) { /*To not show the deleted drivers*/
+                                driverList = map.values.toList();
+                                for (int i = 0; i<driverList.length; ++i) {
+//                              debugPrint(driverList[i]['isDeleted'].toString());
+                                  if (driverList[i]['isDeleted']) driverList.removeAt(i);
+                                }
+                              }
+                              //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+                              return getListSearchView(searchWithKeyWord(_controller.text));
+                            }
+                          },
+                        ),
+                      ),
+                    )
+
+                  ],
                 ),
-                focusedBorder: new UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff00BC94))
-                ),
-                hintText: "Nhập mã tài xế",
-                labelText: "Mã tài xế",
-              ),
-            ),
+              );
+            },
           ),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Xác nhận"), //????????? chữ gì
+              child: new Text(
+                "Xác nhận",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 updateDriver();
                 Navigator.of(context).pop();
               },
             ),
-
             new FlatButton(
               child: new Text("Đóng"),
               onPressed: () {
@@ -378,41 +505,154 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         );
       },
     );
+
   }
 
+
   void assignVehicleDialog() {
+    selectedVID = null; //sau chuyen thanh bien so xe???
+
+    List<dynamic> vehicleList;
+    List<dynamic> searchWithKeyWord(String keyword) {
+      List<dynamic> searchResult = new List<dynamic>();
+      keyword = keyword.toLowerCase();
+      String plateNo, vid;
+      for(int i = 0; i < vehicleList.length; i++) {
+        plateNo = vehicleList[i]['plateNumber'].toString().toLowerCase();
+        vid = vehicleList[i]['vID'].toString().toLowerCase();
+
+        if(plateNo.contains(keyword) || vid.contains(keyword)) {
+          searchResult.add(vehicleList[i]);
+        }
+      }
+      return searchResult;
+    }
+    final _controller = TextEditingController();
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
           title: new Text("Chỉ định"),
-          content: Container(
-            child: TextFormField(
-              controller: _vIDControler,
-              decoration: InputDecoration(
-                enabledBorder: new UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff00BC94))
-                ),
-                focusedBorder: new UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xff00BC94))
-                ),
-                hintText: "Nhập mã phương tiện",
-                labelText: "Mã phương tiện",
-              ),
-            ),
-          ),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
 
+              _controller.addListener(() {
+                setState(() {});
+              });
+
+              Widget getListSearchView(documents) {
+                if(documents == null || documents.length == 0)
+                  return ListView.separated(
+                      itemBuilder: (BuildContext context, int index) {},
+                      separatorBuilder: (context, index) {},
+                      itemCount: 0
+                  );
+
+                return ListView.separated(
+                  itemCount: documents.length,
+                  itemBuilder: (BuildContext context, int index) {
+//                    String name = documents[index]['basicInfo']['name'].toString();
+                    String vID = documents[index]['vID'].toString();
+                    String plateNo = documents[index]['plateNumber'].toString();
+                    return InkWell(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+//                padding: EdgeInsets.only(left: 15.0, top: 5.0, right: 10.0),
+                            color: selectedVID==vID? Colors.blueAccent : Colors.white,
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  "<$plateNo>",
+                                  style: driverInfoStyle(),
+                                ),
+                                Text(
+                                  " {$vID}",
+                                  style: driverInfoStyle(),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        setState((){
+                          selectedVID = vID;
+                        });
+                      },
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                );
+              }
+              return Container(
+                height: 300,
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        enabledBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        focusedBorder: new UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xff00BC94))
+                        ),
+                        hintText: "mã phương tiện/ biển số xe",
+                        labelText: "Nhập mã phương tiện hoặc biển số xe để tìm kiếm",
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        width: 500,
+                        height: 500,
+                        child: StreamBuilder(
+                          stream: FirebaseDatabase.instance.reference().child('vehicles')
+                              .orderByChild('vID')
+                              .onValue,
+                          builder: (BuildContext context, AsyncSnapshot snapshots) {
+                            if (snapshots.connectionState == ConnectionState.waiting) return LoadingState;
+                            else {
+                              DataSnapshot vehicleSnaps = snapshots.data.snapshot;
+                              Map<dynamic, dynamic> map = vehicleSnaps.value;
+                              //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
+                              if (map != null) { /*To not show the deleted drivers*/
+                                vehicleList = map.values.toList();
+                                for (int i = 0; i<vehicleList.length; ++i) {
+//                              debugPrint(driverList[i]['isDeleted'].toString());
+                                  if (vehicleList[i]['isDeleted']) vehicleList.removeAt(i);
+                                }
+                              }
+                              //..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+                              return getListSearchView(searchWithKeyWord(_controller.text));
+                            }
+                          },
+                        ),
+                      ),
+                    )
+
+                  ],
+                ),
+              );
+            },
+          ),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Xác nhận"), //????????? chữ gì
+              child: new Text(
+                "Xác nhận",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 updateVehicle();
                 Navigator.of(context).pop();
               },
             ),
-
             new FlatButton(
               child: new Text("Đóng"),
               onPressed: () {
@@ -428,14 +668,15 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   void updateVehicle() {
     FirebaseDatabase.instance.reference().child('trips').child(tID).update(
         {
-          'vID': _vIDControler.text,
+          'vID':selectedVID,
         }
     );
 
     FirebaseDatabase.instance.reference().child('vehicles').child(
-        _vIDControler.text).update(
+        selectedVID).update(
         {
-          'tID': tID
+          'tID': tID,
+          'dID' : _dID,
         }
     );
   }
@@ -443,14 +684,14 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   void updateDriver() {
     FirebaseDatabase.instance.reference().child('trips').child(tID).update(
         {
-          'dID': _dIDControler.text,
+          'dID': selectedDID,
         }
     );
 
     FirebaseDatabase.instance.reference().child('vehicles').child(
-        _vIDControler.text).update(
+        _vID).update(
         {
-          'dID': _dIDControler.text,
+          'dID': selectedDID,
           'tID': tID
         }
     );
@@ -540,21 +781,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     return Column(children: children);
   }
 
-//  Widget buildLogBtn(){
-//    return Container(
-//      color: Color(0xff0a2463) ,
-//      padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-//      child: FlatButton(
-//        child: Text('LOG', style: TextStyle(color: Colors.white, fontSize: 18),),
-//        onPressed: (){
-//          print("LOG Button tapped");
-//        },
-//      ),
-//    );
-//  }
   //--------------------------------------------------------
 
-  Widget NotStartedTripDetail(trip) {
+  Widget NotStartedTripDetail(trip){
+//>>>>>>> smartConfig
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -577,13 +807,13 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
               icon: Icon(Icons.edit),
               color: Color(0xff06E2B3),
               onPressed: () {
+                final page =  EditTrip(
+                    key: PageStorageKey('editTrip'),
+                    tID: tID
+                );
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>
-                        EditTrip(
-                            key: PageStorageKey('editTrip'),
-                            tID: tID)
-                    )
+                    MaterialPageRoute(builder: (context) => page)
                 );
               }, // EDITTTTTTTT
             ),

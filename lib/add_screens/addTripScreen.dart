@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
-import '../show_info_screens/showAllTrips.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class AddTrip extends StatefulWidget {
   @override
@@ -42,13 +42,6 @@ class _AddTripState extends State<AddTrip> {
 
   Widget build(BuildContext build)
   {
-      if(_selectedFunction == -1) {
-        return ShowAllTrips(
-          filterState: 0,
-        );
-          //Center(child: Text("Show all trip"));
-      }
-     // return Center(child: Text("Loading..."));
       return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -56,9 +49,7 @@ class _AddTripState extends State<AddTrip> {
             color: Color(0xff06E2B3),
             onPressed: () {
               //backkkk
-              setState(() {
-                _selectedFunction--;
-              });
+              Navigator.pop(context);
             },
           ),
           title:  Center(child: Text('Thêm hành trình', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -73,10 +64,8 @@ class _AddTripState extends State<AddTrip> {
                   var confirmed = 1;
                   if(confirmed == 1) {
                     addDataDTB();
-                    //Fluttertoast.showToast(msg: 'Đã thêm hành trình');
-                    setState(() {
-                      _selectedFunction--;
-                    });
+                    Fluttertoast.showToast(msg: 'Đã thêm hành trình');
+                    Navigator.pop(context);
 //                dispose();
                   }
 
@@ -122,6 +111,7 @@ class _AddTripState extends State<AddTrip> {
 
   }
 
+  int startTime = -1;
   Widget fillDetailInfo(title, line, controller) {
     return Row(
       children: <Widget>[
@@ -149,10 +139,37 @@ class _AddTripState extends State<AddTrip> {
             padding: const EdgeInsets.all(5.0),
 
             decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-            child: TextFormField(
-              controller: controller,
-              style: driverInfoStyle(),
-            ),
+            child:
+              title=='Thời gian bắt đầu dự kiến'
+                  ? FlatButton(
+                  onPressed: () {
+                    DatePicker.showDateTimePicker(context,
+                        showTitleActions: true,
+                        currentTime: DateTime.now(),
+                        locale: LocaleType.vi,
+                        onConfirm: (datetime) {
+                          setState(() {
+                            startTime = datetime.millisecondsSinceEpoch;
+                          });
+                        }
+                    );
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        startTime==-1?'Bấm để chọn thời gian': DateFormat('dd/MM/yyyy kk:mm')
+                            .format(DateTime.fromMillisecondsSinceEpoch(startTime))
+                            .toString(),
+                        style: driverInfoStyle(),
+                      ),
+                      Icon(Icons.calendar_today)
+                    ],
+                  ))
+                  :
+                  TextFormField(
+                    controller: controller,
+                    style: driverInfoStyle(),
+                  ),
 
 
           ),
@@ -164,14 +181,14 @@ class _AddTripState extends State<AddTrip> {
 
   void addDataDTB () async {
     var isAddCalled = false;
-    var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
-    schMilli+=3600000; //no idea :(
+//    var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
+//    schMilli+=3600000; //no idea :(
 
     FirebaseDatabase.instance.reference().child('trips').child(newID)
         .set({
       'tID' : newID,
       'isDeleted' : false,
-      'schStart' : schMilli,
+      'schStart' : startTime,
       'from': _fromController.text,
       'to': _toController.text,
       'status': 'notStarted',

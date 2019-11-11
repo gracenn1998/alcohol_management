@@ -62,11 +62,10 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 //                setState(() {
 //                  _selectedIndex = 1;
 //                });
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return EditDriverInfo(
-                      dID: dID,
-                    );
-                  }));
+                  final page =  EditDriverInfo(
+                    dID: dID,
+                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => page));
                 },
               ),
             ),
@@ -100,7 +99,6 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 driver['basicInfo']['address'], driver['basicInfo']['email'],
                 driver['basicInfo']['gender'], driver['basicInfo']['dob'])
         ),
-        generatePasswordButton(),
 
       ],
     );

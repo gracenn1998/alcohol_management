@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.14.11"
+  connectivity:
+    dependency: "direct main"
+    description:
+      name: connectivity
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.4"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -90,6 +97,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_datetime_picker:
+    dependency: "direct main"
+    description:
+      name: flutter_datetime_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -129,7 +143,7 @@ packages:
       name: location
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.1"
+    version: "2.3.5"
   logging:
     dependency: transitive
     description:
@@ -184,6 +198,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smartconfig:
+    dependency: "direct main"
+    description:
+      name: smartconfig
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   source_span:
     dependency: transitive
     description:

@@ -21,44 +21,14 @@ class ShowAllTrips extends StatefulWidget {
 class _showAllTripsState extends State<ShowAllTrips> {
   int filterState;
   _showAllTripsState(this.filterState);
-
-  String _selectedTripID = null;
-  int _selectedFuction = 0;
-  bool _searching = false;
-
-//  if (_selectedTripID != null)
-//  {
-//    String id = _selectedTripID;
-//    _selectedTripID = null;
-//    return showInfoTrip(
-//      jID = id,
-//    );
-//  }
-
-//  if (_selectedFuction == 1)
-//  {
-//    return AddTrip();
-//  }
-
   @override
   Widget build(BuildContext context) {
-    if (_searching) {
-      _searching = false;
-      return SearchTrip(searchBy: 'Điểm xuất phát',);
-    }
 
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              icon: Icon(Icons.arrow_back), 
-              color: (filterState > 0) ? Color(0xff06e2b3) : Color(0xff0A2463),
-              onPressed: () {
-                debugPrint('back');
-//                if (filterState > 0) Navigator.pop(context);
-                if (filterState > 0) setState(() {
-                  filterState = 0;
-                });
-          }),
+              icon: Icon(null)
+          ),
           title: Text('Tất Cả Hành Trình', style: appBarTxTStyle,),
           centerTitle: true,
           actions: <Widget>[
@@ -67,10 +37,12 @@ class _showAllTripsState extends State<ShowAllTrips> {
               icon: Icon(Icons.search),
               color: Color(0xff06e2b3),
               onPressed: () {
-                debugPrint('Tim kiem hanh trinh');
-                  setState(() {
-                    _searching = true;
-                  });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchTrip(
+                      filter: filterState,
+                    ))
+                );
               },
             )
           ],
@@ -128,11 +100,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
 
           switch (filter) {
             case 0:
-//              for(var tripItem in map.values) {
-//                if(!tripItem['isDeleted']) {
-//                  tripList.add(tripItem);
-//                }
-//              }
               tripList = map.values.toList();
               break;
             case 1: //done
@@ -289,22 +256,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
                                     ),
                                   );
                                 }
-//                                else if (snapshots.data.documents.isEmpty) {
-//                                  return Container(
-////                                    constraints: BoxConstraints.tight(100.0),
-//                                    padding: EdgeInsets.only(left: 5.0),
-//                                    child: Text(
-//                                      'Không có tài xế',
-//                                      style: TextStyle(
-//                                          color: Colors.black,
-//                                          fontWeight: FontWeight.w700,
-//                                          fontFamily: "Roboto",
-//                                          fontStyle: FontStyle.normal,
-//                                          fontSize: 20.0),
-//                                      overflow: TextOverflow.ellipsis,
-//                                    ),
-//                                  );
-//                                }
                                 else {
                                   var dID = document[index]['dID'];
                                   var name = snapshots.data.snapshot.value[dID]['basicInfo']['name'];
@@ -414,11 +365,13 @@ class _showAllTripsState extends State<ShowAllTrips> {
             ),
           ),
           onTap: () {
+            final page =  ShowTripDetails(
+                key: PageStorageKey('showInfo'),
+                tID: document[index]['tID']
+            );
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowTripDetails(
-                    key: PageStorageKey('showInfo'),
-                    tID: document[index]['tID']))
+                MaterialPageRoute(builder: (context) => page)
             );
           },
         );
@@ -435,10 +388,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
       title: Text('Bạn muốn xóa hành trình ${id}?'),
       content: null,
       actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
@@ -457,7 +406,11 @@ class _showAllTripsState extends State<ShowAllTrips> {
             'Xóa',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 
@@ -509,7 +462,7 @@ class filterDialog extends StatefulWidget {
 
 class _filterDialogState extends State<filterDialog> {
   _filterDialogState();
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -521,6 +474,11 @@ class _filterDialogState extends State<filterDialog> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text("Trạng thái"),
+          RadioListTile(
+              title: Text('Tất cả'),
+              value: 0,
+              groupValue: _currentIndex,
+              onChanged: (int val) => setState(() => _currentIndex = val)),
           RadioListTile(
               title: Text('Đã hoàn thành'),
               value: 1,

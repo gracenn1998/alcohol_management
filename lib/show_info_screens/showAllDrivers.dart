@@ -18,45 +18,24 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
-  String _selectedDriverID = null;
-  int _selectedFuntion = 0;
-  bool _searching = false;
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    if (_selectedDriverID != null) {
-      String id = _selectedDriverID;
-      _selectedDriverID = null;
-      return ShowDriverInfo(
-        key: PageStorageKey("showInfo"),
-        dID: id,
-      );
-    }
-
-    if (_selectedFuntion == 1) {
-      return AddDriver();
-    }
-
-    if (_searching) {
-      _searching = false;
-      return SearchDriver();
-    }
 
     return Scaffold(
         appBar: AppBar(
-//        leading: Icon(
-//          Icons.dehaze,
-//          color: Color(0xff06E2B3),
-//        ),
-            title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),),
+          leading: IconButton(
+              icon: Icon(null)
+          ),
+          title: Center(child: Text("Tất Cả Tài Xế", style: appBarTxTStyle,),),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.search, color: Color(0xff06e2b3),),
               onPressed: () {
-                setState(() {
-                  _searching = true;
-                });
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchDriver())
+                );
               },
             )
           ],
@@ -113,6 +92,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
         int status;
         String dID = driverSnaps[index]['dID'];
+        String name = driverSnaps[index]['basicInfo']['name'];
         var alcoholVal =  driverSnaps[index]['alcoholVal'];
 
         if(alcoholVal < 0) {
@@ -192,8 +172,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           color: Color(0xff0A2463),
                           onPressed: () {
                             //Xoa driver
-                            debugPrint("Delete driver ${dID} tapped");
-                            confirmDelete(context, dID);
+                            confirmDelete(context, dID, name);
                           },
                         ),
                       )
@@ -202,15 +181,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                 ],
               )),
           onTap: () {
-            //go to detail info
-//            setState(() {
-//              _selectedDriverID = dID;
-//            });
+            final page =  ShowDriverInfo(
+                key: PageStorageKey('showInfo'),
+                dID: dID
+            );
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowDriverInfo(
-                    key: PageStorageKey('showInfo'),
-                    dID: dID))
+                MaterialPageRoute(builder: (context) => page)
             );
           },
         );
@@ -224,15 +201,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     return listView;
   }
 
-  void confirmDelete(BuildContext context, id) {
+  void confirmDelete(BuildContext context, id, name) {
     var confirmDialog = AlertDialog(
-      title: Text('Bạn muốn xóa tài xế này?'),
+      title: Text('Bạn muốn xóa tài xế $name ($id)?'),
       content: null,
       actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
@@ -248,7 +221,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             'Xóa',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 

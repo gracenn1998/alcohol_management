@@ -5,6 +5,7 @@ import '../styles/styles.dart';
 import '../show_info_screens/showDriverInfoScreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class EditDriverInfo extends StatefulWidget {
   final dID;
@@ -25,19 +26,17 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   final _nameController = TextEditingController();
   final _idCardController = TextEditingController();
   final _addressController = TextEditingController();
-  final _genderController = TextEditingController();
-  final _dobController = TextEditingController();
 
   var driver;
-
+  int genderRadioGroup;
+  int dob;
+  bool isInit = true;
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
     _nameController.dispose();
     _idCardController.dispose();
     _addressController.dispose();
-    _genderController.dispose();
-    _dobController.dispose();
     super.dispose();
   }
 
@@ -60,7 +59,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 //            setState(() {
 //              _selectedFunction--;
 //            });
-          Navigator.pop(context);
+            Navigator.pop(context);
           },
         ),
         title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -74,11 +73,9 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 //confirm edit
                 var confirmed = 1;
                 if(confirmed == 1) {
+                  Navigator.of(context).pop();
                   editDataDTB();
                   Fluttertoast.showToast(msg: 'Đã thay đổi thông tin tài xế');
-                  setState(() {
-                    _selectedFunction--;
-                  });
 //                dispose();
                 }
 
@@ -91,17 +88,16 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
         stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
         builder: (context, snapshot) {
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
+
           driver = snapshot.data.snapshot.value['basicInfo'];
           _nameController.text = driver['name'];
           _addressController.text = driver['address'];
           _idCardController.text = driver['idCard'].toString();
-          _genderController.text = driver['gender']=='M'?'Nam':'Nữ';
-
-          final df = new DateFormat('dd/MM/yyyy');
-          var formattedDOB = DateFormat('dd/MM/yyyy')
-              .format(DateTime.fromMillisecondsSinceEpoch(driver['dob']))
-              .toString();
-          _dobController.text = formattedDOB.toString();
+          if(isInit) {
+            genderRadioGroup = driver['gender']=='M'?0:1;
+            dob = driver['dob'];
+            isInit = false;
+          }
 
           return editAllInfo(driver);
         },
@@ -189,14 +185,15 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 editDetailItem('CMND', 0, _idCardController),
                 editDetailItem('Địa chỉ', 1, _addressController),
                 showDetailItem('Email', email, 0),
-                editDetailItem('Giới tính', 1, _genderController),
-                editDetailItem('Ngày sinh',  0, _dobController),
+                editDetailItem('Giới tính', 1, null),
+                editDetailItem('Ngày sinh',  0, null),
               ],
             )
         )
     );
 
   }
+
 
   Widget editDetailItem(title, line, controller) {
     return Row(
@@ -222,12 +219,56 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           child: Container(
             height: 55.0,
 //          margin: const EdgeInsets.all(5.0),
-            padding: EdgeInsets.only(left: 15.0, right: 15.0),
+            padding: const EdgeInsets.all(5.0),
 
             decoration: line == 1 ? oddLineDetails() : evenLineDetails(),
-            child: TextFormField(
+            child:
+            title=='Giới tính'
+                ? Row(
+              children: <Widget>[
+                Radio(
+                    value: 0,
+                    groupValue: genderRadioGroup,
+                    onChanged: (val) => setState((){
+                      genderRadioGroup = val;
+                    })),
+                Text('Nam', style: driverInfoStyle()),
+                Radio(
+                    value: 1,
+                    groupValue: genderRadioGroup,
+                    onChanged: (val) => setState((){
+                      genderRadioGroup = val;
+                    })),
+                Text('Nữ', style: driverInfoStyle())
+
+              ],
+            ):
+            title == 'Ngày sinh'
+                ? FlatButton(
+                onPressed: () {
+                  DatePicker.showDatePicker(context,
+                      showTitleActions: true,
+                      minTime: DateTime(1950, 1, 1),
+                      maxTime: DateTime.now(),
+                      onConfirm: (date) {
+                        setState(() {
+                          dob = date.millisecondsSinceEpoch;
+                        });
+                      }, currentTime: DateTime.now(), locale: LocaleType.vi);
+                },
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      dob==-1?'Bấm để chọn ngày sinh': DateFormat('dd/MM/yyyy')
+                          .format(DateTime.fromMillisecondsSinceEpoch(dob))
+                          .toString(),
+                      style: driverInfoStyle(),
+                    ),
+                    Icon(Icons.calendar_today)
+                  ],
+                )):
+            TextFormField(
               controller: controller,
-//              initialValue: data.toString(),
               style: driverInfoStyle(),
             ),
 
@@ -240,7 +281,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   }
 
   void editDataDTB() {
-    DateTime formattedDOB =  DateFormat("dd/MM/yyyy").parse(_dobController.text);
     FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID).child('basicInfo')
@@ -248,8 +288,8 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           'name' : _nameController.text,
           'idCard' : _idCardController.text,
           'address' : _addressController.text,
-          'gender' : _genderController.text == 'Nam' ? 'M' : 'F',
-          'dob' : formattedDOB.millisecondsSinceEpoch,
+          'gender' : genderRadioGroup == 0 ? 'M' : 'F',
+          'dob' : dob,
     });
 
     //maybe transaction here???

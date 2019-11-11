@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import '../styles/styles.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class EditTrip extends StatefulWidget {
   final tID;
@@ -20,16 +21,16 @@ class EditTripState extends State<EditTrip> {
   EditTripState(this.tID);
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
-  final _schController = TextEditingController();
 //  final _driverIDController = TextEditingController();
 //  final _vehicleIDController = TextEditingController();
   var trip;
+  int startTime = -1;
+  bool isInit = true;
 
   void dispose() {
     // Clean up the controller when the Widget is disposed
     _fromController.dispose();
     _toController.dispose();
-    _schController.dispose();
 //    _driverIDController.dispose();
     super.dispose();
   }
@@ -76,7 +77,10 @@ class EditTripState extends State<EditTrip> {
 //          var formattedStartTime = df.parse(trip['schStart']);
 //          _schController.text = formattedStartTime.toString();
 
-          _schController.text = trip['schStart'].toString();
+          if(isInit) {
+            startTime = trip['schStart'];
+            isInit = false;
+          }
 
           return EditTripDetail(trip);
         },
@@ -113,11 +117,6 @@ class EditTripState extends State<EditTrip> {
     final finish = trip['finish']== null? "Hành trình chưa bắt đầu": formatDateTime(trip['finish']);
     String status = toStatusInVN(trip['status']);
 
-    _schController.text = DateFormat('dd/MM/yyyy kk:mm')
-        .format(DateTime.fromMillisecondsSinceEpoch(
-        int.parse(_schController.text)))
-        .toString();
-
     return Container (
 //        margin: EdgeInsets.only( bottom: 15.0),
         height: 420.0,
@@ -129,7 +128,7 @@ class EditTripState extends State<EditTrip> {
 //                editDetailItem("Mã phương tiện", _vehicleIDController, 1, 'normal'),
                 editDetailItem('Từ', _fromController, 0, 'normal'),
                 editDetailItem('Đến', _toController, 1, 'normal'),
-                editDetailItem('TG dự kiến', _schController, 0, 'normal'),
+                editDetailItem('TG dự kiến',null, 0, 'normal'),
 //                showDetailItem('TG bắt đầu', start, 1, (Tstatus == 'notStarted')?'notStarted':'normal'),
 //                showDetailItem('TG kết thúc', finish, 0, (Tstatus == 'notStarted')?'notStarted':'normal'),
 //                showDetailItem('Trạng Thái', status, 1, Tstatus),
@@ -171,10 +170,36 @@ class EditTripState extends State<EditTrip> {
             child: Align(
               alignment: Alignment.centerLeft,
               child:
-              TextFormField(
-                controller: controller,
-                style: driverInfoStyle(),
-              ),
+                title=='TG dự kiến'
+                    ? FlatButton(
+                    onPressed: () {
+                      DatePicker.showDateTimePicker(context,
+                          showTitleActions: true,
+                          currentTime: DateTime.fromMillisecondsSinceEpoch(startTime),
+                          locale: LocaleType.vi,
+                          onConfirm: (datetime) {
+                            setState(() {
+                              startTime = datetime.millisecondsSinceEpoch;
+                            });
+                          }
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          startTime==-1?'Bấm để chọn thời gian': DateFormat('dd/MM/yyyy kk:mm')
+                              .format(DateTime.fromMillisecondsSinceEpoch(startTime))
+                              .toString(),
+                          style: driverInfoStyle(),
+                        ),
+                        Icon(Icons.calendar_today)
+                      ],
+                    ))
+                    :
+                TextFormField(
+                  controller: controller,
+                  style: driverInfoStyle(),
+                ),
               /*Text(
                 "$data",
                 style: tripDetailsStyle(status),
@@ -231,9 +256,6 @@ class EditTripState extends State<EditTrip> {
 
 
   void editDataDTB() {
-    var schMilli = DateFormat('dd/MM/yyyy kk:mm').parse(_schController.text).millisecondsSinceEpoch;
-    schMilli+=3600000; //no idea :(
-
     FirebaseDatabase.instance.reference()
         .child('trips')
         .child(tID)
@@ -241,7 +263,7 @@ class EditTripState extends State<EditTrip> {
       'from': _fromController.text,
       'to': _toController.text,
 //      'dID': _driverIDController.text,
-      'schStart': schMilli,
+      'schStart': startTime,
 //      'vID': _vehicleIDController.text,
     });
 
@@ -343,6 +365,7 @@ class EditTripState extends State<EditTrip> {
         ),
         FlatButton(
           onPressed: () {
+            Navigator.pop(context);
             Navigator.pop(context);
             editDataDTB();
             Fluttertoast.showToast(msg: 'Đã thay đổi thông tin hành trình');
