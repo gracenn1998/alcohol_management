@@ -328,17 +328,17 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         child: Text("Chỉ số cồn ",
                             style: timeStyleinJD()),
                       ),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 5.0),
-                        child: Row(
-                          children: <Widget>[
-                            Text("Ban đầu: ",
-                                style: driverStatusTitleStyle(0)),
-                            Text("100", //need dynamic data
-                                style: driverStatusDataStyle(0)),
-                          ],
-                        ),
-                      ),
+//                      Container(
+//                        padding: EdgeInsets.only(bottom: 5.0),
+//                        child: Row(
+//                          children: <Widget>[
+//                            Text("Ban đầu: ",
+//                                style: driverStatusTitleStyle(0)),
+//                            Text("100", //need dynamic data
+//                                style: driverStatusDataStyle(0)),
+//                          ],
+//                        ),
+//                      ),
 
                       Row(
                         children: <Widget>[
