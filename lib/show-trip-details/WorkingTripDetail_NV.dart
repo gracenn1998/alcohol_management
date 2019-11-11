@@ -746,7 +746,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       ),
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.push(context,
+          onPressed: () => Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => TripStatus(tID: id, driver: driver))),
           child: Text('Đặt trạng thái hành trình'),
         ),

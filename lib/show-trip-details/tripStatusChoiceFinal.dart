@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:alcohol_management/show_info_screens/showDriverInfoScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TripStatus extends StatefulWidget {
   final tID;
@@ -26,6 +27,7 @@ class _TripStatusState extends State<TripStatus> {
 
 
   void setTripStatus(id, driver, status) {
+    String decision;
     if (status == 0){
       FirebaseDatabase.instance.reference()
           .child('trips')
@@ -33,6 +35,7 @@ class _TripStatusState extends State<TripStatus> {
           .update({
         'status': "working"
       });
+      decision = "continue";
     } else if(status == 1) {
       FirebaseDatabase.instance.reference()
           .child('trips')
@@ -41,8 +44,7 @@ class _TripStatusState extends State<TripStatus> {
         'status': "done",
         'finish': DateTime.now().millisecondsSinceEpoch
       });
-      print('finish');
-      print(DateTime.now().millisecondsSinceEpoch);
+      decision = "finish";
     } else {
       FirebaseDatabase.instance.reference()
           .child('trips')
@@ -51,9 +53,20 @@ class _TripStatusState extends State<TripStatus> {
         'status': "aborted",
         'finish': DateTime.now().millisecondsSinceEpoch
       });
-      print('abort');
-      print(DateTime.now().millisecondsSinceEpoch);
+      decision = "abort";
     }
+    String managerID;
+    FirebaseAuth.instance.currentUser().then((user) {
+      managerID = user.email.substring(0, user.email.indexOf('@'));
+      FirebaseDatabase.instance.reference()
+          .child('trips')
+          .child(id)
+          .child('intervention')
+          .child(decision)
+          .update({
+        DateTime.now().millisecondsSinceEpoch.toString() : managerID,
+      });
+    });
   }
 
   _showTripStatusContent(tID){

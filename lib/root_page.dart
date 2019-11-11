@@ -39,13 +39,6 @@ class RootPageState extends State<RootPage> {
       }
 
     });
-//    auth.currentUser().then((userID){
-//
-//      setState(() {
-//        _authStatus = userID == null ? AuthStatus.notSignedIn: AuthStatus.signedIn;
-//
-//      });
-//    });
   }
 
 
