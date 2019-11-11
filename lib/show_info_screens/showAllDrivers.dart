@@ -18,8 +18,6 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
-
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -94,6 +92,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 
         int status;
         String dID = driverSnaps[index]['dID'];
+        String name = driverSnaps[index]['basicInfo']['name'];
         var alcoholVal =  driverSnaps[index]['alcoholVal'];
 
         if(alcoholVal < 0) {
@@ -173,8 +172,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                           color: Color(0xff0A2463),
                           onPressed: () {
                             //Xoa driver
-                            debugPrint("Delete driver ${dID} tapped");
-                            confirmDelete(context, dID);
+                            confirmDelete(context, dID, name);
                           },
                         ),
                       )
@@ -203,15 +201,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
     return listView;
   }
 
-  void confirmDelete(BuildContext context, id) {
+  void confirmDelete(BuildContext context, id, name) {
     var confirmDialog = AlertDialog(
-      title: Text('Bạn muốn xóa tài xế này?'),
+      title: Text('Bạn muốn xóa tài xế $name ($id)?'),
       content: null,
       actions: <Widget>[
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
         FlatButton(
           onPressed: () {
             Navigator.pop(context);
@@ -227,7 +221,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             'Xóa',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 

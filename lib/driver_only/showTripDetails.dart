@@ -726,7 +726,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           .update({
         'tripID' : tID,
       });
-      print('???');
       Navigator.of(context).pop();
       await Navigator.push(
           context,

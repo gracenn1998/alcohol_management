@@ -484,15 +484,18 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Đóng"),
+              child: new Text(
+                "Xác nhận",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
+                updateDriver();
                 Navigator.of(context).pop();
               },
             ),
             new FlatButton(
-              child: new Text("Xác nhận"),
+              child: new Text("Đóng"),
               onPressed: () {
-                updateDriver();
                 Navigator.of(context).pop();
               },
             ),
@@ -639,15 +642,18 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
-              child: new Text("Đóng"),
+              child: new Text(
+                "Xác nhận",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
+                updateVehicle();
                 Navigator.of(context).pop();
               },
             ),
             new FlatButton(
-              child: new Text("Xác nhận"),
+              child: new Text("Đóng"),
               onPressed: () {
-                updateVehicle();
                 Navigator.of(context).pop();
               },
             ),

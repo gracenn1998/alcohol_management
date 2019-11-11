@@ -166,7 +166,7 @@ class _AddDriver extends State<AddDriver> {
     );
 
   }
-  int genderRadioGroup = -1;
+  int genderRadioGroup = 0;
   int dob = -1;
   Widget fillDetailInfo(title, line, controller) {
     var formattedDOB = DateFormat('dd/MM/yyyy')

@@ -382,10 +382,6 @@ class _showAllTripsState extends State<ShowAllTrips> {
       content: null,
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Không'),
-        ),
-        FlatButton(
           onPressed: () {
             Navigator.pop(context);
             FirebaseDatabase.instance.reference()
@@ -403,7 +399,11 @@ class _showAllTripsState extends State<ShowAllTrips> {
             'Xóa',
             style: TextStyle(color: Colors.red),
           ),
-        )
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Không'),
+        ),
       ],
     );
 
