@@ -711,46 +711,51 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
   }
 
   void updateVehicle() {
-    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
-        {
-          'vID':selectedVID,
-        }
-    );
-
-    FirebaseDatabase.instance.reference().child('vehicles').child(
-        selectedVID).update(
-        {
-          'tID': tID,
-          'dID' : _dID,
-        }
-    );
-    if(_vID!=null && selectedVID != _vID) {
-      FirebaseDatabase.instance.reference().child('vehicles').child(
-          _vID).update(
+    if(selectedVID != null) {
+      FirebaseDatabase.instance.reference().child('trips').child(tID).update(
           {
-            'tID': null,
-            'dID' : null,
+            'vID':selectedVID,
           }
       );
+
+      FirebaseDatabase.instance.reference().child('vehicles').child(
+          selectedVID).update(
+          {
+            'tID': tID,
+            'dID' : _dID,
+          }
+      );
+      if(_vID!=null && selectedVID != _vID) {
+        FirebaseDatabase.instance.reference().child('vehicles').child(
+            _vID).update(
+            {
+              'tID': null,
+              'dID' : null,
+            }
+        );
+      }
     }
+
 
   }
 
   void updateDriver() {
-    FirebaseDatabase.instance.reference().child('trips').child(tID).update(
-        {
-          'dID': selectedDID,
-        }
-    );
-
-    if(_vID!=null) {
-      FirebaseDatabase.instance.reference().child('vehicles').child(
-          _vID).update(
+    if(selectedDID!=null) {
+      FirebaseDatabase.instance.reference().child('trips').child(tID).update(
           {
             'dID': selectedDID,
-            'tID': tID
           }
       );
+
+      if(_vID!=null) {
+        FirebaseDatabase.instance.reference().child('vehicles').child(
+            _vID).update(
+            {
+              'dID': selectedDID,
+              'tID': tID
+            }
+        );
+      }
     }
   }
 
