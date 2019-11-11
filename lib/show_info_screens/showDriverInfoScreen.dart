@@ -97,7 +97,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
         Expanded(
             child: showDetails( driver['dID'], driver['basicInfo']['idCard'],
                 driver['basicInfo']['address'], driver['basicInfo']['email'],
-                driver['basicInfo']['gender'], driver['basicInfo']['dob'])
+                driver['basicInfo']['gender'], driver['basicInfo']['dob'], driver['basicInfo']['tel'])
         ),
 
       ],
@@ -244,7 +244,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   }
 }
 
-Widget showDetails(id, idCard, address, email, gender, dob) {
+Widget showDetails(id, idCard, address, email, gender, dob, tel) {
   var formattedDOB = DateFormat('dd/MM/yyyy')
       .format(DateTime.fromMillisecondsSinceEpoch(dob))
       .toString();
@@ -254,12 +254,12 @@ Widget showDetails(id, idCard, address, email, gender, dob) {
           child: Column(
             children: <Widget>[
               showDetailItem('ID', id, 1),
-//            showDetailInfo('Tuổi', '40', 0 ),
-              showDetailItem('CMND', idCard, 0),
-              showDetailItem('Địa chỉ', address, 1),
-              showDetailItem('Email', email, 0),
-              showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 1 ),
-              showDetailItem('Ngày sinh', formattedDOB, 0),
+              showDetailItem('Sđt', tel, 0),
+              showDetailItem('CMND', idCard, 1),
+              showDetailItem('Địa chỉ', address, 0),
+              showDetailItem('Email', email, 1),
+              showDetailItem('Giới tính', gender=='M'?'Nam':'Nữ', 0 ),
+              showDetailItem('Ngày sinh', formattedDOB, 1),
             ],
           )
       )
