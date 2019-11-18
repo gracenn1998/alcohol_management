@@ -11,7 +11,7 @@ import 'add_screens/addDriverScreen.dart';
 import 'add_screens/addTripScreen.dart';
 import 'menu/menu.dart';
 import 'show-trip-details/showTripDetails.dart';
-
+import 'edit_screens/editDriverScreen.dart';
 import 'show-trip-details/WorkingTripDetail_NV.dart';
 
 void main() => runApp(MyApp());
@@ -24,14 +24,15 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Welcome to Flutter',
-//              home: DriverMenu(dID: 'TX0003',),
-            home: ManagerMenu(),
+//              home: EditDriverInfo(dID: 'TX0004',),
+              home: DriverMenu(dID: 'TX0004',),
+//            home: ManagerMenu(),
 //            home: EditTrip(tID: 'HT0002',),
 //            home: AddTrip(),
 
 //            home: ShowTripDetails(tID: 'HT0004'),
          //     home: MyBottomMenu(),
-//            home: RootPage(),
+ //           home: RootPage(),
             theme: ThemeData(
               primaryColor: Color(0xff0a2463),
               backgroundColor: Colors.white,

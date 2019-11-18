@@ -4,6 +4,11 @@ import '../styles/styles.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:alcohol_management/root_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 //enum AuthStatus {
 //  notDetermined,
@@ -21,12 +26,27 @@ class ShowDriverInfo extends StatefulWidget {
 
 class _ShowDriverInfoState extends State<ShowDriverInfo> {
   String dID;
+  String _url;
   _ShowDriverInfoState(this.dID);
 
+
   static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  void initState(){
+    getImageUrl();
+  }
+  getImageUrl() async {
+    final ref = FirebaseStorage.instance.ref().child(dID);
+    var url = await ref.getDownloadURL();
+    setState(() {
+      print("URL:" + url);
+      _url = url;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
@@ -34,6 +54,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       body: StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
         builder: (context, snapshot) {
+
           if(!snapshot.hasData) return Center(child: Text('Loading...', style: tempStyle,),);
           return showAllInfo(snapshot.data.snapshot.value);
         },
@@ -101,13 +122,48 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
         color: Colors.white,
         child: Row(
           children: <Widget>[
-            Container(
-                padding: EdgeInsets.only(left: 15.0),
-                child: CircleAvatar(
-                  radius: 45.0,
-                  backgroundImage: AssetImage('images/avatar.png'),
+            Row(
+              children: <Widget>[
+                Container(
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: CircleAvatar(
+                      radius: 45.0,
+                      //backgroundColor: Colors.blue,
+                      backgroundImage: AssetImage('images/avatar.png'),
+                      child: ClipOval(
+                          child:
+                            SizedBox(
+                              height: 100.0,
+                              width: 100.0,
+                              child:  (_url != null)?
+                                Image.network(
+                                  //"https://thumbs.gfycat.com/HastyResponsibleLeopard-mobile.jpg",
+                                    _url,
+                                    fit: BoxFit.cover
+                                ): SizedBox(
+                                  height: 100.0,
+                                  width: 100.0,
+
+                                )
+                            )
+                      ),
+                    )
+//                Padding(
+//                  padding: EdgeInsets.only(top: 60.0),
+//                  child: IconButton(
+//                    icon: Icon(
+//                      FontAwesomeIcons.camera,
+//                      size: 20.0,
+//                    ),
+//                    onPressed: () {
+//
+//                      //getImage();
+//                    },
+//                  ),
                 )
+              ],
             ),
+
             Expanded(
               child: Container(
                   padding: EdgeInsets.only(left: 15.0),
