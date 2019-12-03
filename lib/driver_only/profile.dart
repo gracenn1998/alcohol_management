@@ -84,8 +84,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             signoutButton(context),
-            Container(width: 50,),
-            generatePasswordButton(),
+//            Container(width: 50,),
+//            generatePasswordButton(),
           ],
         ),
 
@@ -215,29 +215,29 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
     );
 
   }
-
-  Widget generatePasswordButton() {
-    return Container(
-      height: 45.0,
-      color: Colors.white,
-      margin: EdgeInsets.only(bottom: 15.0),
-//    padding: const EdgeInsets.all(5.0),
-      child: RaisedButton(
-        child: Text(
-            "Tạo mật khẩu mới",
-            style: TextStyle(
-              fontSize: 17.0,
-              fontWeight: FontWeight.w500,
-            )
-        ),
-        elevation: 6.0,
-        onPressed: () {
-          //action
-          debugPrint("New pw generated");
-        },
-      ),
-    );
-  }
+//
+//  Widget generatePasswordButton() {
+//    return Container(
+//      height: 45.0,
+//      color: Colors.white,
+//      margin: EdgeInsets.only(bottom: 15.0),
+////    padding: const EdgeInsets.all(5.0),
+//      child: RaisedButton(
+//        child: Text(
+//            "Đổi mật khẩu",
+//            style: TextStyle(
+//              fontSize: 17.0,
+//              fontWeight: FontWeight.w500,
+//            )
+//        ),
+//        elevation: 6.0,
+//        onPressed: () {
+//          //action
+//          debugPrint("New pw generated");
+//        },
+//      ),
+//    );
+//  }
   Widget signoutButton(context) {
     return Container(
       height: 45.0,

@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(context: context,
     builder: (BuildContext context){
       return AlertDialog(
-        content: new Text("Sai tài khoảng hoặc mật khẩu. Nhập lại đi :("),
+        content: new Text("Sai tài khoản hoặc mật khẩu. Nhập lại đi :("),
         actions: <Widget>[
           new FlatButton(onPressed: () => Navigator.of(context).pop(), child: new Text("Close"))
         ],
