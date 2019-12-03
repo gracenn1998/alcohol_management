@@ -5,6 +5,7 @@ import '../edit_screens/editDriverScreen.dart';
 import './showAllDrivers.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../show-trip-details/showTripDetails.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ShowDriverInfo extends StatefulWidget {
   final String dID;
@@ -16,10 +17,21 @@ class ShowDriverInfo extends StatefulWidget {
 
 class _ShowDriverInfoState extends State<ShowDriverInfo> {
   String dID;
+  String _url;
   _ShowDriverInfoState(this.dID);
 
   static const TextStyle tempStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
+  void initState(){
+    getImageUrl();
+  }
+  getImageUrl() async {
+    final ref = FirebaseStorage.instance.ref().child(dID);
+    var url = await ref.getDownloadURL();
+    setState(() {
+      print("URL:" + url);
+      _url = url;
+    });
+  }
 
 
   int _selectedIndex = 0;
@@ -138,7 +150,25 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
                 padding: EdgeInsets.only(left: 15.0),
                 child: CircleAvatar(
                   radius: 45.0,
+                  //backgroundColor: Colors.blue,
                   backgroundImage: AssetImage('images/avatar.png'),
+                  child: ClipOval(
+                      child:
+                      SizedBox(
+                          height: 100.0,
+                          width: 100.0,
+                          child:  (_url != null)?
+                          Image.network(
+                            //"https://thumbs.gfycat.com/HastyResponsibleLeopard-mobile.jpg",
+                              _url,
+                              fit: BoxFit.cover
+                          ): SizedBox(
+                            height: 100.0,
+                            width: 100.0,
+
+                          )
+                      )
+                  ),
                 )
             ),
             Expanded(
