@@ -5,6 +5,7 @@ import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ShowAllDrivers extends StatefulWidget {
@@ -18,6 +19,30 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
+
+  List avatarUrlList = new List();
+  var isGetURLFinished = false;
+  getImageUrl(driverList) async {
+    var ref, url;
+    for(int i = 0; i< driverList.length; i++){
+      ref = FirebaseStorage.instance.ref().child(driverList[i]['dID']);
+      try {
+        url = await ref.getDownloadURL();
+      }
+      catch (error) {
+        url = null;
+      }
+      avatarUrlList.add(url);
+    }
+    if(!isGetURLFinished) {
+
+      setState(() {
+        isGetURLFinished = true;
+      });
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -61,7 +86,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //                }
 //              }
               driverList = map.values.toList()..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-
+              getImageUrl(driverList);
               return getListDriversView(driverList);
             }
 //            else if(snapshot.hasError) => return "Error";
@@ -93,6 +118,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         int status;
         String dID = driverSnaps[index]['dID'];
         String name = driverSnaps[index]['basicInfo']['name'];
+        String url;
+        if(avatarUrlList.length>0) {
+//          print('index: ' + index.toString());
+          url = avatarUrlList[index];
+        }
         var alcoholVal =  driverSnaps[index]['alcoholVal'];
 
         if(alcoholVal < 0) {
@@ -112,6 +142,20 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             status = 1;
           }
         }
+//        final ref = FirebaseStorage.instance.ref().child(dID);
+//        print(dID);
+//        print('ref: ' + ref.toString());
+//        ref.getDownloadURL().then((result) {
+//          url = result;
+//          print("URL:" + url);
+//
+////          setState(() {
+////            print("URL:" + url);
+////            url = url;
+////          });
+//        }).catchError((error) {
+////          print(error);
+//        });
 
         return InkWell(
           child: Container(
@@ -123,7 +167,25 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                     padding: EdgeInsets.only(left: 15.0),
                     child: CircleAvatar(
                       radius: 45.0,
+                      //backgroundColor: Colors.blue,
                       backgroundImage: AssetImage('images/avatar.png'),
+                      child: ClipOval(
+                          child:
+                          SizedBox(
+                              height: 100.0,
+                              width: 100.0,
+                              child:  (url != null)?
+                              Image.network(
+                                //"https://thumbs.gfycat.com/HastyResponsibleLeopard-mobile.jpg",
+                                  url,
+                                  fit: BoxFit.cover
+                              ): SizedBox(
+                                height: 100.0,
+                                width: 100.0,
+
+                              )
+                          )
+                      ),
                     )), // Avatar
                   Expanded(
                     flex: 4,
