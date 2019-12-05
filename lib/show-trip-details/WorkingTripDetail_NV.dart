@@ -67,21 +67,27 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
 
     //print("buildMap: $driver");
     //print("buildMap: $allMarkers");
-    if (location['lat'] != null && mapCreated == 1)
-      mapController.moveCamera(
-          CameraUpdate.newLatLng(LatLng(location['lat'], location['lng']))
-      );
+    var lat, long;
+    if(location!=null) {
+      lat = location['lat'];
+      long = location['lng'];
+      if (lat != null && mapCreated == 1)
+        mapController.moveCamera(
+            CameraUpdate.newLatLng(LatLng(location['lat'], location['lng']))
+        );
+    }
+    else {
+      lat = 10.03711;
+      long =105.78825;
+    }
     return new GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition:
       CameraPosition(
-        target:
-        location == null ?
-        LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(location['lat'], location['lng']), //user location
+        target: LatLng(lat, long),
         zoom: 15.0,
       ),
-      markers: modifyMarker(location['lat'], location['lng']),
+      markers: modifyMarker(lat, long),
       onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
         await addToList(_trip);

@@ -718,19 +718,17 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           }
       );
 
-      FirebaseDatabase.instance.reference().child('vehicles').child(
-          selectedVID).update(
+      FirebaseDatabase.instance.reference().child('vehicles')
+          .child(selectedVID).child('tID').update(
           {
-            'tID': tID,
-            'dID' : _dID,
+            tID: true
           }
       );
       if(_vID!=null && selectedVID != _vID) {
-        FirebaseDatabase.instance.reference().child('vehicles').child(
-            _vID).update(
+        FirebaseDatabase.instance.reference().child('vehicles')
+            .child(_vID).child('tID').update(
             {
-              'tID': null,
-              'dID' : null,
+              tID: null
             }
         );
       }
@@ -747,15 +745,15 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
           }
       );
 
-      if(_vID!=null) {
-        FirebaseDatabase.instance.reference().child('vehicles').child(
-            _vID).update(
-            {
-              'dID': selectedDID,
-              'tID': tID
-            }
-        );
-      }
+//      if(_vID!=null) {
+//        FirebaseDatabase.instance.reference().child('vehicles').child(
+//            _vID).update(
+//            {
+//              'dID': selectedDID,
+//              'tID': tID
+//            }
+//        );
+//      }
     }
   }
 
@@ -766,13 +764,13 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         }
     );
 
-    FirebaseDatabase.instance.reference().child('vehicles').child(
-        _vID).update(
-        {
-          'dID': null,
-          'tID': tID
-        }
-    );
+//    FirebaseDatabase.instance.reference().child('vehicles')
+//        .child(_vID).child().update(
+//        {
+//          'dID': null,
+//          'tID': tID
+//        }
+//    );
   }
 
   void unAssignVehicle() {
@@ -782,11 +780,10 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
         }
     );
 
-    FirebaseDatabase.instance.reference().child('vehicles').child(
-        _vID).update(
+    FirebaseDatabase.instance.reference().child('vehicles')
+        .child(_vID).child(tID).update(
         {
-          'tID': null,
-          'dID' : null,
+          tID: null,
         }
     );
   }

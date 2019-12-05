@@ -22,6 +22,7 @@ class ShowTripDetails extends StatefulWidget{
 
 class ShowTripDetailsState extends State<ShowTripDetails>{
   final String tID;
+
   ShowTripDetailsState(this.tID);
 
   List<AlcoholLog> alcoholLogData = [];
@@ -31,7 +32,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   DateTime _time;
   Map<String, num> _measures;
 
-  var _dID;
+  var _dID, _vID;
 
   String _connectionStatus = 'Unknown';
   final Connectivity _connectivity = Connectivity();
@@ -111,6 +112,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         var tripSnap = snapshot.data.snapshot;
         _dID = tripSnap.value['dID'];
+        _vID = tripSnap.value['vID'];
         return directTripDetailScreen(tripSnap.value);
       },
     );
@@ -696,6 +698,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
   }
 
   void startTrip(context) async {
+
     bool isWorking = false;
     await FirebaseDatabase.instance
         .reference()
@@ -726,7 +729,7 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           .child('driver')
           .child(_dID)
           .update({
-        'tripID' : tID,
+        'tID' : tID,
       });
       await Navigator.pushReplacement(
           context,
@@ -734,6 +737,15 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
               D_WorkingTripDetail(dID: _dID)
           )
       );
+
+      FirebaseDatabase.instance.reference()
+          .child('vehicles')
+          .child(_vID)
+          .child('onWorking')
+          .set({
+        'tID' : tID,
+        'dID' : _dID
+      });
 
       FirebaseDatabase.instance.reference()
           .child('trips')
