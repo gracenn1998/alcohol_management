@@ -3,7 +3,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-const drunkVal = 400;
+const drunkVal = 0.03;
 const delayTime = 1000*60;
 
 

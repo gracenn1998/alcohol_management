@@ -105,7 +105,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       status = -1;
     }
     else {
-      if(alcoholVal <= 350) {
+      if(alcoholVal <= 0.03) {
         onWorking = 'Đang làm việc';
         alcoholTrack = alcoholVal.toString();
         status = 0;
