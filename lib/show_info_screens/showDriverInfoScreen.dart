@@ -34,20 +34,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   }
 
 
-  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    if(_selectedIndex == -1) {
-      return ShowAllDrivers(
-        key: PageStorageKey("showAll"),
-      );
-    }
-    if(_selectedIndex == 1) {
-      return EditDriverInfo(
-        key: PageStorageKey("editInfo"),
-        dID: dID,
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -129,7 +117,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       status = -1;
     }
     else {
-      if(alcoholVal <= 0.03) {
+      if(alcoholVal < 0.03) {
         onWorking = 'Đang làm việc';
         alcoholTrack = alcoholVal.toString();
         status = 0;

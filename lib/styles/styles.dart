@@ -31,6 +31,18 @@ BoxDecoration notiColor(index, status){
   return deco;
 }
 
+const TextStyle titleStyle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w500,
+    color: Colors.black
+);
+
+const TextStyle subTitleStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: Colors.pink
+);
+
 TextStyle driverStatusDataStyle(status) {
 
   return TextStyle(
