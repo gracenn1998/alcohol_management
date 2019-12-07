@@ -6,17 +6,11 @@ import '../show_info_screens/showDriverInfoScreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'dart:async';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-
-//import 'package:path/path.dart';
-
 
 class EditDriverInfo extends StatefulWidget {
   final dID;
   const EditDriverInfo({Key key, @required this.dID}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _EditDriverInfoState(dID);
@@ -26,8 +20,6 @@ class EditDriverInfo extends StatefulWidget {
 class _EditDriverInfoState extends State<EditDriverInfo> {
   int _selectedFunction = 0;
   String dID;
-  String _url;
-  File _image;
   _EditDriverInfoState(this.dID);
 
 
@@ -46,46 +38,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     _idCardController.dispose();
     _addressController.dispose();
     super.dispose();
-  }
-
-  void initState(){
-    getImageUrl();
-  }
-  getImageUrl() async {
-    final ref = FirebaseStorage.instance.ref().child(dID);
-    try {
-      var url = await ref.getDownloadURL();
-      setState(() {
-        print("URL:" + url);
-        _url = url;
-      });
-    } catch (e){
-      _url = null;
-    }
-
-  }
-
-
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = image;
-      print('Image Path $_image');
-    });
-  }
-
-
-  Future uploadPic() async{
-    String fileName = dID;
-    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
-    await uploadTask.onComplete;
-
-    print("Profile Picture uploaded");
-//    setState(() {
-//      print("Profile Picture uploaded");
-//      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Profile Picture Uploaded')));
-//    });
   }
 
   Widget build(BuildContext context) {
@@ -123,7 +75,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
                 if(confirmed == 1) {
                   Navigator.of(context).pop();
                   editDataDTB();
-
                   Fluttertoast.showToast(msg: 'Đã thay đổi thông tin tài xế');
 //                dispose();
                 }
@@ -177,39 +128,11 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
         child: Row(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(left: 10.0),
-              child: FlatButton(
-                  onPressed: (){
-                    print("Avatarrrrr");
-                      getImage();
-                  },
-                  child: CircleAvatar(
-                    radius: 45.0,
-//                    backgroundColor: Colors.blue,
-                    backgroundImage: AssetImage('images/avatar.png'),
-                    child:
-                    ClipOval(
-                        child: SizedBox(
-                          width: 180.0,
-                          height: 180.0,
-                          child: (_image!=null)?Image.file(
-                            _image,
-                            fit: BoxFit.cover,
-                          ): (_url != null)?
-                          Image.network(
-                            //"https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/1c/bd/55/1cbd550d-80f9-6d4b-01f0-44eb73c99520/pr_source.png/512x512bb.jpg",
-                            _url,
-                            fit: BoxFit.cover,
-                          ):
-                          SizedBox(
-                            height: 100.0,
-                            width: 100.0,
-                          ),
-                        )
-                    ),
-
-                  )
-              ),
+                padding: EdgeInsets.only(left: 10.0),
+                child: CircleAvatar(
+                  radius: 50.0,
+                  backgroundImage: AssetImage('images/avatar.png'),
+                )
             ),
             Container(
                 padding: EdgeInsets.only(left: 15.0),
@@ -357,17 +280,16 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     );
   }
 
-  void editDataDTB() async{
-    await uploadPic();
+  void editDataDTB() {
     FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID).child('basicInfo')
         .update({
-      'name' : _nameController.text,
-      'idCard' : _idCardController.text,
-      'address' : _addressController.text,
-      'gender' : genderRadioGroup == 0 ? 'M' : 'F',
-      'dob' : dob,
+          'name' : _nameController.text,
+          'idCard' : _idCardController.text,
+          'address' : _addressController.text,
+          'gender' : genderRadioGroup == 0 ? 'M' : 'F',
+          'dob' : dob,
     });
 
     //maybe transaction here???
