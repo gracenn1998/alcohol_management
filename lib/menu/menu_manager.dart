@@ -190,7 +190,7 @@ class _ManagerMenuState extends State<ManagerMenu>{
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            title: Text('Đăng xuất'),
+            title: Text('Cài đặt'),
           ),
         ],
         backgroundColor: Colors.white,
