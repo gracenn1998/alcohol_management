@@ -6,7 +6,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 //import "../show_info_screens/showDriverInfoScreen.dart";
 import 'package:alcohol_management/notification.dart';
 import '../show-trip-details/showTripDetails.dart';
-import 'package:alcohol_management/styles/styles.dart';
 
 class ManagerMenu extends StatefulWidget {
   ManagerMenu ({Key key}) : super (key:key);
@@ -62,12 +61,12 @@ class _ManagerMenuState extends State<ManagerMenu>{
             context: context,
             builder: (context) => AlertDialog(
               content: ListTile(
-                title: Text(msg['notification']['title'], style: titleStyle,),
-                subtitle: Text(msg['notification']['body'], style: subTitleStyle,),
+                title: Text(msg['notification']['title']),
+                subtitle: Text(msg['notification']['body']),
               ),
               actions: <Widget>[
                 FlatButton(
-                  child: Text('Xem thông tin hành trình đang chạy',),
+                  child: Text('Xem thông tin hành trình đang chạy'),
                   onPressed: () {
                     Navigator.of(context).pop();
                     Navigator.push(
@@ -84,7 +83,7 @@ class _ManagerMenuState extends State<ManagerMenu>{
                   },
                 ),
                 FlatButton(
-                  child: Text('Đóng'),
+                  child: Text('Ok'), //sau chỉnh thành thông tin hành trình
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

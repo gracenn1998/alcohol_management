@@ -17,7 +17,7 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
             if(lastNotiTime==null) {
                 lastNotiTime = 0;
             }
-            var curTripID = snapshot.child('tID').val();
+            var curTripID = snapshot.child('tripID').val();
             console.log(curTime.getTime() - lastNotiTime);
 
             if(alcoVal >= drunkVal && (curTime.getTime() - lastNotiTime)>= delayTime) {

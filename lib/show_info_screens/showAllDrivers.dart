@@ -22,18 +22,15 @@ class _showAllDriversState extends State<ShowAllDrivers> {
   List<dynamic> driverList;
   var streamSub;
   List avatarUrlList = new List();
-  bool markChanges = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     streamSub = FirebaseDatabase.instance.reference().child('driver')
         .onChildChanged.listen((data) async {
-//          avatarUrlList = new List();
-//          await getImageUrl(driverList);
-          setState((){
-            markChanges = true;
-          });
+          avatarUrlList = new List();
+          await getImageUrl(driverList);
+//          setState((){});
     });
   }
 
@@ -100,14 +97,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //              getImageUrl(driverList);
 
               if(isFirstTimeBuild) {
-                avatarUrlList = new List();
                 getImageUrl(driverList);
                 isFirstTimeBuild = false;
-              }
-              if(markChanges) {
-                avatarUrlList = new List();
-                getImageUrl(driverList);
-                markChanges = false;
               }
               return getListDriversView(driverList);
             }
@@ -153,7 +144,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
           status = -1;
         }
         else {
-          if(alcoholVal < 0.03) {
+          if(alcoholVal <= 0.03) {
             onWorking = 'Đang làm việc';
             alcoholTrack = alcoholVal.toString();
             status = 0;
