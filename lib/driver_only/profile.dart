@@ -84,8 +84,8 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             signoutButton(context),
-//            Container(width: 50,),
-//            generatePasswordButton(),
+            Container(width: 50,),
+            changePasswordButton(),
           ],
         ),
 
@@ -216,28 +216,57 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
 
   }
 //
-//  Widget generatePasswordButton() {
-//    return Container(
-//      height: 45.0,
-//      color: Colors.white,
-//      margin: EdgeInsets.only(bottom: 15.0),
-////    padding: const EdgeInsets.all(5.0),
-//      child: RaisedButton(
-//        child: Text(
-//            "Đổi mật khẩu",
-//            style: TextStyle(
-//              fontSize: 17.0,
-//              fontWeight: FontWeight.w500,
-//            )
-//        ),
-//        elevation: 6.0,
-//        onPressed: () {
-//          //action
-//          debugPrint("New pw generated");
-//        },
-//      ),
-//    );
-//  }
+  Widget changePasswordButton() {
+    return Container(
+      height: 45.0,
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: 15.0),
+//    padding: const EdgeInsets.all(5.0),
+      child: RaisedButton(
+        child: Text(
+            "Đổi mật khẩu",
+            style: TextStyle(
+              fontSize: 17.0,
+              fontWeight: FontWeight.w500,
+            )
+        ),
+        elevation: 6.0,
+        onPressed: () {
+          //action
+          try{
+//            final FirebaseAuth auth = AuthProvider.of(context).auth;
+//            await auth.signOut();
+//            onSignedOut();
+            FirebaseAuth.instance.currentUser().then((user) {
+              FirebaseAuth.instance.sendPasswordResetEmail(email: user.email);
+              _changePWDiaLog();
+            });
+
+          } catch (e){
+            print(e);
+          }
+        },
+      ),
+    );
+
+
+  }
+  void _changePWDiaLog(){
+    showDialog(context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            content: new Text(
+              "Đã gửi yêu cầu đổi mật khẩu đến email của bạn. Vui lòng kiểm tra email.",
+              style: notiTxtStyle,
+            ),
+            actions: <Widget>[
+              new FlatButton(onPressed: () => Navigator.of(context).pop(), child: new Text("Close"))
+            ],
+          );
+        }
+    );
+  }
+  
   Widget signoutButton(context) {
     return Container(
       height: 45.0,
