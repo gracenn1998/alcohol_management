@@ -19,24 +19,10 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
-  List<dynamic> driverList;
-  var streamSub;
+
   List avatarUrlList = new List();
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    streamSub = FirebaseDatabase.instance.reference().child('driver')
-        .onChildChanged.listen((data) async {
-          avatarUrlList = new List();
-          await getImageUrl(driverList);
-//          setState((){});
-    });
-  }
-
-  var isFirstTimeBuild = true;
+  var isGetURLFinished = false;
   getImageUrl(driverList) async {
-
     var ref, url;
     for(int i = 0; i< driverList.length; i++){
       ref = FirebaseStorage.instance.ref().child(driverList[i]['dID']);
@@ -48,9 +34,13 @@ class _showAllDriversState extends State<ShowAllDrivers> {
       }
       avatarUrlList.add(url);
     }
-    setState(() {
+    if(!isGetURLFinished) {
 
-    });
+      setState(() {
+        isGetURLFinished = true;
+      });
+    }
+
   }
 
   @override
@@ -85,6 +75,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               return LoadingState;
             }
             else if(snapshots.hasData) {
+              List<dynamic> driverList;
+
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
@@ -94,12 +86,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //                }
 //              }
               driverList = map.values.toList()..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
-//              getImageUrl(driverList);
-
-              if(isFirstTimeBuild) {
-                getImageUrl(driverList);
-                isFirstTimeBuild = false;
-              }
+              getImageUrl(driverList);
               return getListDriversView(driverList);
             }
 //            else if(snapshot.hasError) => return "Error";
@@ -132,7 +119,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         String dID = driverSnaps[index]['dID'];
         String name = driverSnaps[index]['basicInfo']['name'];
         String url;
-        if(avatarUrlList.length>index) {
+        if(avatarUrlList.length>0) {
 //          print('index: ' + index.toString());
           url = avatarUrlList[index];
         }
