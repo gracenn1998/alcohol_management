@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import 'package:alcohol_management/styles/styles.dart';
 import 'package:intl/intl.dart';
 import 'package:alcohol_management/show-trip-details/showTripDetails.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NotiScreen extends StatefulWidget {
   const NotiScreen() : super();
@@ -14,10 +15,18 @@ class NotiScreen extends StatefulWidget {
 class _NotiScreenState extends State<NotiScreen> {
   int notiIsTapped = 1;
   String _selectedNoti = null;
+  String userID;
 
   @override
   void initState() {
     super.initState();
+
+    FirebaseAuth.instance.currentUser().then((user) {
+
+      userID = user.email.substring(0, user.email.indexOf('@'));
+      userID = userID.toUpperCase();
+
+    });
   }
 
   @override
@@ -34,9 +43,9 @@ class _NotiScreenState extends State<NotiScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: IconButton(
-            icon: Icon(null)
-        ),
+//        leading: IconButton(
+//            icon: Icon(null)
+//        ),
         title: Center(child: Text(
           'Thông báo', style: appBarTxTStyle, textAlign: TextAlign.center,)),
       ),
@@ -115,6 +124,19 @@ class _NotiScreenState extends State<NotiScreen> {
                             .toString(),
                         style: notiTimeStyle,
                       ),
+                      notiSnaps[index]['isSolved']
+                          ?
+                      RichText(
+                          text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(text: 'Giải quyết bởi: ', style: notiTxtStyle),
+                                TextSpan(text: notiSnaps[index]['solvedBy'],
+                                    style: notiHightlight),
+                              ]
+                          )
+                      )
+                          :
+                      Container(),
                     ],
                   ),
                 ),
@@ -130,10 +152,16 @@ class _NotiScreenState extends State<NotiScreen> {
                       setState(() {
                         if (notiSnaps[index]['isSolved']){
                           FirebaseDatabase.instance.reference().child('bnotification').child(notiID)
-                              .update({'isSolved': false});
+                              .update({
+                            'isSolved': false,
+                            'solvedBy' : null
+                          });
                         } else {
                           FirebaseDatabase.instance.reference().child('bnotification').child(notiID)
-                              .update({'isSolved': true});
+                              .update({
+                            'isSolved': true,
+                            'solvedBy' : userID
+                          });
                         }
                       });
                     },

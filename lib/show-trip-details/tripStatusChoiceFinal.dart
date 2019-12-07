@@ -58,6 +58,7 @@ class _TripStatusState extends State<TripStatus> {
     String managerID;
     FirebaseAuth.instance.currentUser().then((user) {
       managerID = user.email.substring(0, user.email.indexOf('@'));
+      managerID = managerID.toUpperCase();
       FirebaseDatabase.instance.reference()
           .child('trips')
           .child(id)

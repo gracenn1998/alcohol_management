@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:alcohol_management/notification.dart';
 import '../show-trip-details/showTripDetails.dart';
 import 'package:alcohol_management/styles/styles.dart';
+import 'package:alcohol_management/setting.dart';
 
 class ManagerMenu extends StatefulWidget {
   ManagerMenu ({Key key}) : super (key:key);
@@ -18,8 +19,7 @@ class _ManagerMenuState extends State<ManagerMenu>{
   int notiCount = 0;
   int _selectedIndex = 0;
   var _selectedDriverID = null;
-  static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     ShowAllDrivers(
         key: PageStorageKey('showAll')
@@ -29,6 +29,11 @@ class _ManagerMenuState extends State<ManagerMenu>{
       filterState: 0,
     ), //Trips screen
     NotiScreen(), //Notification Screen
+//    Text(
+//      'Đăng xuất',
+//      style: optionStyle,
+//    ),
+    SettingScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -182,6 +187,10 @@ class _ManagerMenuState extends State<ManagerMenu>{
               ],
             ),
             title: Text('Thông báo'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text('Đăng xuất'),
           ),
         ],
         backgroundColor: Colors.white,
