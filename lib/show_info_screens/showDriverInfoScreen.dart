@@ -34,55 +34,43 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
   }
 
 
-  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    if(_selectedIndex == -1) {
-      return ShowAllDrivers(
-        key: PageStorageKey("showAll"),
-      );
-    }
-    if(_selectedIndex == 1) {
-      return EditDriverInfo(
-        key: PageStorageKey("editInfo"),
-        dID: dID,
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            color: Color(0xff06E2B3),
-            onPressed: () {
-              //backkkk
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          color: Color(0xff06E2B3),
+          onPressed: () {
+            //backkkk
 //              setState(() {
 //                _selectedIndex--;
 //              });
-              Navigator.pop(context);
-            },
-          ),
-          title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
-          actions: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 5.0),
-              child: IconButton(
-                icon: Icon(Icons.edit),
-                color: Color(0xff06E2B3),
-                onPressed: () {
-                  //editttt
+            Navigator.pop(context);
+          },
+        ),
+        title:  Center(child: Text('Thông tin tài xế', style: appBarTxTStyle, textAlign: TextAlign.center,)),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              icon: Icon(Icons.edit),
+              color: Color(0xff06E2B3),
+              onPressed: () {
+                //editttt
 //                setState(() {
 //                  _selectedIndex = 1;
 //                });
-                  final page =  EditDriverInfo(
-                    dID: dID,
-                  );
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-                },
-              ),
+                final page =  EditDriverInfo(
+                  dID: dID,
+                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       body: StreamBuilder(
         stream: FirebaseDatabase.instance.reference().child('driver').child(dID).onValue,
         builder: (context, snapshot) {
@@ -129,7 +117,7 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
       status = -1;
     }
     else {
-      if(alcoholVal <= 350) {
+      if(alcoholVal < 0.03) {
         onWorking = 'Đang làm việc';
         alcoholTrack = alcoholVal.toString();
         status = 0;
@@ -173,71 +161,71 @@ class _ShowDriverInfoState extends State<ShowDriverInfo> {
             ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.only(left: 15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(bottom: 5.0),
-                      child: Text(driver['basicInfo']['name'], style: driverNameStyle()),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                    Text("$onWorking", style: driverStatusDataStyle(status)),
-                                  ],
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(bottom: 5.0),
+                        child: Text(driver['basicInfo']['name'], style: driverNameStyle()),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.only(bottom: 5.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                      Text("$onWorking", style: driverStatusDataStyle(status)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                  Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                        status >= 0 ?
-                        Container(
-                          margin: EdgeInsets.only(right: 10.0),
-                          child: IconButton(
-                            padding: EdgeInsets.only(right: 1.0, bottom: 1.0),
-                            icon: Icon(
-                              Icons.local_library,
-                              color: Color(0xff06E2B3),
-                              size: 25.0,
+                                Row(
+                                  children: <Widget>[
+                                    Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                    Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                                  ],
+                                )
+                              ],
                             ),
-                            tooltip: 'Xem hành trình tài xế đang làm việc',
-                            onPressed: () {
+                          ),
+                          status >= 0 ?
+                          Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            child: IconButton(
+                              padding: EdgeInsets.only(right: 1.0, bottom: 1.0),
+                              icon: Icon(
+                                Icons.local_library,
+                                color: Color(0xff06E2B3),
+                                size: 25.0,
+                              ),
+                              tooltip: 'Xem hành trình tài xế đang làm việc',
+                              onPressed: () {
 
-                              //return journey detail
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => ShowTripDetails(
-                                      key: PageStorageKey('showInfo'),
-                                      tID: tripID))
-                              );
-                            },
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xff0a2463),
-                            borderRadius: new BorderRadius.all(const  Radius.circular(25.0)),
-                          ),
-                        ):Container(),
-                      ],
-                    ),
-                  ],
-                )
+                                //return journey detail
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ShowTripDetails(
+                                        key: PageStorageKey('showInfo'),
+                                        tID: tripID))
+                                );
+                              },
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xff0a2463),
+                              borderRadius: new BorderRadius.all(const  Radius.circular(25.0)),
+                            ),
+                          ):Container(),
+                        ],
+                      ),
+                    ],
+                  )
               ),
             ),
 

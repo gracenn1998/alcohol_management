@@ -54,23 +54,23 @@ class _LoginPageState extends State<LoginPage> {
   bool validateAndSave(){
     final form = _formKey.currentState;
     if (form.validate())
-     {
-       form.save();
-       return true;
-     }
+    {
+      form.save();
+      return true;
+    }
     return false;
   }
 
   void _showDiaLog(){
     showDialog(context: context,
-    builder: (BuildContext context){
-      return AlertDialog(
-        content: new Text("Sai tài khoảng hoặc mật khẩu. Nhập lại đi :("),
-        actions: <Widget>[
-          new FlatButton(onPressed: () => Navigator.of(context).pop(), child: new Text("Close"))
-        ],
-      );
-    }
+        builder: (BuildContext context){
+          return AlertDialog(
+            content: new Text("Sai tài khoản hoặc mật khẩu. Nhập lại đi :("),
+            actions: <Widget>[
+              new FlatButton(onPressed: () => Navigator.of(context).pop(), child: new Text("Close"))
+            ],
+          );
+        }
     );
   }
 
@@ -96,29 +96,29 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context)
   {
     Widget emailField = TextFormField(
-     // controller: _emailController,
+      // controller: _emailController,
         key: Key('email'),
-      validator: EmailFieldValidator.validate,
-      obscureText: false,
-      onSaved: (String value){ _email = value; _email.toString().trim();},
-      style: inputStyle,
-      decoration: InputDecoration(
-        enabledBorder: new UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff00BC94))
-        ),
-        focusedBorder: new UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff00BC94))
-        ),
-        hintText: "Nhập E-Mail",
-        hintStyle: hStyle,
-        labelText: "E-Mail",
-        labelStyle: labelStyle,
-      )
+        validator: EmailFieldValidator.validate,
+        obscureText: false,
+        onSaved: (String value){ _email = value; _email.toString().trim();},
+        style: inputStyle,
+        decoration: InputDecoration(
+          enabledBorder: new UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xff00BC94))
+          ),
+          focusedBorder: new UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xff00BC94))
+          ),
+          hintText: "Nhập E-Mail",
+          hintStyle: hStyle,
+          labelText: "E-Mail",
+          labelStyle: labelStyle,
+        )
     );
 
     Widget pwdField = TextFormField(
       key: Key('password'),
-     // controller: _pwdController,
+      // controller: _pwdController,
       validator: PwdFieldValidator.validate,
       onSaved: (String value){ _password = value;},
       obscureText: true,
@@ -138,89 +138,89 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     Widget loginButton = Material(
-        borderRadius: BorderRadius.circular(5.0),
-        color: labelColor,
-        child: MaterialButton(
-          key: Key('signIn'),
-          onPressed: validateAndSubmit,
-          child: Text(
-            "ĐĂNG NHẬP",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: bgColor,
-                fontSize: 20
-            ),
+      borderRadius: BorderRadius.circular(5.0),
+      color: labelColor,
+      child: MaterialButton(
+        key: Key('signIn'),
+        onPressed: validateAndSubmit,
+        child: Text(
+          "ĐĂNG NHẬP",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: bgColor,
+              fontSize: 20
           ),
         ),
+      ),
     );
 
     void forgetPwDialog(BuildContext context) {
       bool isEmailSent = false;
       final TextEditingController _email = new TextEditingController();
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Cài đặt lại mật khẩu'),
-            content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Container(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Cài đặt lại mật khẩu'),
+              content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Container(
 //                  height: 150,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                            'Nhập thông tin email để cài lại mật khẩu',
-                            style: TextStyle(
-                              color: Color(0xffef3964),
-                            )
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            enabledBorder: new UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff00BC94))
-                            ),
-                            focusedBorder: new UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff00BC94))
-                            ),
-                            labelText: "Email",
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                              'Nhập thông tin email để cài lại mật khẩu',
+                              style: TextStyle(
+                                color: Color(0xffef3964),
+                              )
                           ),
-                          controller: _email,
-                        ),
-                        isEmailSent
-                            ? Text(
-                            'Đã gửi yêu cầu cài lại mật khẩu đến email đã nhập. Vui lòng kiểm tra hòm thư của email.',
-                            style: TextStyle(
-                              color: Color(0xffef3964),
-                            ))
-                            : Container(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            new FlatButton(
-                              child: new Text("Xác nhận"), //????????? chữ gì
-                              onPressed: () {
-                                FirebaseAuth.instance.sendPasswordResetEmail(email: _email.text);
-                                setState(() {
-                                  isEmailSent = true;
-                                });
-                              },
+                          TextFormField(
+                            decoration: InputDecoration(
+                              enabledBorder: new UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Color(0xff00BC94))
+                              ),
+                              focusedBorder: new UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Color(0xff00BC94))
+                              ),
+                              labelText: "Email",
                             ),
-                            new FlatButton(
-                              child: new Text("Đóng"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        )
-                      ],
+                            controller: _email,
+                          ),
+                          isEmailSent
+                              ? Text(
+                              'Đã gửi yêu cầu cài lại mật khẩu đến email đã nhập. Vui lòng kiểm tra hòm thư của email.',
+                              style: TextStyle(
+                                color: Color(0xffef3964),
+                              ))
+                              : Container(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              new FlatButton(
+                                child: new Text("Xác nhận"), //????????? chữ gì
+                                onPressed: () {
+                                  FirebaseAuth.instance.sendPasswordResetEmail(email: _email.text);
+                                  setState(() {
+                                    isEmailSent = true;
+                                  });
+                                },
+                              ),
+                              new FlatButton(
+                                child: new Text("Đóng"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-            actions: <Widget>[
-              // usually buttons at the bottom of the dialog
+                  );
+                },
+              ),
+              actions: <Widget>[
+                // usually buttons at the bottom of the dialog
 //              new FlatButton(
 //                child: new Text("Xác nhận"), //????????? chữ gì
 //                onPressed: () {
@@ -237,10 +237,10 @@ class _LoginPageState extends State<LoginPage> {
 //                  Navigator.of(context).pop();
 //                },
 //              ),
-            ],
-          );
+              ],
+            );
 
-        }
+          }
       );
     }
 
@@ -256,8 +256,8 @@ class _LoginPageState extends State<LoginPage> {
           "Quên mật khẩu?",
           textAlign: TextAlign.center,
           style: TextStyle(color: bgColor,
-              fontSize: 20,
-              fontStyle: FontStyle.italic,
+            fontSize: 20,
+            fontStyle: FontStyle.italic,
           ),
         ),
       ),
@@ -269,30 +269,30 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Container(
           color: bgColor,
-            padding: const EdgeInsets.all(50),
-            child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    emailField,
-                    SizedBox(height: 20),
-                    pwdField,
-                    SizedBox(height: 40),
-                    Row(
-                      children: <Widget>[
-                        loginButton,
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: forgetPwButton,
-                        )
-                      ],
-                    )
-                  ],
-                )
-            )
-        ),
+          padding: const EdgeInsets.all(50),
+          child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  emailField,
+                  SizedBox(height: 20),
+                  pwdField,
+                  SizedBox(height: 40),
+                  Row(
+                    children: <Widget>[
+                      loginButton,
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: forgetPwButton,
+                      )
+                    ],
+                  )
+                ],
+              )
+          )
+      ),
     );
   }
 

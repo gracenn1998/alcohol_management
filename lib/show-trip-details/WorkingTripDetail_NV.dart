@@ -36,22 +36,22 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   Set<Marker>  allMarkers = {};
 
   Set<Marker> modifyMarker(double Lat, double Lng){
-  //  Markers.clear();
+    //  Markers.clear();
     allMarkers.removeWhere((Marker a){ return a.markerId == MarkerId('DriverCurLocation'); });
     Marker driverMarker =
-      new Marker(
-          markerId: MarkerId('DriverCurLocation'),
-          draggable: false,
-          position: new LatLng(Lat, Lng),
-          infoWindow: InfoWindow(title: "Driver"),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
-      )
+    new Marker(
+        markerId: MarkerId('DriverCurLocation'),
+        draggable: false,
+        position: new LatLng(Lat, Lng),
+        infoWindow: InfoWindow(title: "Driver"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
+    )
     ;
     allMarkers.add(driverMarker);
     //print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL");
 //    print(allMarkers);
 //    print("MODIFYYYYYYYYYYYYYYYYY MARKER CALLLLLLLLLLLLLL222222222222");
-       return allMarkers;
+    return allMarkers;
   }
 
   List<AlcoholLog> alcoholLogData = [];
@@ -91,8 +91,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       onMapCreated: (GoogleMapController controller) async {
         allMarkers.clear();
         await addToList(_trip);
-      //  print("Create mappppppppppppppppppppppp");
-      //  print(allMarkers);
+        //  print("Create mappppppppppppppppppppppp");
+        //  print(allMarkers);
         mapController = controller;
         //_controller.complete(controller);
         mapCreated = 1;
@@ -113,7 +113,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
       builder: (context, snapshot) {
         if(!snapshot.hasData) return Center(child: CircularProgressIndicator());
         _trip = snapshot.data.snapshot.value;
-       // print("Build func: streambuilder on Firestore_______________________________");
+        // print("Build func: streambuilder on Firestore_______________________________");
 
         return buildWorkingTripScreen();
       },
@@ -197,7 +197,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                 elevation: 12.0,
                 child: new Column(children: <Widget>[
                   new Expanded(
-                    child: buildMap(_trip['location'])
+                      child: buildMap(_trip['location'])
                   ),
                 ]),
               ),
@@ -216,7 +216,7 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
     _animationController = new AnimationController(
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
-   /* PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
+    /* PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
         .then(_updateStatus);*/
 
     //for generating chart
@@ -258,8 +258,8 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
     final double height = constraints.biggest.height - 200.0 ;
-   // print(height);
-   // print(JourneyInfoHeight);
+    // print(height);
+    // print(JourneyInfoHeight);
     final double top = height - TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     final double bottom =  -TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
@@ -334,17 +334,17 @@ class WorkingTripDetail_NVState extends State<WorkingTripDetail_NV> with SingleT
                         child: Text("Chỉ số cồn ",
                             style: timeStyleinJD()),
                       ),
-                      Container(
-                        padding: EdgeInsets.only(bottom: 5.0),
-                        child: Row(
-                          children: <Widget>[
-                            Text("Ban đầu: ",
-                                style: driverStatusTitleStyle(0)),
-                            Text("100", //need dynamic data
-                                style: driverStatusDataStyle(0)),
-                          ],
-                        ),
-                      ),
+//                      Container(
+//                        padding: EdgeInsets.only(bottom: 5.0),
+//                        child: Row(
+//                          children: <Widget>[
+//                            Text("Ban đầu: ",
+//                                style: driverStatusTitleStyle(0)),
+//                            Text("100", //need dynamic data
+//                                style: driverStatusDataStyle(0)),
+//                          ],
+//                        ),
+//                      ),
 
                       Row(
                         children: <Widget>[

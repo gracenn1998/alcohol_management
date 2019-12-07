@@ -5,6 +5,7 @@ import "./showDriverInfoScreen.dart";
 import "../add_screens/addDriverScreen.dart";
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 
 class ShowAllDrivers extends StatefulWidget {
@@ -18,6 +19,43 @@ class ShowAllDrivers extends StatefulWidget {
 }
 
 class _showAllDriversState extends State<ShowAllDrivers> {
+  List<dynamic> driverList;
+  var streamSub;
+  List avatarUrlList = new List();
+  bool markChanges = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    streamSub = FirebaseDatabase.instance.reference().child('driver')
+        .onChildChanged.listen((data) async {
+//          avatarUrlList = new List();
+//          await getImageUrl(driverList);
+      setState((){
+        markChanges = true;
+      });
+    });
+  }
+
+  var isFirstTimeBuild = true;
+  getImageUrl(driverList) async {
+
+    var ref, url;
+    for(int i = 0; i< driverList.length; i++){
+      ref = FirebaseStorage.instance.ref().child(driverList[i]['dID']);
+      try {
+        url = await ref.getDownloadURL();
+      }
+      catch (error) {
+        url = null;
+      }
+      avatarUrlList.add(url);
+    }
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -50,8 +88,6 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               return LoadingState;
             }
             else if(snapshots.hasData) {
-              List<dynamic> driverList;
-
               DataSnapshot driverSnaps = snapshots.data.snapshot;
               Map<dynamic, dynamic> map = driverSnaps.value;
               //add  the snaps value for index usage -- snaps[index] instead of snaps['TX0003'] for ex.
@@ -61,7 +97,18 @@ class _showAllDriversState extends State<ShowAllDrivers> {
 //                }
 //              }
               driverList = map.values.toList()..sort((a, b) => b['alcoholVal'].compareTo(a['alcoholVal']));
+//              getImageUrl(driverList);
 
+              if(isFirstTimeBuild) {
+                avatarUrlList = new List();
+                getImageUrl(driverList);
+                isFirstTimeBuild = false;
+              }
+              if(markChanges) {
+                avatarUrlList = new List();
+                getImageUrl(driverList);
+                markChanges = false;
+              }
               return getListDriversView(driverList);
             }
 //            else if(snapshot.hasError) => return "Error";
@@ -93,6 +140,11 @@ class _showAllDriversState extends State<ShowAllDrivers> {
         int status;
         String dID = driverSnaps[index]['dID'];
         String name = driverSnaps[index]['basicInfo']['name'];
+        String url;
+        if(avatarUrlList.length>index) {
+//          print('index: ' + index.toString());
+          url = avatarUrlList[index];
+        }
         var alcoholVal =  driverSnaps[index]['alcoholVal'];
 
         if(alcoholVal < 0) {
@@ -101,7 +153,7 @@ class _showAllDriversState extends State<ShowAllDrivers> {
           status = -1;
         }
         else {
-          if(alcoholVal <= 350) {
+          if(alcoholVal < 0.03) {
             onWorking = 'Đang làm việc';
             alcoholTrack = alcoholVal.toString();
             status = 0;
@@ -112,6 +164,20 @@ class _showAllDriversState extends State<ShowAllDrivers> {
             status = 1;
           }
         }
+//        final ref = FirebaseStorage.instance.ref().child(dID);
+//        print(dID);
+//        print('ref: ' + ref.toString());
+//        ref.getDownloadURL().then((result) {
+//          url = result;
+//          print("URL:" + url);
+//
+////          setState(() {
+////            print("URL:" + url);
+////            url = url;
+////          });
+//        }).catchError((error) {
+////          print(error);
+//        });
 
         return InkWell(
           child: Container(
@@ -120,46 +186,64 @@ class _showAllDriversState extends State<ShowAllDrivers> {
               child: Row(
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.only(left: 15.0),
-                    child: CircleAvatar(
-                      radius: 45.0,
-                      backgroundImage: AssetImage('images/avatar.png'),
-                    )), // Avatar
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: CircleAvatar(
+                        radius: 45.0,
+                        //backgroundColor: Colors.blue,
+                        backgroundImage: AssetImage('images/avatar.png'),
+                        child: ClipOval(
+                            child:
+                            SizedBox(
+                                height: 100.0,
+                                width: 100.0,
+                                child:  (url != null)?
+                                Image.network(
+                                  //"https://thumbs.gfycat.com/HastyResponsibleLeopard-mobile.jpg",
+                                    url,
+                                    fit: BoxFit.cover
+                                ): SizedBox(
+                                  height: 100.0,
+                                  width: 100.0,
+
+                                )
+                            )
+                        ),
+                      )), // Avatar
                   Expanded(
                     flex: 4,
                     child: Container(
-                      padding: EdgeInsets.only(left: 15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.only(bottom: 10.0),
-                            child: Text(driverSnaps[index]['basicInfo']['name'],
-                                style: driverNameStyle()),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.only(bottom: 5.0),
-                                child: Row(
-                                  children: <Widget>[
-                                    Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
-                                    Text("$onWorking", style: driverStatusDataStyle(status)),
-                                  ],
+                        padding: EdgeInsets.only(left: 15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.only(bottom: 10.0),
+                              child: Text(driverSnaps[index]['basicInfo']['name'],
+                                  style: driverNameStyle()),
+                            ),
+                            Column(
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.only(bottom: 5.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Text("Trạng thái: ", style: driverStatusTitleStyle(status)),
+                                      Text("$onWorking", style: driverStatusDataStyle(status)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
-                                  Text("$alcoholTrack", style: driverStatusDataStyle(status)),
-                                ],
-                              )
-                            ],
-                          ),
-                        ],
-                      )),
+                                Row(
+                                  children: <Widget>[
+                                    Text("Chỉ số cồn: ", style: driverStatusTitleStyle(status)),
+                                    Text("$alcoholTrack", style: driverStatusDataStyle(status)),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
+                        )),
                   ), //Ten + Trang thai
                   Expanded(
                       flex: 1,
@@ -213,8 +297,8 @@ class _showAllDriversState extends State<ShowAllDrivers> {
                 .child('driver')
                 .child(id)
                 .update({
-                  'isDeleted': true
-                });
+              'isDeleted': true
+            });
             Fluttertoast.showToast(msg: 'Đã xóa tài xế');
           },
           child: Text(

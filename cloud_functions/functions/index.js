@@ -3,7 +3,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-const drunkVal = 400;
+const drunkVal = 0.03;
 const delayTime = 1000*60;
 
 
@@ -17,7 +17,7 @@ exports.processNoti = functions.database.ref('driver/{dID}/notiInfo/alcoholVal')
             if(lastNotiTime==null) {
                 lastNotiTime = 0;
             }
-            var curTripID = snapshot.child('tripID').val();
+            var curTripID = snapshot.child('tID').val();
             console.log(curTime.getTime() - lastNotiTime);
 
             if(alcoVal >= drunkVal && (curTime.getTime() - lastNotiTime)>= delayTime) {
