@@ -781,7 +781,7 @@ class ShowTripDetailsState extends State<ShowTripDetails> {
     );
 
     FirebaseDatabase.instance.reference().child('vehicles')
-        .child(_vID).child(tID).update(
+        .child(_vID).child('tID').update(
         {
           tID: null,
         }
