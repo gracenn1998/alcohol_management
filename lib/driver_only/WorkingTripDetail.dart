@@ -30,7 +30,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   static double TripInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   //////////GET USER LOCATION
-  LocationData curLocation;
+  Map<String, double> curLocation;
   var location = new Location();
 
   Completer<GoogleMapController> _controller = Completer();
@@ -46,7 +46,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
   var locationReference;
   var driverInfoStream;
-  StreamSubscription<LocationData> locationStream;
+  StreamSubscription<Map<String, double>> locationStream;
   var isInfoGot = false;
   var isWorking = false;
 
@@ -57,9 +57,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
   Widget buildMap(){
 
-    if (mapCreated == 1 && curLocation.latitude != null)
+    if (mapCreated == 1 && curLocation['latitude'] != null)
       mapController.moveCamera(
-          CameraUpdate.newLatLng(LatLng(curLocation.latitude, curLocation.longitude))
+          CameraUpdate.newLatLng(LatLng(curLocation['latitude'], curLocation['longitude']))
       );
 
     return GoogleMap(
@@ -69,8 +69,8 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         target:
         curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation.latitude, curLocation.longitude), //user location
-      //  LatLng(10.03711, 105.78825),
+        LatLng(curLocation['latitude'], curLocation['longitude']), //user location
+        //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
       markers: allMarkers,
@@ -78,7 +78,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         allMarkers.clear();
         await addToList(_trip);
         mapController = controller;
-       // _controller.complete(controller);
+        // _controller.complete(controller);
         mapCreated = 1;
       },
       myLocationEnabled : true,
@@ -219,58 +219,58 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     driverInfoStream = FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID)
-        .child('tID')
+        .child('tripID')
         .onValue.listen((alcoholLogSnap){
-          tID = alcoholLogSnap.snapshot.value;
-          isInfoGot = true;
-          if(tID==null) {
-            isWorking = false;
-          }
-          else {
-            isWorking = true;
+      tID = alcoholLogSnap.snapshot.value;
+      isInfoGot = true;
+      if(tID==null) {
+        isWorking = false;
+      }
+      else {
+        isWorking = true;
 
 
 
-            locationStream = location.onLocationChanged()
-                .listen((LocationData value) {
-              setState(() {
-                curLocation = value;
+        locationStream = location.onLocationChanged()
+            .listen((Map<String, double> value) {
+          setState(() {
+            curLocation = value;
 
-                locationReference = FirebaseDatabase.instance.reference()
-                    .child('trips').child(tID).child('location');
-                locationReference.update({
-                  'lat': curLocation.latitude,
-                  'lng': curLocation.longitude,
-                  //'time': DateTime.now()
-                }).then((_) {
-                  // print("location updated DRIVER - ${_trip['dID']}");
-                });
-
-              });
+            locationReference = FirebaseDatabase.instance.reference()
+                .child('trips').child(tID).child('location');
+            locationReference.update({
+              'lat': curLocation['latitude'],
+              'lng': curLocation['longitude'],
+              //'time': DateTime.now()
+            }).then((_) {
+              // print("location updated DRIVER - ${_trip['dID']}");
             });
 
-            //for generating chart
-            alcoholLogStream = FirebaseDatabase.instance.reference()
-                .child('trips')
-                .child(tID) //need change
-                .child('alcoholLog')
-                .onChildAdded.listen((alcoholLogSnap){
+          });
+        });
 
-              var alcoVal = alcoholLogSnap.snapshot.value;
-              var alcoTime = alcoholLogSnap.snapshot.key.toString();
-              var yyyy, MM, dd, hh, mm;
-              yyyy = int.parse(alcoTime.substring(0, 4));
-              MM = int.parse(alcoTime.substring(4, 6));
-              dd = int.parse(alcoTime.substring(6, 8));
-              hh = int.parse(alcoTime.substring(8, 10));
-              mm = int.parse(alcoTime.substring(10, 12));
-              setState(() {
-                alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
-                itemCnt=alcoholLogData.length;
+        //for generating chart
+        alcoholLogStream = FirebaseDatabase.instance.reference()
+            .child('trips')
+            .child(tID) //need change
+            .child('alcoholLog')
+            .onChildAdded.listen((alcoholLogSnap){
+
+          var alcoVal = alcoholLogSnap.snapshot.value;
+          var alcoTime = alcoholLogSnap.snapshot.key.toString();
+          var yyyy, MM, dd, hh, mm;
+          yyyy = int.parse(alcoTime.substring(0, 4));
+          MM = int.parse(alcoTime.substring(4, 6));
+          dd = int.parse(alcoTime.substring(6, 8));
+          hh = int.parse(alcoTime.substring(8, 10));
+          mm = int.parse(alcoTime.substring(10, 12));
+          setState(() {
+            alcoholLogData.add(AlcoholLog(DateTime(yyyy, MM, dd, hh, mm), alcoVal));
+            itemCnt=alcoholLogData.length;
 //        print(traceAlcoVal);
-              });
-            });
-          }
+          });
+        });
+      }
     });
 
 
@@ -282,7 +282,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         duration: const Duration(milliseconds: 100), value: 1.0, vsync: this);
 
     //PermissionHandler().checkPermissionStatus(PermissionGroup.locationWhenInUse)
-       // .then(_updateStatus);
+    // .then(_updateStatus);
   }
 
   //ANIMATIONNNNNNNNNNNNNNNNN
@@ -299,14 +299,14 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     if(alcoholLogStream!=null) {
       alcoholLogStream.cancel();
     }
-//    locationStream.cancel();
+    locationStream.cancel();
   }
 
   Animation<RelativeRect> _getPanelAnimation(BoxConstraints constraints) {
 
     final double height = constraints.biggest.height - 200 ;
-   // print(height);
-   // print(JourneyInfoHeight);
+    // print(height);
+    // print(JourneyInfoHeight);
     final double top = height - TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     final double bottom =  -TripInfoHeight;//_PANEL_HEADER_HEIGHT ;
     return new RelativeRectTween(
@@ -316,7 +316,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   }
 
   //LOCATION ACCESS PERMISSIONNNNNNNNNN
- /* void _updateStatus(PermissionStatus status){
+  /* void _updateStatus(PermissionStatus status){
     //print("$status");
     if (status != _status)
     {
@@ -325,18 +325,14 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
       });
     }
   }
-
   void _askPermission(){
     PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse])
         .then(_onStatusRequested);
   }
-
   void _onStatusRequested(Map <PermissionGroup, PermissionStatus> statuses ){
     final status = statuses[PermissionGroup.locationWhenInUse];
-
     if(status != PermissionStatus.granted)
       PermissionHandler().openAppSettings();
-
     _updateStatus(status);
   }*/
 
