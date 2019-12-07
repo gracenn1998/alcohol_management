@@ -62,7 +62,7 @@ class _TripStatusState extends State<TripStatus> {
       FirebaseDatabase.instance.reference()
           .child('trips')
           .child(id)
-          .child('intervention')
+          .child('intervented')
           .child(decision)
           .update({
         DateTime.now().millisecondsSinceEpoch.toString() : managerID,
