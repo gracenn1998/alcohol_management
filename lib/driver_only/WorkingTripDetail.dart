@@ -30,7 +30,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
   static double TripInfoHeight = 190.0;
   // Can tim cach tinh chieu cao cua JourneyInfo() widget =.="
   //////////GET USER LOCATION
-  LocationData curLocation;
+  Map<String, double> curLocation;
   var location = new Location();
 
   Completer<GoogleMapController> _controller = Completer();
@@ -46,7 +46,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
   var locationReference;
   var driverInfoStream;
-  StreamSubscription<LocationData> locationStream;
+  StreamSubscription<Map<String, double>> locationStream;
   var isInfoGot = false;
   var isWorking = false;
 
@@ -57,9 +57,9 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
   Widget buildMap(){
 
-    if (mapCreated == 1 && curLocation.latitude != null)
+    if (mapCreated == 1 && curLocation['latitude'] != null)
       mapController.moveCamera(
-          CameraUpdate.newLatLng(LatLng(curLocation.latitude, curLocation.longitude))
+          CameraUpdate.newLatLng(LatLng(curLocation['latitude'], curLocation['longitude']))
       );
 
     return GoogleMap(
@@ -69,7 +69,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         target:
         curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
-        LatLng(curLocation.latitude, curLocation.longitude), //user location
+        LatLng(curLocation['latitude'], curLocation['longitude']), //user location
       //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
@@ -232,15 +232,15 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
 
 
             locationStream = location.onLocationChanged()
-                .listen((LocationData value) {
+                .listen((Map<String, double> value) {
               setState(() {
                 curLocation = value;
 
                 locationReference = FirebaseDatabase.instance.reference()
                     .child('trips').child(tID).child('location');
                 locationReference.update({
-                  'lat': curLocation.latitude,
-                  'lng': curLocation.longitude,
+                  'lat': curLocation['latitude'],
+                  'lng': curLocation['longitude'],
                   //'time': DateTime.now()
                 }).then((_) {
                   // print("location updated DRIVER - ${_trip['dID']}");
