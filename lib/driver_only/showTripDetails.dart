@@ -731,12 +731,6 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
           .update({
         'tID' : tID,
       });
-      await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) =>
-              D_WorkingTripDetail(dID: _dID)
-          )
-      );
 
       FirebaseDatabase.instance.reference()
           .child('vehicles')
@@ -747,6 +741,12 @@ class ShowTripDetailsState extends State<ShowTripDetails>{
         'dID' : _dID
       });
 
+      await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>
+              D_WorkingTripDetail(dID: _dID)
+          )
+      );
       FirebaseDatabase.instance.reference()
           .child('trips')
           .child(tID)

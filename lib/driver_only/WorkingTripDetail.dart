@@ -219,7 +219,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
     driverInfoStream = FirebaseDatabase.instance.reference()
         .child('driver')
         .child(dID)
-        .child('tripID')
+        .child('tID')
         .onValue.listen((alcoholLogSnap){
       tID = alcoholLogSnap.snapshot.value;
       isInfoGot = true;
@@ -802,7 +802,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         .child('driver')
         .child(dID)
         .update({
-      'tripID' : null,
+      'tID' : null,
     });
 //    setState(() {
 //      isFinish = true;
