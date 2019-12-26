@@ -34,6 +34,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
   final _nameController = TextEditingController();
   final _idCardController = TextEditingController();
   final _addressController = TextEditingController();
+  final _telController = TextEditingController();
 
   var driver;
   int genderRadioGroup;
@@ -45,6 +46,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     _nameController.dispose();
     _idCardController.dispose();
     _addressController.dispose();
+    _telController.dispose();
     super.dispose();
   }
 
@@ -64,7 +66,6 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
     }
 
   }
-
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -142,6 +143,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
           _nameController.text = driver['name'];
           _addressController.text = driver['address'];
           _idCardController.text = driver['idCard'].toString();
+          _telController.text = driver['tel'].toString();
           if(isInit) {
             genderRadioGroup = driver['gender']=='M'?0:1;
             dob = driver['dob'];
@@ -259,6 +261,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
               children: <Widget>[
                 showDetailItem('ID', id, 1),
 //            editDetailInfo('Tuổi', '40', 0 ),
+                editDetailItem('Sđt', 1, _telController),
                 editDetailItem('CMND', 0, _idCardController),
                 editDetailItem('Địa chỉ', 1, _addressController),
                 showDetailItem('Email', email, 0),
@@ -368,6 +371,7 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
       'address' : _addressController.text,
       'gender' : genderRadioGroup == 0 ? 'M' : 'F',
       'dob' : dob,
+      'tel' : _telController.text,
     });
 
     //maybe transaction here???
