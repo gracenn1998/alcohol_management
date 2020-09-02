@@ -77,12 +77,15 @@ class _EditDriverInfoState extends State<EditDriverInfo> {
 
 
   Future uploadPic() async{
-    String fileName = dID;
-    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
-    await uploadTask.onComplete;
+    if(_image!=null){
+      String fileName = dID;
+      StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+      StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
+      await uploadTask.onComplete;
 
-    print("Profile Picture uploaded");
+      print("Profile Picture uploaded");
+    }
+
 //    setState(() {
 //      print("Profile Picture uploaded");
 //      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Profile Picture Uploaded')));
