@@ -70,7 +70,7 @@ class D_WorkingTripDetailState extends State<D_WorkingTripDetail> with SingleTic
         curLocation == null ?
         LatLng(10.03711, 105.78825): //Can Tho City
         LatLng(curLocation['latitude'], curLocation['longitude']), //user location
-        //  LatLng(10.03711, 105.78825),
+      //  LatLng(10.03711, 105.78825),
         zoom: 15,
       ),
       markers: allMarkers,
