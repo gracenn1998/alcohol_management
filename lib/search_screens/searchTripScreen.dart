@@ -4,6 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../show-trip-details/showTripDetails.dart';
+
 class SearchTrip extends StatefulWidget {
   final filter;
   const SearchTrip({Key key, @required this.filter}) : super(key: key);
@@ -209,7 +211,14 @@ class _searchTripState extends State<SearchTrip> {
             ],
           ),
           onTap: () {
-          debugPrint('Trip tapped');
+            final page =  ShowTripDetails(
+                key: PageStorageKey('showInfo'),
+                tID: tID
+            );
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => page)
+            );
           },
         );
       },
